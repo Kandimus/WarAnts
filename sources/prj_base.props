@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+    <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+        <UseDebugLibraries>true</UseDebugLibraries>
+        <PlatformToolset>v142</PlatformToolset>
+        <CharacterSet>MultiByte</CharacterSet>
+        <LanguageStandard>stdcpp17</LanguageStandard>
+    </PropertyGroup>
+    <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+        <UseDebugLibraries>false</UseDebugLibraries>
+        <PlatformToolset>v142</PlatformToolset>
+        <WholeProgramOptimization>true</WholeProgramOptimization>
+        <CharacterSet>MultiByte</CharacterSet>
+        <LanguageStandard>stdcpp17</LanguageStandard>
+    </PropertyGroup>
+
+    <PropertyGroup>
+        <LinkIncremental>true</LinkIncremental>
+        <IntDir>$(SolutionDir)..\output\$(Platform)\$(Configuration)\$(ProjectName)\</IntDir>
+    </PropertyGroup>
+</Project>

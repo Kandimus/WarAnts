@@ -1,0 +1,60 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Headers">
+      <UniqueIdentifier>{e3a1fc4d-24c8-4df7-9e8a-7636d8a3b75d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Sources">
+      <UniqueIdentifier>{b560accf-78d8-48e7-9fcc-bfc44d9d6466}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="smallUtils\commandline.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="smallUtils\defines.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="smallUtils\filesystem.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="smallUtils\i_stream.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="smallUtils\log.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="smallUtils\stream_std.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="smallUtils\stringex.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="smallUtils\threadpool.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="smallUtils\translator.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="smallUtils\translatorManager.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="smallUtils\log.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="smallUtils\filesystem.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="smallUtils\stringex.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="smallUtils\translator.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="smallUtils\translatorManager.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+  </ItemGroup>
+</Project>

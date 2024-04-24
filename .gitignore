@@ -1,3 +1,10 @@
+
+sources/.vs/*
+output/*
+
+# logs
+*.log
+
 # Prerequisites
 *.d
 

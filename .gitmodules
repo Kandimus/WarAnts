@@ -1,0 +1,6 @@
+[submodule "sources/external/smallUtils"]
+	path = sources/external/smallUtils
+	url = git@github.com:Kandimus/smallUtils.git
+[submodule "sources/external/json"]
+	path = sources/external/json
+	url = git@github.com:nlohmann/json.git

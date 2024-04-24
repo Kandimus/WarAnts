@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+    <ItemGroup>
+        <AvailableItemName Include="FlexSchema">
+            <Targets>GenerateFlex</Targets>
+        </AvailableItemName>
+    </ItemGroup>
+
+    <Target Name="GenerateFlex"
+            Inputs="%(FlexSchema.FullPath)"
+            Outputs=".\%(FlexSchema.Identity).h"
+            AfterTargets="PrepareForBuild">
+        <Message Importance="High" Text="Compiling schema %(FlexSchema.Identity)" />
+        <Exec WorkingDirectory="$(SolutionDir)\external\bison\bin\"
+              Command="flex.exe -o%(FlexSchema.FullPath).h -i -Pyy %(FlexSchema.FullPath)" />
+        <WriteLinesToFile File="$(TLogLocation)\flex.read.1.tlog"
+                          Lines="^%(FlexSchema.FullPath)" />
+    </Target>
+
+    <Target Name="CleanFlex"
+            AfterTargets="Clean">
+        <Delete Files="%(FlexSchema.FullPath).h"/>
+    </Target>
+</Project>

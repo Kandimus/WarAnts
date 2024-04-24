@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+    <ItemGroup>
+        <AvailableItemName Include="BisonSchema">
+            <Targets>GenerateBison</Targets>
+        </AvailableItemName>
+    </ItemGroup>
+
+    <Target Name="GenerateBison"
+            Inputs="%(BisonSchema.FullPath)"
+            Outputs=".\%(BisonSchema.Identity).cpp"
+            AfterTargets="PrepareForBuild"
+            DependsOnTargets="GenerateFlex">
+        <Message Importance="High" Text="Compiling schema %(BisonSchema.Identity)" />
+        <Exec WorkingDirectory="$(SolutionDir)\external\bison\bin\"
+              Command="bison.exe --token-table --verbose --debug --no-lines -o %(BisonSchema.FullPath).cpp -p yy %(BisonSchema.FullPath)" />
+        <WriteLinesToFile File="$(TLogLocation)\bison.read.1.tlog"
+                          Lines="^%(BisonSchema.FullPath)" />
+    </Target>
+
+    <Target Name="CleanBison"
+            AfterTargets="Clean">
+        <Delete Files="%(BisonSchema.FullPath).cpp"/>
+        <Delete Files="%(BisonSchema.FullPath).output"/>
+    </Target>
+</Project>

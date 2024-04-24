@@ -1,0 +1,31 @@
+{
+  "black": {
+    "worker": {
+      "health": 10,
+      "attack": 5,
+      "visibility": 5,
+      "satiety": 15,
+      "ept": 1,
+      "cargo": 20,
+      "memory":  100
+    },
+    "solder": {
+      "health": 20,
+      "attack": 7,
+      "visibility": 5,
+      "satiety": 10,
+      "ept": 1,
+      "memory": 100
+    },
+    "queen": {
+      "health": 50,
+      "attack": 8,
+      "visibility": 10,
+      "satiety": 40,
+      "ept": 1,
+      "wpt": 1,
+      "spt": 1,
+      "memory": 100
+    }
+  }
+}
