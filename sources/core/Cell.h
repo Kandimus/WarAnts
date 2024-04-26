@@ -79,6 +79,11 @@ public:
         }
     }
 
+    void forceChange()
+    {
+        m_isChanged = true;
+    }
+
     void clearChanged()
     {
         m_isChanged = false;

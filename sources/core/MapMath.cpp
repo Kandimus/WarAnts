@@ -5,6 +5,8 @@
 #include <ctime>
 #include <cmath>
 
+#include "defines.h"
+
 namespace WarAnts
 {
 
@@ -128,37 +130,89 @@ Direction probabilisticDirection(const Direction& dir)
 
 Direction directionTo(const Position& posFrom, const Position& posTo)
 {
-    static const double pi_1_8 = (1 / 8) * 3.14159;
-    static const double pi_3_8 = (3 / 8) * 3.14159;
-    static const double pi_5_8 = (5 / 8) * 3.14159;
-    static const double pi_7_8 = (7 / 8) * 3.14159;
-
-    // convert the pointTo to coordinate system the pointFrom
-    Position pos = posTo - posFrom;
-
+    //TODO Учитывать что карта может быть без бордюров!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     if (posFrom == posTo)
     {
         return randDirection();
     }
 
-    double angle = std::atan2(pos.x(), pos.y());
+    // convert the pointTo to coordinate system the pointFrom
+    Position pos = posTo - posFrom;
+    if (pos.x() == 0)
+    {
+        return pos.y() > 0 ? Direction::South : Direction::Nord;
+    }
+    if (pos.y() == 0)
+    {
+        return pos.x() > 0 ? Direction::East : Direction::West;
+    }
 
-    if (angle >= 0)
+    if (pos.x() > 0 && pos.y() > 0)
     {
-        if (angle < pi_1_8) return Direction::East;
-        if (angle < pi_3_8) return Direction::NordEast;
-        if (angle < pi_5_8) return Direction::Nord;
-        if (angle < pi_7_8) return Direction::NordWest;
-        return Direction::West;
+        if (pos.x() >= 2 * pos.y())
+        {
+            return Direction::East;
+        }
+
+        if (pos.y() >= 2 * pos.x())
+        {
+            return Direction::South;
+        }
+
+        return Direction::SouthEast;
     }
-    else
+
+    if (pos.x() < 0 && pos.y() > 0)
     {
-        if (angle < -pi_7_8) return Direction::West;
-        if (angle < -pi_5_8) return Direction::SouthWest;
-        if (angle < -pi_3_8) return Direction::South;
-        if (angle < -pi_1_8) return Direction::SouthEast;
-        return Direction::East;
+        auto abs_x = std::abs(pos.x());
+        if (abs_x >=  2 * pos.y())
+        {
+            return Direction::West;
+        }
+
+        if (pos.y() >= 2 * abs_x)
+        {
+            return Direction::South;
+        }
+
+        return Direction::SouthWest;
     }
+
+    if (pos.x() > 0 && pos.y() < 0)
+    {
+        auto abs_y = std::abs(pos.y());
+        if (pos.x() >= 2 * abs_y)
+        {
+            return Direction::East;
+        }
+
+        if (abs_y >= 2 * pos.x())
+        {
+            return Direction::Nord;
+        }
+
+        return Direction::NordEast;
+    }
+
+    if (pos.x() < 0 && pos.y() < 0)
+    {
+        auto abs_x = std::abs(pos.x());
+        auto abs_y = std::abs(pos.y());
+        if (abs_x >= 2 * abs_y)
+        {
+            return Direction::West;
+        }
+
+        if (abs_y >= 2 * abs_x)
+        {
+            return Direction::Nord;
+        }
+
+        return Direction::NordWest;
+    }
+
+    SU_BREAKPOINT();
+    return randDirection();
 }
 
 //TODO Need optimize this algorithm!!!!!!!!!!
@@ -172,7 +226,7 @@ uint32_t distanceTo(const Position& posFrom, const Position& posTo)
 ///
 /// The array will sorted by priority of select direction, from selected to reverse direction.
 /// Middle values will added by random order (clockwise or counter-clockwise)
-std::vector<Direction> createDirectionArray(const Direction& dir)
+VectorDirection createDirectionArray(const Direction& dir)
 {
     std::vector<Direction> array;
     int clockwise = (int)random(0, 1);
@@ -204,89 +258,111 @@ std::vector<Direction> createDirectionArray(const Direction& dir)
 //		default: return randDirection();
 //	}
 //}
-//
-////TODO Need optimize this algorithm!!!!!!!!!!
-//std::vector<Position> visibleCells(const Position& pos, uint32_t visibility)
-//{
-//	std::vector<Position> result;
-//	int32_t vis = static_cast<int32_t>(visibility);
-//	int dim_fill_square = static_cast<int>(std::sqrt(double(vis) * double(vis) / 2.0) + 0.5);
-//
-//	result.reserve(vis * vis);
-//
-//	for (int y = -dim_fill_square; y <= dim_fill_square; ++y) {
-//		for (int x = -dim_fill_square; x <= dim_fill_square; ++x) {
-//			result.push_back(pos + Position(x, y));
-//		}
-//	}
-//
-//	for (int y = -vis; y < -dim_fill_square; ++y) {
-//		for (int x = -vis; x <= vis; ++x) {
-//			int r = static_cast<int>(std::sqrt(double(x) * double(x) + double(y) * double(y)) + 0.5);
-//
-//			if (r <= vis) {
-//				result.push_back(pos + Position(x, y));
-//			}
-//		}
-//	}
-//
-//	for (int y = dim_fill_square + 1; y <= vis; ++y) {
-//		for (int x = -vis; x <= vis; ++x) {
-//			int r = static_cast<int>(std::sqrt(double(x) * double(x) + double(y) * double(y)) + 0.5);
-//
-//			if (r <= vis) {
-//				result.push_back(pos + Position(x, y));
-//			}
-//		}
-//	}
-//
-//	for (int x = -vis; x < -dim_fill_square; ++x) {
-//		for (int y = -dim_fill_square + 1; y <= dim_fill_square - 1; ++y) {
-//			int r = static_cast<int>(std::sqrt(double(x) * double(x) + double(y) * double(y)) + 0.5);
-//
-//			if (r <= vis) {
-//				result.push_back(pos + Position(x, y));
-//			}
-//		}
-//	}
-//
-//	for (int x = dim_fill_square + 1; x <= vis; ++x) {
-//		for (int y = -dim_fill_square + 1; y <= dim_fill_square - 1; ++y) {
-//			int r = static_cast<int>(std::sqrt(double(x) * double(x) + double(y) * double(y)) + 0.5);
-//
-//			if (r <= vis) {
-//				result.push_back(pos + Position(x, y));
-//			}
-//		}
-//	}
-//
-//	std::sort(result.begin(), result.end(), [](const Position& a, const Position& b) {
-//		int64_t v1 = a.y();
-//		int64_t v2 = b.y();
-//
-//		v1 = (v1 << 32) + a.x();
-//		v2 = (v2 << 32) + b.x();
-//		return v1 < v2;
-//	});
-//
-//	return result;
-//}
-//
-//std::string descriptionDirection(const Direction& dir, bool shortname)
-//{
-//	switch(dir) {
-//		case Direction::Nord:      return shortname ? "N"  : "Nord";
-//		case Direction::NordEast:  return shortname ? "NE" : "NordEast";
-//		case Direction::East:      return shortname ? "E"  : "East";
-//		case Direction::SouthEast: return shortname ? "SE" : "SouthEast";
-//		case Direction::South:     return shortname ? "S"  : "South";
-//		case Direction::SouthWest: return shortname ? "SW" : "SouthWest";
-//		case Direction::West:      return shortname ? "W"  : "West";
-//		case Direction::NordWest:  return shortname ? "NW" : "NordWest";
-//		default: return shortname ? "??" : "<Unknow>";
-//	}
-//}
+
+//TODO Need optimize this algorithm!!!!!!!!!!
+VectorPosition visibleCells(const Position& pos, int16_t visibility)
+{
+    std::vector<Position> result;
+
+    if (visibility <= 0)
+    {
+        result.push_back(pos);
+        return result;
+    }
+
+    result.reserve(int64_t(visibility) * int64_t(visibility));
+
+    if (visibility == 1)
+    {
+        result.push_back(pos + Position(-1, -1));
+        result.push_back(pos + Position( 0, -1));
+        result.push_back(pos + Position( 1, -1));
+        result.push_back(pos + Position(-1,  0));
+        result.push_back(pos + Position( 0,  0));
+        result.push_back(pos + Position( 1,  0));
+        result.push_back(pos + Position(-1,  1));
+        result.push_back(pos + Position( 0,  1));
+        result.push_back(pos + Position( 1,  1));
+        return result;
+    }
+
+    int dim_fill_square = static_cast<int>(std::sqrt(double(visibility) * double(visibility) / 2.0) + 0.5);
+
+    for (int y = -dim_fill_square; y <= dim_fill_square; ++y)
+    {
+        for (int x = -dim_fill_square; x <= dim_fill_square; ++x)
+        {
+            result.push_back(pos + Position(x, y));
+        }
+    }
+
+    for (int y = -visibility; y < -dim_fill_square; ++y)
+    {
+        auto yy = double(y) * double(y);
+
+        for (int x = -visibility; x <= visibility; ++x)
+        {
+            int r = static_cast<int16_t>(std::sqrt(double(x) * double(x) + yy) + 0.5);
+
+            if (r <= visibility)
+            {
+                result.push_back(pos + Position(x, y));
+            }
+        }
+    }
+
+    for (int y = dim_fill_square + 1; y <= visibility; ++y)
+    {
+        for (int x = -visibility; x <= visibility; ++x)
+        {
+            int r = static_cast<int16_t>(std::sqrt(double(x) * double(x) + double(y) * double(y)) + 0.5);
+
+            if (r <= visibility)
+            {
+                result.push_back(pos + Position(x, y));
+            }
+        }
+    }
+
+    for (int x = -visibility; x < -dim_fill_square; ++x)
+    {
+        for (int y = -dim_fill_square + 1; y <= dim_fill_square - 1; ++y)
+        {
+            int r = static_cast<int>(std::sqrt(double(x) * double(x) + double(y) * double(y)) + 0.5);
+
+            if (r <= visibility)
+            {
+                result.push_back(pos + Position(x, y));
+            }
+        }
+    }
+
+    for (int x = dim_fill_square + 1; x <= visibility; ++x)
+    {
+        for (int y = -dim_fill_square + 1; y <= dim_fill_square - 1; ++y)
+        {
+            int r = static_cast<int>(std::sqrt(double(x) * double(x) + double(y) * double(y)) + 0.5);
+
+            if (r <= visibility)
+            {
+                result.push_back(pos + Position(x, y));
+            }
+        }
+    }
+
+    //std::sort(result.begin(), result.end(), [](const Position& a, const Position& b)
+    //{
+    //    int64_t v1 = a.y();
+    //    int64_t v2 = b.y();
+
+    //    v1 = (v1 << 32) + a.x();
+    //    v2 = (v2 << 32) + b.x();
+    //    return v1 < v2;
+    //});
+
+    return result;
+}
 
 }; // namespace Math
 
-};
+}; // namespace WarAnts

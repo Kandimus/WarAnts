@@ -41,10 +41,10 @@ uint32_t distanceTo(const Position& posFrom, const Position& posTo);
 
 Position positionOffset(const Direction& dir);
 //
-std::vector<Direction> createDirectionArray(const Direction& dir);
+VectorDirection createDirectionArray(const Direction& dir);
 Direction probabilisticDirection(const Direction& dir);
 //Direction inverseDirection(const Direction& dir);
-//std::vector<Position> visibleCells(const Position& pos, uint32_t visibility);
+VectorPosition visibleCells(const Position& pos, int16_t visibility);
 //
 //std::string descriptionDirection(const Direction& dir, bool shortname = false);
 

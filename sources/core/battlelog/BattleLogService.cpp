@@ -33,11 +33,19 @@ void BattleLogService::savePlayer(const Player& player)
     }
 }
 
-void BattleLogService::saveNewTurn(uint32_t iteration)
+void BattleLogService::saveBeginTurn(uint32_t iteration)
 {
     for (auto& provider : m_providers)
     {
-        provider->saveNewTurn(iteration);
+        provider->saveBeginTurn(iteration);
+    }
+}
+
+void BattleLogService::saveEndTurn(uint32_t iteration, size_t msec)
+{
+    for (auto& provider : m_providers)
+    {
+        provider->saveEndTurn(iteration, msec);
     }
 }
 

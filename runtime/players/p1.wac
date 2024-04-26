@@ -1,0 +1,7 @@
+#name "Black player"
+#version "1"
+#class "black"
+
+.worker
+    MOV AX, BX
+

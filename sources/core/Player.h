@@ -7,6 +7,7 @@
 namespace WarAnts
 {
 class Ant;
+enum class AntType;
 
 using AntPtr = std::shared_ptr<Ant>;
 
@@ -16,6 +17,14 @@ struct PlayerInfo
     std::string teamName = "";
     std::string version = "";
 //	ApiVersion apiVersion = 0;
+};
+
+struct AntCount
+{
+    uint32_t m_all = 0;
+    uint32_t m_workers = 0;
+    uint32_t m_solders = 0;
+    uint32_t m_queens = 0;
 };
 
 class Player
@@ -38,14 +47,11 @@ public:
     void setAntQueen(const AntPtr& queen) { m_antQueen = queen; }
     AntPtr antQueen() const { return m_antQueen; }
 
-    void modifyCountOfSolders(int32_t val) { m_countOfSolders += val; }
-    uint32_t countOfSolders() const { return m_countOfSolders; }
-    void modifyCountOfWorkers(int32_t val) { m_countOfWorkers += val; }
-    uint32_t countOfWorkers() const { return m_countOfWorkers; }
-
-    //AntProcess processWorker() const { return m_fnWorkerProcess; }
-    //AntProcess processSolder() const { return m_fnSolderProcess; }
-    //AntProcess processQueen() const { return m_fnQueenProcess; }
+    void antIsBorn(AntType type);
+    void antIsDied(AntPtr ant);
+    const AntCount& curCounts() const { return m_curCount; }
+    const AntCount& maxCounts() const { return m_maxCount; }
+    const AntCount& maxLifeCount() const { return m_maxLifeCount; }
 
 protected:
     bool loadFile();
@@ -57,16 +63,12 @@ protected:
     uint32_t m_index = 0;
     bool m_isInit = false;
 
-    //AntInit     m_fnInit = nullptr;
-    //AntFinalize m_fnFinalize = nullptr;
-    //AntProcess  m_fnWorkerProcess = nullptr;
-    //AntProcess  m_fnSolderProcess = nullptr;
-    //AntProcess  m_fnQueenProcess = nullptr;
-
     AntPtr m_antQueen;
 
-    uint32_t m_countOfWorkers = 0;
-    uint32_t m_countOfSolders = 0;
+    // Statistic
+    AntCount m_maxCount;
+    AntCount m_curCount;
+    AntCount m_maxLifeCount;
 };
 
 };

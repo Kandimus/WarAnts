@@ -14,6 +14,8 @@ class Cell;
 class Config;
 class Player;
 
+using PlayerPtr = std::shared_ptr<Player>;
+
 class Map
 {
 public:
@@ -40,16 +42,23 @@ public:
 
     ListAnts generate(const std::vector<std::shared_ptr<Player>>& players);
 
+    inline bool isValidPosition(const Position& pos) const
+    {
+        return pos.x() >= 0 && pos.x() < m_size.x() && pos.y() >= 0 && pos.y() < m_size.y();
+    }
+
+    inline bool isCellEmpty(int32_t x, int32_t y) const { return isCellEmpty(Position(x, y)); }
     bool isCellEmpty(const Position& pos) const;
-    bool isCellEmpty(int32_t x, int32_t y) const;
     void clearChanged();
+    void forceCellChange(const Position& pos);
 
     Position nearAvaliblePosition(const Position& pos) const;
+    VectorAnts nearestEnemies(const Position& pos, int16_t radius) const;
     Position nearestFood(const Position& pos, uint32_t visible) const;
 
-    void moveAnt(const std::shared_ptr<Ant>& ant, const Position& pos);
+    void moveAnt(const AntPtr& ant, const Position& pos);
     void removeAnt(const Position& pos);
-    std::shared_ptr<Ant> createAnt(std::shared_ptr<Player> player, AntType antType, const Position& pos, uint16_t r);
+    AntPtr createAnt(const PlayerPtr& player, AntType antType, const Position& pos, uint16_t r);
 
 protected:
     void createMap(uint32_t w, uint32_t h);

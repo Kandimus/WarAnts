@@ -15,7 +15,8 @@ public:
 
     void saveMapInfo(const Map& map) override;
     void savePlayer(const Player& player) override;
-    void saveNewTurn(uint32_t iteration) override;
+    void saveBeginTurn(uint32_t iteration) override;
+    void saveEndTurn(uint32_t iteration, size_t msec) override;
     void saveMap(const Map& map) override;
 
 protected:

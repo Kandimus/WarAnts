@@ -63,7 +63,11 @@ void TextScreenProvider::savePlayer(const Player& player)
 
 }
 
-void TextScreenProvider::saveNewTurn(uint32_t iteration)
+void TextScreenProvider::saveBeginTurn(uint32_t iteration)
+{
+}
+
+void TextScreenProvider::saveEndTurn(uint32_t iteration, size_t msec)
 {
 }
 

@@ -40,7 +40,7 @@ bool AntFabric::init(const std::string& filename)
     return true;
 }
 
-std::shared_ptr<Ant> AntFabric::createAnt(std::shared_ptr<Player> player, AntType antType)
+AntPtr AntFabric::createAnt(PlayerPtr player, AntType antType)
 {
     auto antClass = player->antClass();
 
@@ -51,8 +51,10 @@ std::shared_ptr<Ant> AntFabric::createAnt(std::shared_ptr<Player> player, AntTyp
     }
 
     auto out = std::make_shared<Ant>(AntFabricData::gTemplates[antClass][static_cast<uint8_t>(antType)]);
-    out->setPlayer(player.get());
+    out->setPlayer(player);
     out->setId(AntFabricData::gAntCount++);
+
+    player->antIsBorn(antType);
 
     return out;
 }

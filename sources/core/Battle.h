@@ -33,11 +33,15 @@ protected:
     //std::vector<std::weak_ptr<Ant>> sortAnts();
 
     void doAntCommand(AntPtr ant);
-    //void commandAntExplore(AntSharedPtr& ant);
-    void commandAntMove(AntPtr ant);
+    bool commandMove(AntPtr ant);
+    bool commandAttack(AntPtr ant);
+    bool commandMoveAndIdle(AntPtr ant);
+    bool commandMoveAndAttack(AntPtr ant);
+    
     //void commandAntEat(AntSharedPtr& ant);
 
-    void moveAnt(AntPtr ant, const Direction& dir);
+    bool moveAnt(AntPtr ant, const Direction& dir);
+    bool killAnt(AntPtr ant);
 
     //void generateAntInfo(AntSharedPtr& ant, AntInfo& ai);
 

@@ -26,6 +26,8 @@ Ant::Ant(const nlohmann::json& json, AntType type)
     m_memory = json["memory"];
     m_workerPerTurn = json.contains("wpt") ? static_cast<int16_t>(json["wpt"]) : 0;
     m_solderPerTurn = json.contains("spt") ? static_cast<int16_t>(json["spt"]) : 0;
+
+    reset();
 }
 
 void Ant::reset()
@@ -35,16 +37,40 @@ void Ant::reset()
     m_cargo = 0;
 }
 
+bool Ant::damage(int16_t damage)
+{
+    m_health -= damage;
+
+    return checkDie();
+}
+
+bool Ant::beginTurn()
+{
+    ++m_lifeCount;
+    return true;
+}
+
 bool Ant::endTurn()
 {
-    --m_satiety;
+    m_satiety -= m_eatPerTurn;
+
     if (m_satiety <= 0)
     {
         m_satiety = 0;
         --m_health;
     }
 
-    return (m_health > 0);
+    return checkDie();
+}
+
+bool Ant::checkDie()
+{
+    if (m_health <= 0)
+    {
+        m_status = AntStatus::Dead;
+    }
+
+    return (m_status == AntStatus::Life);
 }
 
 };

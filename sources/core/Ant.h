@@ -16,6 +16,8 @@ namespace WarAnts
 
 class Player;
 
+using PlayerPtr = std::shared_ptr<Player>;
+
 enum class AntType
 {
     Queen = 0,
@@ -23,6 +25,12 @@ enum class AntType
     Worker,
 
     __MAX,
+};
+
+enum class AntStatus
+{
+    Life = 0,
+    Dead,
 };
 
 std::string AntTypeToString(AntType type);
@@ -47,6 +55,7 @@ public:
     uint32_t maxCargo() const { return m_maxCargo; }
     uint32_t cargo() const { return m_cargo; }
     AntType type() const { return m_type; }
+    AntStatus status() const { return m_status; }
 
     bool isWorker() const { return m_type == AntType::Worker; }
     bool isSolder() const { return m_type == AntType::Solder; }
@@ -76,13 +85,15 @@ public:
     const Position& position() const { return m_pos; }
     void setPosition(const Position& pos) { m_pos = pos; }
 
-    const Player* player() const { return m_player; }
-    void setPlayer(const Player* player) { m_player = player; }
+    PlayerPtr player() const { return m_player; }
+    void setPlayer(PlayerPtr player) { m_player = player; }
 
-//    std::weak_ptr<Player> player() const;
-//    void setPlayer(std::weak_ptr<Player> player);
+    bool damage(int16_t damage);
 
+    bool beginTurn();
     bool endTurn();
+
+    uint32_t lifeCount() const { return m_lifeCount; }
 
     std::string getString() const
     {
@@ -90,10 +101,13 @@ public:
     }
 
 protected:
-    uint32_t m_id;
+    bool checkDie();
+
+protected:
+    uint32_t m_id = 0;
     AntType m_type = AntType::Worker;
-    Position m_pos;
-    //	Status m_status;
+    Position m_pos = 0;
+    AntStatus m_status = AntStatus::Life;
     //    bool m_isFight;
     int16_t m_maxSatiety = 0;
     int16_t m_satiety = 0;
@@ -109,8 +123,10 @@ protected:
     int8_t m_memory = 4;
 
     AntCommand m_command;
-    const Player* m_player = nullptr;
-    //AntProcess m_fnProcess = nullptr;
+    PlayerPtr m_player;
+    
+    // statistic
+    uint32_t m_lifeCount = 0;
 };
 
 using AntPtr = std::shared_ptr<Ant>;

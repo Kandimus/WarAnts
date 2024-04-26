@@ -70,9 +70,6 @@
     <ClInclude Include="..\core\Battle.h" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="_antasm.y" />
-  </ItemGroup>
-  <ItemGroup>
     <ProjectReference Include="..\external\smallutils.vcxproj">
       <Project>{bd6153a0-9685-4a6f-b533-c34874ba5385}</Project>
     </ProjectReference>

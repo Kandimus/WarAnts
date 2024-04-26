@@ -1,0 +1,1012 @@
+Grammar
+
+    0 $accept: code $end
+
+    1 code: list_of_pragma list_of_asm_function
+
+    2 list_of_pragma: list_of_pragma pragma_definition
+    3               | pragma_definition
+
+    4 pragma_definition: pragma quted_string NEW_LINE
+
+    5 pragma: PRAGMA_CLASS
+    6       | PRAGMA_NAME
+    7       | PRAGMA_VERSION
+
+    8 list_of_asm_function: list_of_asm_function asm_function
+    9                     | asm_function
+
+   10 asm_function: asm_function_name list_of_command
+
+   11 asm_function_name: DOT label NEW_LINE
+
+   12 list_of_command: list_of_command asm_command_line
+   13                | asm_command_line
+
+   14 asm_command_line: asm_command NEW_LINE
+
+   15 asm_command: label COLON
+   16            | ADD address COMMA address
+   17            | AND address COMMA address
+   18            | BSF address COMMA address
+   19            | BSR address COMMA address
+   20            | MOV address COMMA address
+
+   21 quted_string: CHARACTER_STRING
+
+   22 label: ID
+
+   23 address: expression
+   24        | LSQUARE expression RSQUARE
+
+   25 expression: expr_0
+
+   26 expr_0: expr_1
+   27       | expr_0 PLUS expr_1
+   28       | expr_0 MINUS expr_1
+
+   29 expr_1: expr_2
+   30       | expr_1 STAR expr_2
+
+   31 expr_2: expr_3
+   32       | LROUND expr_0 RROUND
+
+   33 expr_3: R0
+   34       | R1
+   35       | R2
+   36       | R3
+   37       | RC
+   38       | RF
+   39       | IF
+   40       | IR
+   41       | number
+
+   42 number: INT_NUMBER
+   43       | HEX_NUMBER
+
+
+Terminals, with rules where they appear
+
+$end (0) 0
+error (256)
+LROUND (258) 32
+RROUND (259) 32
+LSQUARE (260) 24
+RSQUARE (261) 24
+COMMA (262) 16 17 18 19 20
+NEW_LINE (263) 4 11 14
+COLON (264) 15
+DOT (265) 11
+INT_NUMBER (266) 42
+HEX_NUMBER (267) 43
+ID (268) 22
+CHARACTER_STRING (269) 21
+PRAGMA_NAME (270) 6
+PRAGMA_VERSION (271) 7
+PRAGMA_CLASS (272) 5
+R0 (273) 33
+R1 (274) 34
+R2 (275) 35
+R3 (276) 36
+RC (277) 37
+RF (278) 38
+IF (279) 39
+IR (280) 40
+PLUS (281) 27
+MINUS (282) 28
+STAR (283) 30
+ADD (284) 16
+AND (285) 17
+BSF (286) 18
+BSR (287) 19
+MOV (288) 20
+
+
+Nonterminals, with rules where they appear
+
+$accept (34)
+    on left: 0
+code (35)
+    on left: 1, on right: 0
+list_of_pragma (36)
+    on left: 2 3, on right: 1 2
+pragma_definition (37)
+    on left: 4, on right: 2 3
+pragma (38)
+    on left: 5 6 7, on right: 4
+list_of_asm_function (39)
+    on left: 8 9, on right: 1 8
+asm_function (40)
+    on left: 10, on right: 8 9
+asm_function_name (41)
+    on left: 11, on right: 10
+list_of_command (42)
+    on left: 12 13, on right: 10 12
+asm_command_line (43)
+    on left: 14, on right: 12 13
+asm_command (44)
+    on left: 15 16 17 18 19 20, on right: 14
+quted_string (45)
+    on left: 21, on right: 4
+label (46)
+    on left: 22, on right: 11 15
+address (47)
+    on left: 23 24, on right: 16 17 18 19 20
+expression (48)
+    on left: 25, on right: 23 24
+expr_0 (49)
+    on left: 26 27 28, on right: 25 27 28 32
+expr_1 (50)
+    on left: 29 30, on right: 26 27 28 30
+expr_2 (51)
+    on left: 31 32, on right: 29 30
+expr_3 (52)
+    on left: 33 34 35 36 37 38 39 40 41, on right: 31
+number (53)
+    on left: 42 43, on right: 41
+
+
+state 0
+
+    0 $accept: . code $end
+
+    PRAGMA_NAME     shift, and go to state 1
+    PRAGMA_VERSION  shift, and go to state 2
+    PRAGMA_CLASS    shift, and go to state 3
+
+    code               go to state 4
+    list_of_pragma     go to state 5
+    pragma_definition  go to state 6
+    pragma             go to state 7
+
+
+state 1
+
+    6 pragma: PRAGMA_NAME .
+
+    $default  reduce using rule 6 (pragma)
+
+
+state 2
+
+    7 pragma: PRAGMA_VERSION .
+
+    $default  reduce using rule 7 (pragma)
+
+
+state 3
+
+    5 pragma: PRAGMA_CLASS .
+
+    $default  reduce using rule 5 (pragma)
+
+
+state 4
+
+    0 $accept: code . $end
+
+    $end  shift, and go to state 8
+
+
+state 5
+
+    1 code: list_of_pragma . list_of_asm_function
+    2 list_of_pragma: list_of_pragma . pragma_definition
+
+    DOT             shift, and go to state 9
+    PRAGMA_NAME     shift, and go to state 1
+    PRAGMA_VERSION  shift, and go to state 2
+    PRAGMA_CLASS    shift, and go to state 3
+
+    pragma_definition     go to state 10
+    pragma                go to state 7
+    list_of_asm_function  go to state 11
+    asm_function          go to state 12
+    asm_function_name     go to state 13
+
+
+state 6
+
+    3 list_of_pragma: pragma_definition .
+
+    $default  reduce using rule 3 (list_of_pragma)
+
+
+state 7
+
+    4 pragma_definition: pragma . quted_string NEW_LINE
+
+    CHARACTER_STRING  shift, and go to state 14
+
+    quted_string  go to state 15
+
+
+state 8
+
+    0 $accept: code $end .
+
+    $default  accept
+
+
+state 9
+
+   11 asm_function_name: DOT . label NEW_LINE
+
+    ID  shift, and go to state 16
+
+    label  go to state 17
+
+
+state 10
+
+    2 list_of_pragma: list_of_pragma pragma_definition .
+
+    $default  reduce using rule 2 (list_of_pragma)
+
+
+state 11
+
+    1 code: list_of_pragma list_of_asm_function .
+    8 list_of_asm_function: list_of_asm_function . asm_function
+
+    DOT  shift, and go to state 9
+
+    $default  reduce using rule 1 (code)
+
+    asm_function       go to state 18
+    asm_function_name  go to state 13
+
+
+state 12
+
+    9 list_of_asm_function: asm_function .
+
+    $default  reduce using rule 9 (list_of_asm_function)
+
+
+state 13
+
+   10 asm_function: asm_function_name . list_of_command
+
+    ID   shift, and go to state 16
+    ADD  shift, and go to state 19
+    AND  shift, and go to state 20
+    BSF  shift, and go to state 21
+    BSR  shift, and go to state 22
+    MOV  shift, and go to state 23
+
+    list_of_command   go to state 24
+    asm_command_line  go to state 25
+    asm_command       go to state 26
+    label             go to state 27
+
+
+state 14
+
+   21 quted_string: CHARACTER_STRING .
+
+    $default  reduce using rule 21 (quted_string)
+
+
+state 15
+
+    4 pragma_definition: pragma quted_string . NEW_LINE
+
+    NEW_LINE  shift, and go to state 28
+
+
+state 16
+
+   22 label: ID .
+
+    $default  reduce using rule 22 (label)
+
+
+state 17
+
+   11 asm_function_name: DOT label . NEW_LINE
+
+    NEW_LINE  shift, and go to state 29
+
+
+state 18
+
+    8 list_of_asm_function: list_of_asm_function asm_function .
+
+    $default  reduce using rule 8 (list_of_asm_function)
+
+
+state 19
+
+   16 asm_command: ADD . address COMMA address
+
+    LROUND      shift, and go to state 30
+    LSQUARE     shift, and go to state 31
+    INT_NUMBER  shift, and go to state 32
+    HEX_NUMBER  shift, and go to state 33
+    R0          shift, and go to state 34
+    R1          shift, and go to state 35
+    R2          shift, and go to state 36
+    R3          shift, and go to state 37
+    RC          shift, and go to state 38
+    RF          shift, and go to state 39
+    IF          shift, and go to state 40
+    IR          shift, and go to state 41
+
+    address     go to state 42
+    expression  go to state 43
+    expr_0      go to state 44
+    expr_1      go to state 45
+    expr_2      go to state 46
+    expr_3      go to state 47
+    number      go to state 48
+
+
+state 20
+
+   17 asm_command: AND . address COMMA address
+
+    LROUND      shift, and go to state 30
+    LSQUARE     shift, and go to state 31
+    INT_NUMBER  shift, and go to state 32
+    HEX_NUMBER  shift, and go to state 33
+    R0          shift, and go to state 34
+    R1          shift, and go to state 35
+    R2          shift, and go to state 36
+    R3          shift, and go to state 37
+    RC          shift, and go to state 38
+    RF          shift, and go to state 39
+    IF          shift, and go to state 40
+    IR          shift, and go to state 41
+
+    address     go to state 49
+    expression  go to state 43
+    expr_0      go to state 44
+    expr_1      go to state 45
+    expr_2      go to state 46
+    expr_3      go to state 47
+    number      go to state 48
+
+
+state 21
+
+   18 asm_command: BSF . address COMMA address
+
+    LROUND      shift, and go to state 30
+    LSQUARE     shift, and go to state 31
+    INT_NUMBER  shift, and go to state 32
+    HEX_NUMBER  shift, and go to state 33
+    R0          shift, and go to state 34
+    R1          shift, and go to state 35
+    R2          shift, and go to state 36
+    R3          shift, and go to state 37
+    RC          shift, and go to state 38
+    RF          shift, and go to state 39
+    IF          shift, and go to state 40
+    IR          shift, and go to state 41
+
+    address     go to state 50
+    expression  go to state 43
+    expr_0      go to state 44
+    expr_1      go to state 45
+    expr_2      go to state 46
+    expr_3      go to state 47
+    number      go to state 48
+
+
+state 22
+
+   19 asm_command: BSR . address COMMA address
+
+    LROUND      shift, and go to state 30
+    LSQUARE     shift, and go to state 31
+    INT_NUMBER  shift, and go to state 32
+    HEX_NUMBER  shift, and go to state 33
+    R0          shift, and go to state 34
+    R1          shift, and go to state 35
+    R2          shift, and go to state 36
+    R3          shift, and go to state 37
+    RC          shift, and go to state 38
+    RF          shift, and go to state 39
+    IF          shift, and go to state 40
+    IR          shift, and go to state 41
+
+    address     go to state 51
+    expression  go to state 43
+    expr_0      go to state 44
+    expr_1      go to state 45
+    expr_2      go to state 46
+    expr_3      go to state 47
+    number      go to state 48
+
+
+state 23
+
+   20 asm_command: MOV . address COMMA address
+
+    LROUND      shift, and go to state 30
+    LSQUARE     shift, and go to state 31
+    INT_NUMBER  shift, and go to state 32
+    HEX_NUMBER  shift, and go to state 33
+    R0          shift, and go to state 34
+    R1          shift, and go to state 35
+    R2          shift, and go to state 36
+    R3          shift, and go to state 37
+    RC          shift, and go to state 38
+    RF          shift, and go to state 39
+    IF          shift, and go to state 40
+    IR          shift, and go to state 41
+
+    address     go to state 52
+    expression  go to state 43
+    expr_0      go to state 44
+    expr_1      go to state 45
+    expr_2      go to state 46
+    expr_3      go to state 47
+    number      go to state 48
+
+
+state 24
+
+   10 asm_function: asm_function_name list_of_command .
+   12 list_of_command: list_of_command . asm_command_line
+
+    ID   shift, and go to state 16
+    ADD  shift, and go to state 19
+    AND  shift, and go to state 20
+    BSF  shift, and go to state 21
+    BSR  shift, and go to state 22
+    MOV  shift, and go to state 23
+
+    $default  reduce using rule 10 (asm_function)
+
+    asm_command_line  go to state 53
+    asm_command       go to state 26
+    label             go to state 27
+
+
+state 25
+
+   13 list_of_command: asm_command_line .
+
+    $default  reduce using rule 13 (list_of_command)
+
+
+state 26
+
+   14 asm_command_line: asm_command . NEW_LINE
+
+    NEW_LINE  shift, and go to state 54
+
+
+state 27
+
+   15 asm_command: label . COLON
+
+    COLON  shift, and go to state 55
+
+
+state 28
+
+    4 pragma_definition: pragma quted_string NEW_LINE .
+
+    $default  reduce using rule 4 (pragma_definition)
+
+
+state 29
+
+   11 asm_function_name: DOT label NEW_LINE .
+
+    $default  reduce using rule 11 (asm_function_name)
+
+
+state 30
+
+   32 expr_2: LROUND . expr_0 RROUND
+
+    LROUND      shift, and go to state 30
+    INT_NUMBER  shift, and go to state 32
+    HEX_NUMBER  shift, and go to state 33
+    R0          shift, and go to state 34
+    R1          shift, and go to state 35
+    R2          shift, and go to state 36
+    R3          shift, and go to state 37
+    RC          shift, and go to state 38
+    RF          shift, and go to state 39
+    IF          shift, and go to state 40
+    IR          shift, and go to state 41
+
+    expr_0  go to state 56
+    expr_1  go to state 45
+    expr_2  go to state 46
+    expr_3  go to state 47
+    number  go to state 48
+
+
+state 31
+
+   24 address: LSQUARE . expression RSQUARE
+
+    LROUND      shift, and go to state 30
+    INT_NUMBER  shift, and go to state 32
+    HEX_NUMBER  shift, and go to state 33
+    R0          shift, and go to state 34
+    R1          shift, and go to state 35
+    R2          shift, and go to state 36
+    R3          shift, and go to state 37
+    RC          shift, and go to state 38
+    RF          shift, and go to state 39
+    IF          shift, and go to state 40
+    IR          shift, and go to state 41
+
+    expression  go to state 57
+    expr_0      go to state 44
+    expr_1      go to state 45
+    expr_2      go to state 46
+    expr_3      go to state 47
+    number      go to state 48
+
+
+state 32
+
+   42 number: INT_NUMBER .
+
+    $default  reduce using rule 42 (number)
+
+
+state 33
+
+   43 number: HEX_NUMBER .
+
+    $default  reduce using rule 43 (number)
+
+
+state 34
+
+   33 expr_3: R0 .
+
+    $default  reduce using rule 33 (expr_3)
+
+
+state 35
+
+   34 expr_3: R1 .
+
+    $default  reduce using rule 34 (expr_3)
+
+
+state 36
+
+   35 expr_3: R2 .
+
+    $default  reduce using rule 35 (expr_3)
+
+
+state 37
+
+   36 expr_3: R3 .
+
+    $default  reduce using rule 36 (expr_3)
+
+
+state 38
+
+   37 expr_3: RC .
+
+    $default  reduce using rule 37 (expr_3)
+
+
+state 39
+
+   38 expr_3: RF .
+
+    $default  reduce using rule 38 (expr_3)
+
+
+state 40
+
+   39 expr_3: IF .
+
+    $default  reduce using rule 39 (expr_3)
+
+
+state 41
+
+   40 expr_3: IR .
+
+    $default  reduce using rule 40 (expr_3)
+
+
+state 42
+
+   16 asm_command: ADD address . COMMA address
+
+    COMMA  shift, and go to state 58
+
+
+state 43
+
+   23 address: expression .
+
+    $default  reduce using rule 23 (address)
+
+
+state 44
+
+   25 expression: expr_0 .
+   27 expr_0: expr_0 . PLUS expr_1
+   28       | expr_0 . MINUS expr_1
+
+    PLUS   shift, and go to state 59
+    MINUS  shift, and go to state 60
+
+    $default  reduce using rule 25 (expression)
+
+
+state 45
+
+   26 expr_0: expr_1 .
+   30 expr_1: expr_1 . STAR expr_2
+
+    STAR  shift, and go to state 61
+
+    $default  reduce using rule 26 (expr_0)
+
+
+state 46
+
+   29 expr_1: expr_2 .
+
+    $default  reduce using rule 29 (expr_1)
+
+
+state 47
+
+   31 expr_2: expr_3 .
+
+    $default  reduce using rule 31 (expr_2)
+
+
+state 48
+
+   41 expr_3: number .
+
+    $default  reduce using rule 41 (expr_3)
+
+
+state 49
+
+   17 asm_command: AND address . COMMA address
+
+    COMMA  shift, and go to state 62
+
+
+state 50
+
+   18 asm_command: BSF address . COMMA address
+
+    COMMA  shift, and go to state 63
+
+
+state 51
+
+   19 asm_command: BSR address . COMMA address
+
+    COMMA  shift, and go to state 64
+
+
+state 52
+
+   20 asm_command: MOV address . COMMA address
+
+    COMMA  shift, and go to state 65
+
+
+state 53
+
+   12 list_of_command: list_of_command asm_command_line .
+
+    $default  reduce using rule 12 (list_of_command)
+
+
+state 54
+
+   14 asm_command_line: asm_command NEW_LINE .
+
+    $default  reduce using rule 14 (asm_command_line)
+
+
+state 55
+
+   15 asm_command: label COLON .
+
+    $default  reduce using rule 15 (asm_command)
+
+
+state 56
+
+   27 expr_0: expr_0 . PLUS expr_1
+   28       | expr_0 . MINUS expr_1
+   32 expr_2: LROUND expr_0 . RROUND
+
+    RROUND  shift, and go to state 66
+    PLUS    shift, and go to state 59
+    MINUS   shift, and go to state 60
+
+
+state 57
+
+   24 address: LSQUARE expression . RSQUARE
+
+    RSQUARE  shift, and go to state 67
+
+
+state 58
+
+   16 asm_command: ADD address COMMA . address
+
+    LROUND      shift, and go to state 30
+    LSQUARE     shift, and go to state 31
+    INT_NUMBER  shift, and go to state 32
+    HEX_NUMBER  shift, and go to state 33
+    R0          shift, and go to state 34
+    R1          shift, and go to state 35
+    R2          shift, and go to state 36
+    R3          shift, and go to state 37
+    RC          shift, and go to state 38
+    RF          shift, and go to state 39
+    IF          shift, and go to state 40
+    IR          shift, and go to state 41
+
+    address     go to state 68
+    expression  go to state 43
+    expr_0      go to state 44
+    expr_1      go to state 45
+    expr_2      go to state 46
+    expr_3      go to state 47
+    number      go to state 48
+
+
+state 59
+
+   27 expr_0: expr_0 PLUS . expr_1
+
+    LROUND      shift, and go to state 30
+    INT_NUMBER  shift, and go to state 32
+    HEX_NUMBER  shift, and go to state 33
+    R0          shift, and go to state 34
+    R1          shift, and go to state 35
+    R2          shift, and go to state 36
+    R3          shift, and go to state 37
+    RC          shift, and go to state 38
+    RF          shift, and go to state 39
+    IF          shift, and go to state 40
+    IR          shift, and go to state 41
+
+    expr_1  go to state 69
+    expr_2  go to state 46
+    expr_3  go to state 47
+    number  go to state 48
+
+
+state 60
+
+   28 expr_0: expr_0 MINUS . expr_1
+
+    LROUND      shift, and go to state 30
+    INT_NUMBER  shift, and go to state 32
+    HEX_NUMBER  shift, and go to state 33
+    R0          shift, and go to state 34
+    R1          shift, and go to state 35
+    R2          shift, and go to state 36
+    R3          shift, and go to state 37
+    RC          shift, and go to state 38
+    RF          shift, and go to state 39
+    IF          shift, and go to state 40
+    IR          shift, and go to state 41
+
+    expr_1  go to state 70
+    expr_2  go to state 46
+    expr_3  go to state 47
+    number  go to state 48
+
+
+state 61
+
+   30 expr_1: expr_1 STAR . expr_2
+
+    LROUND      shift, and go to state 30
+    INT_NUMBER  shift, and go to state 32
+    HEX_NUMBER  shift, and go to state 33
+    R0          shift, and go to state 34
+    R1          shift, and go to state 35
+    R2          shift, and go to state 36
+    R3          shift, and go to state 37
+    RC          shift, and go to state 38
+    RF          shift, and go to state 39
+    IF          shift, and go to state 40
+    IR          shift, and go to state 41
+
+    expr_2  go to state 71
+    expr_3  go to state 47
+    number  go to state 48
+
+
+state 62
+
+   17 asm_command: AND address COMMA . address
+
+    LROUND      shift, and go to state 30
+    LSQUARE     shift, and go to state 31
+    INT_NUMBER  shift, and go to state 32
+    HEX_NUMBER  shift, and go to state 33
+    R0          shift, and go to state 34
+    R1          shift, and go to state 35
+    R2          shift, and go to state 36
+    R3          shift, and go to state 37
+    RC          shift, and go to state 38
+    RF          shift, and go to state 39
+    IF          shift, and go to state 40
+    IR          shift, and go to state 41
+
+    address     go to state 72
+    expression  go to state 43
+    expr_0      go to state 44
+    expr_1      go to state 45
+    expr_2      go to state 46
+    expr_3      go to state 47
+    number      go to state 48
+
+
+state 63
+
+   18 asm_command: BSF address COMMA . address
+
+    LROUND      shift, and go to state 30
+    LSQUARE     shift, and go to state 31
+    INT_NUMBER  shift, and go to state 32
+    HEX_NUMBER  shift, and go to state 33
+    R0          shift, and go to state 34
+    R1          shift, and go to state 35
+    R2          shift, and go to state 36
+    R3          shift, and go to state 37
+    RC          shift, and go to state 38
+    RF          shift, and go to state 39
+    IF          shift, and go to state 40
+    IR          shift, and go to state 41
+
+    address     go to state 73
+    expression  go to state 43
+    expr_0      go to state 44
+    expr_1      go to state 45
+    expr_2      go to state 46
+    expr_3      go to state 47
+    number      go to state 48
+
+
+state 64
+
+   19 asm_command: BSR address COMMA . address
+
+    LROUND      shift, and go to state 30
+    LSQUARE     shift, and go to state 31
+    INT_NUMBER  shift, and go to state 32
+    HEX_NUMBER  shift, and go to state 33
+    R0          shift, and go to state 34
+    R1          shift, and go to state 35
+    R2          shift, and go to state 36
+    R3          shift, and go to state 37
+    RC          shift, and go to state 38
+    RF          shift, and go to state 39
+    IF          shift, and go to state 40
+    IR          shift, and go to state 41
+
+    address     go to state 74
+    expression  go to state 43
+    expr_0      go to state 44
+    expr_1      go to state 45
+    expr_2      go to state 46
+    expr_3      go to state 47
+    number      go to state 48
+
+
+state 65
+
+   20 asm_command: MOV address COMMA . address
+
+    LROUND      shift, and go to state 30
+    LSQUARE     shift, and go to state 31
+    INT_NUMBER  shift, and go to state 32
+    HEX_NUMBER  shift, and go to state 33
+    R0          shift, and go to state 34
+    R1          shift, and go to state 35
+    R2          shift, and go to state 36
+    R3          shift, and go to state 37
+    RC          shift, and go to state 38
+    RF          shift, and go to state 39
+    IF          shift, and go to state 40
+    IR          shift, and go to state 41
+
+    address     go to state 75
+    expression  go to state 43
+    expr_0      go to state 44
+    expr_1      go to state 45
+    expr_2      go to state 46
+    expr_3      go to state 47
+    number      go to state 48
+
+
+state 66
+
+   32 expr_2: LROUND expr_0 RROUND .
+
+    $default  reduce using rule 32 (expr_2)
+
+
+state 67
+
+   24 address: LSQUARE expression RSQUARE .
+
+    $default  reduce using rule 24 (address)
+
+
+state 68
+
+   16 asm_command: ADD address COMMA address .
+
+    $default  reduce using rule 16 (asm_command)
+
+
+state 69
+
+   27 expr_0: expr_0 PLUS expr_1 .
+   30 expr_1: expr_1 . STAR expr_2
+
+    STAR  shift, and go to state 61
+
+    $default  reduce using rule 27 (expr_0)
+
+
+state 70
+
+   28 expr_0: expr_0 MINUS expr_1 .
+   30 expr_1: expr_1 . STAR expr_2
+
+    STAR  shift, and go to state 61
+
+    $default  reduce using rule 28 (expr_0)
+
+
+state 71
+
+   30 expr_1: expr_1 STAR expr_2 .
+
+    $default  reduce using rule 30 (expr_1)
+
+
+state 72
+
+   17 asm_command: AND address COMMA address .
+
+    $default  reduce using rule 17 (asm_command)
+
+
+state 73
+
+   18 asm_command: BSF address COMMA address .
+
+    $default  reduce using rule 18 (asm_command)
+
+
+state 74
+
+   19 asm_command: BSR address COMMA address .
+
+    $default  reduce using rule 19 (asm_command)
+
+
+state 75
+
+   20 asm_command: MOV address COMMA address .
+
+    $default  reduce using rule 20 (asm_command)

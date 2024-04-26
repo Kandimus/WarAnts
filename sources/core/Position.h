@@ -3,6 +3,7 @@
 #include <stdint.h>
 
 #include <string>
+#include <vector>
 
 namespace WarAnts
 {
@@ -95,5 +96,7 @@ private:
     int16_t m_x = 0;
     int16_t m_y = 0;
 };
+
+using VectorPosition = std::vector<Position>;
 
 };

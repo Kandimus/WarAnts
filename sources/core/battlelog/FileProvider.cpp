@@ -86,7 +86,7 @@ void FileProvider::savePlayer(const Player& player)
 	file.close();
 }
 
-void FileProvider::saveNewTurn(uint32_t iteration)
+void FileProvider::saveBeginTurn(uint32_t iteration)
 {
 	std::ofstream file(m_filename, std::ios::app);
 
@@ -97,7 +97,26 @@ void FileProvider::saveNewTurn(uint32_t iteration)
 
 	nlohmann::json json;
 
-	json["turn"] = iteration;
+	json["begin"]["iteration"] = iteration;
+
+	file << json << std::endl;
+
+	file.close();
+}
+
+void FileProvider::saveEndTurn(uint32_t iteration, size_t msec)
+{
+	std::ofstream file(m_filename, std::ios::app);
+
+	if (!isFileOpen(file))
+	{
+		return;
+	}
+
+	nlohmann::json json;
+
+	json["end"]["iteration"] = iteration;
+	json["end"]["time"] = msec;
 
 	file << json << std::endl;
 
@@ -124,8 +143,8 @@ void FileProvider::saveMap(const Map& map)
 			continue;
 		}
 
-		json["cell"]["x"] = ii % map.size().y();
-		json["cell"]["y"] = ii / map.size().y();
+		json["cell"]["x"] = ii % map.size().x();
+		json["cell"]["y"] = ii / map.size().x();
 
 		if (cell->isEmpty())
 		{

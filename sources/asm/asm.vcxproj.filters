@@ -1,0 +1,68 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Headers">
+      <UniqueIdentifier>{EBF66B1F-8D61-4ACF-BCCC-7FDD4522DB39}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Sources">
+      <UniqueIdentifier>{470796D8-0FE9-4F34-9A55-B644BACB54D8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Bison">
+      <UniqueIdentifier>{941cbf96-132a-4e4c-8ae9-b94e888b6d2a}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Expression.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="_antasm.l.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="pragma.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="code.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="Statetment.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="function.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="asm_defines.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="_antasm.y.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="Compiler.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="code.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="expression.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="function.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="pragma.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="statetment.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="_antasm.l">
+      <Filter>Bison</Filter>
+    </None>
+    <None Include="_antasm.y">
+      <Filter>Bison</Filter>
+    </None>
+  </ItemGroup>
+</Project>

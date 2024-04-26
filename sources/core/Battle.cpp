@@ -92,6 +92,26 @@ Battle::Battle(const std::string& confname, const std::vector<std::string>& play
     m_isInit = true;
 }
 
+size_t getTickCount()
+{
+    using namespace std::chrono;
+    return duration_cast<milliseconds>(steady_clock::now().time_since_epoch()).count();
+}
+
+struct TickCountClock
+{
+    typedef size_t                                   rep;
+    typedef std::milli                               period;
+    typedef std::chrono::duration<rep, period>       duration;
+    typedef std::chrono::time_point<TickCountClock>  time_point;
+    static const bool is_steady = true;
+
+    static time_point now() noexcept
+    {
+        return time_point(duration(getTickCount()));
+    }
+};
+
 int Battle::run()
 {
     if (!m_isInit)
@@ -106,7 +126,7 @@ int Battle::run()
     m_ants = m_map->generate(m_players);
 
     //TEST!!!
-    m_ants.begin()->get()->setCommand(CommandType::Move, 1, 1, 0);
+    m_ants.begin()->get()->setCommand(CommandType::MoveAndIdle, 1, 1, 0);
 
     // send of starting info
     m_logService->saveMapInfo(*m_map.get());
@@ -121,6 +141,7 @@ int Battle::run()
     {
         //---------------------------------------------------------------------
         // Start of iteration
+        auto timeStart = getTickCount();
 
         // clear IsChange flag
         m_map->clearChanged();
@@ -133,12 +154,19 @@ int Battle::run()
         std::shuffle(ant_vec.begin(), ant_vec.end(), Math::randGenerator());
 
         // save log
-        m_logService->saveNewTurn(m_iteration);
+        m_logService->saveBeginTurn(m_iteration);
 
         //---------------------------------------------------------------------
         // Ant phase
         for (auto& ant : ant_vec)
         {
+            if (ant->status() == AntStatus::Dead)
+            {
+                continue;
+            }
+
+            ant->beginTurn();
+
             if(!ant->hasCommand())
             {
             //	AntInfo ai;
@@ -161,18 +189,26 @@ int Battle::run()
             }
 
             doAntCommand(ant);
+            m_map->forceCellChange(ant->position());
 
+            // Ant has been died
             if (!ant->endTurn())
             {
-                m_map->removeAnt(ant->position());
-                m_ants.remove(ant);
-                //TODO change countOfWorkers/Solders
+                killAnt(ant);
             }
         }
 
-        if (m_ants.empty())
+        // delete dead ants
+        for (auto pAnt = m_ants.begin(); pAnt != m_ants.end(); )
         {
-            break;
+            if ((*pAnt)->status() == AntStatus::Dead)
+            {
+                pAnt = m_ants.erase(pAnt);
+            }
+            else
+            {
+                ++pAnt;
+            }
         }
 
         //---------------------------------------------------------------------
@@ -181,6 +217,13 @@ int Battle::run()
 
         //TODO check for end of game
         //if (m_iteration > 3) break;
+
+        m_logService->saveEndTurn(m_iteration, getTickCount() - timeStart);
+
+        if (m_ants.empty())
+        {
+            break;
+        }
     }
 
     return 0;
@@ -194,8 +237,10 @@ void Battle::doAntCommand(AntPtr ant)
     switch(cmd.m_type)
     {
         case CommandType::Idle: break;
-        case CommandType::Move: commandAntMove(ant); break;
-//        case CommandType::Eat: commandAntEat(ant);break;
+        case CommandType::Move: commandMove(ant); break;
+        case CommandType::Attack: commandAttack(ant); break;
+        case CommandType::MoveAndIdle: commandMoveAndIdle(ant); break;
+        case CommandType::MoveAndAttack: commandMoveAndAttack(ant);break;
 //		case CommandType::MoveToFood: doAntMoveToFood(ant); break;
 //		case CommandType::Attack: doAntAttack(ant); break;
 //		case CommandType::MoveAndAttack: doAntMoveAndAttack(ant); break;
@@ -228,20 +273,62 @@ void Battle::doAntCommand(AntPtr ant)
 //	--ant->command().count;
 //}
 
-void Battle::commandAntMove(AntPtr ant)
+bool Battle::commandMove(AntPtr ant)
 {
     auto dirToPoint = Math::directionTo(ant->position(), ant->command().m_pos);
     auto dir = Math::probabilisticDirection(dirToPoint);
 
     auto oldPos = ant->position();
-    LOGD("ant %s ---> %s: %s", ant->position().toString().c_str(), ant->command().m_pos.toString().c_str(), directionToString(dirToPoint).c_str());
-    LOGD("dir %s changed to %s", directionToString(dirToPoint).c_str(), directionToString(dir).c_str());
-
-    moveAnt(ant, dir);
-
+    LOGD("ant %s ---> %s: %s", ant->position().toString().c_str(), ant->command().m_pos.toString().c_str(), directionToString(dirToPoint, true).c_str());
+    LOGD("dir %s changed to %s", directionToString(dirToPoint, true).c_str(), directionToString(dir, true).c_str());
     LOGD("ant %s move to %s: %s", oldPos.toString().c_str(), ant->position().toString().c_str());
- 
-    //--ant->command().count;
+
+    return moveAnt(ant, dir);
+}
+
+bool Battle::commandAttack(AntPtr ant)
+{
+    auto arrayOfEnemy = m_map->nearestEnemies(ant->position(), 1);
+
+    if (arrayOfEnemy.empty())
+    {
+        ant->clearCommand();
+        return true;
+    }
+
+    int index = Math::random(0, arrayOfEnemy.size() - 1);
+    auto enemy = arrayOfEnemy[index];
+
+    //TODO Нужно ли тут проверять, что атакуемый муравей умер? и соответственно вызывать player->antIsDied()
+    //     или же дать муравью ответить на удар или другое действие и убить его в его фазу хода?
+    if (!enemy->damage(ant->attack()))
+    {
+        killAnt(enemy);
+    }
+
+    return false;
+}
+
+bool Battle::commandMoveAndIdle(AntPtr ant)
+{
+    if (commandMove(ant))
+    {
+        ant->clearCommand();
+        return true;
+    }
+    return false;
+}
+
+bool Battle::commandMoveAndAttack(AntPtr ant)
+{
+    if (commandMove(ant))
+    {
+        int16_t userdata = ant->command().m_userData;
+        ant->clearCommand();
+        ant->setCommand(CommandType::Attack, 0, 0, userdata);
+        LOGD("ant new command Attack");
+    }
+    return false;
 }
 
 /// \brief Moving the ant to the nearest food and do eating it
@@ -279,7 +366,7 @@ void Battle::commandAntMove(AntPtr ant)
 /// \brief Moving the ant to selected direction
 ///
 /// If we can not move the ant to selected direction then we move ant to direction near to selected
-void Battle::moveAnt(AntPtr ant, const Direction& dir)
+bool Battle::moveAnt(AntPtr ant, const Direction& dir)
 {
     // get odered directions
     std::vector<Direction> array_dir = Math::createDirectionArray(dir);
@@ -295,11 +382,7 @@ void Battle::moveAnt(AntPtr ant, const Direction& dir)
             // if the cell is empty then move the ant to it
             m_map->moveAnt(ant, newpos);
 
-            if (Math::distanceTo(newpos, ant->command().m_pos) <= 1)
-            {
-                ant->clearCommand();
-            }
-            return;
+            return Math::distanceTo(ant->position(), ant->command().m_pos) <= 1;
         }
 
         // cell is not empty, go to next the direction and to check next
@@ -307,6 +390,17 @@ void Battle::moveAnt(AntPtr ant, const Direction& dir)
 
     //TODO Set the lastCommand as the current command, set reason of abortion of command and do cancel of the current command
     //ant->clearCommand();
+    return true;
+}
+
+bool Battle::killAnt(AntPtr ant)
+{
+    auto player = ant->player();
+    player->antIsDied(ant);
+
+    m_map->removeAnt(ant->position());
+
+    return true;
 }
 
 //void Battle::generateAntInfo(AntSharedPtr& ant, AntInfo& ai)

@@ -1,6 +1,8 @@
 #define CATCH_CONFIG_MAIN
 #include "catch.hpp"
 
+#include <fstream>
+
 #include "Map.h"
 #include "MapMath.h"
 #include "log.h"
@@ -21,9 +23,78 @@ public:
     }
 };
 
+void PrintVisibleArr(const WarAnts::VectorPosition& arr, const WarAnts::Position& pos, const std::string& filename)
+{
+    std::string out = "";
+
+    for (int y = 0; y < 27; ++y)
+    {
+        for (int x = 0; x < 27; ++x)
+        {
+            bool found = false;
+            for (const auto& item : arr)
+            {
+                if (item == WarAnts::Position(x, y))
+                {
+                    found = true;
+                    break;
+                }
+            }
+
+            out += (WarAnts::Position(x, y) == pos) ? '*' : (found ? 'X' : ' ');
+        }
+        out += "\n";
+    }
+
+    std::ofstream file(filename);
+    if (file.is_open())
+    {
+        file << out;
+        file.close();
+    }
+}
+
+TEST_CASE("visibleCells", "[Math]")
+{
+    WarAnts::Position center(12, 12);
+
+    for (int vis = 0; vis < 13; ++vis)
+    {
+
+        auto arr = WarAnts::Math::visibleCells(center, vis);
+        PrintVisibleArr(arr, center, su::String_format2("./tests/visible_%02i.txt", vis));
+    }
+}
+
 TEST_CASE("directionTo", "[Math]")
 {
     CHECK(WarAnts::Math::directionTo(WarAnts::Position(1, 1), WarAnts::Position(0, 19)) == WarAnts::Direction::South);
+
+    CHECK(WarAnts::Math::directionTo(WarAnts::Position(6, 6), WarAnts::Position( 6,  0)) == WarAnts::Direction::Nord);
+    CHECK(WarAnts::Math::directionTo(WarAnts::Position(6, 6), WarAnts::Position( 9,  0)) == WarAnts::Direction::Nord);
+    CHECK(WarAnts::Math::directionTo(WarAnts::Position(6, 6), WarAnts::Position(10,  0)) == WarAnts::Direction::NordEast);
+    CHECK(WarAnts::Math::directionTo(WarAnts::Position(6, 6), WarAnts::Position(12,  0)) == WarAnts::Direction::NordEast);
+    CHECK(WarAnts::Math::directionTo(WarAnts::Position(6, 6), WarAnts::Position(12,  2)) == WarAnts::Direction::NordEast);
+    CHECK(WarAnts::Math::directionTo(WarAnts::Position(6, 6), WarAnts::Position(12,  3)) == WarAnts::Direction::East);
+    CHECK(WarAnts::Math::directionTo(WarAnts::Position(6, 6), WarAnts::Position(12,  6)) == WarAnts::Direction::East);
+    CHECK(WarAnts::Math::directionTo(WarAnts::Position(6, 6), WarAnts::Position(12,  9)) == WarAnts::Direction::East);
+    CHECK(WarAnts::Math::directionTo(WarAnts::Position(6, 6), WarAnts::Position(12, 10)) == WarAnts::Direction::SouthEast);
+    CHECK(WarAnts::Math::directionTo(WarAnts::Position(6, 6), WarAnts::Position(12, 12)) == WarAnts::Direction::SouthEast);
+    CHECK(WarAnts::Math::directionTo(WarAnts::Position(6, 6), WarAnts::Position(10, 12)) == WarAnts::Direction::SouthEast);
+    CHECK(WarAnts::Math::directionTo(WarAnts::Position(6, 6), WarAnts::Position( 9, 12)) == WarAnts::Direction::South);
+    CHECK(WarAnts::Math::directionTo(WarAnts::Position(6, 6), WarAnts::Position( 6, 12)) == WarAnts::Direction::South);
+    CHECK(WarAnts::Math::directionTo(WarAnts::Position(6, 6), WarAnts::Position( 3, 12)) == WarAnts::Direction::South);
+    CHECK(WarAnts::Math::directionTo(WarAnts::Position(6, 6), WarAnts::Position( 2, 12)) == WarAnts::Direction::SouthWest);
+    CHECK(WarAnts::Math::directionTo(WarAnts::Position(6, 6), WarAnts::Position( 0, 12)) == WarAnts::Direction::SouthWest);
+    CHECK(WarAnts::Math::directionTo(WarAnts::Position(6, 6), WarAnts::Position( 0, 10)) == WarAnts::Direction::SouthWest);
+    CHECK(WarAnts::Math::directionTo(WarAnts::Position(6, 6), WarAnts::Position( 0,  9)) == WarAnts::Direction::West);
+    CHECK(WarAnts::Math::directionTo(WarAnts::Position(6, 6), WarAnts::Position( 0,  6)) == WarAnts::Direction::West);
+    CHECK(WarAnts::Math::directionTo(WarAnts::Position(6, 6), WarAnts::Position( 0,  3)) == WarAnts::Direction::West);
+    CHECK(WarAnts::Math::directionTo(WarAnts::Position(6, 6), WarAnts::Position( 0,  2)) == WarAnts::Direction::NordWest);
+    CHECK(WarAnts::Math::directionTo(WarAnts::Position(6, 6), WarAnts::Position( 0,  0)) == WarAnts::Direction::NordWest);
+    CHECK(WarAnts::Math::directionTo(WarAnts::Position(6, 6), WarAnts::Position( 2,  0)) == WarAnts::Direction::NordWest);
+    CHECK(WarAnts::Math::directionTo(WarAnts::Position(6, 6), WarAnts::Position( 3,  0)) == WarAnts::Direction::Nord);
+
 }
 
 TEST_CASE("nearAvaliblePosition", "[Map]")

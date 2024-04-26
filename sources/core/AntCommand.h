@@ -11,6 +11,8 @@ enum class CommandType
 {
     Idle,
     Move,
+    Attack, 
+    MoveAndIdle,
     MoveAndEat,
     MoveAndAttack,
     MoveAndFeed,

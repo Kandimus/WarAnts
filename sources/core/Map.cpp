@@ -79,7 +79,7 @@ ListAnts Map::generate(const std::vector<std::shared_ptr<Player>>& players)
     return ants;
 }
 
-std::shared_ptr<Ant> Map::createAnt(std::shared_ptr<Player> player, AntType antType, const Position& pos, uint16_t r)
+AntPtr Map::createAnt(const PlayerPtr& player, AntType antType, const Position& pos, uint16_t r)
 {
     Position calc_pos(static_cast<uint16_t>(Math::random(0, r * 2)), static_cast<uint16_t>(Math::random(0, r * 2)));
     calc_pos -= r;
@@ -127,16 +127,19 @@ bool Map::isCellEmpty(const Position& pos) const
     return m_map[idx]->isEmpty();
 }
 
-bool Map::isCellEmpty(int32_t x, int32_t y) const
-{
-    return isCellEmpty(Position(x, y));
-}	
-
 void Map::clearChanged()
 {
     for (auto& cell : m_map)
     {
         cell->clearChanged();
+    }
+}
+
+void Map::forceCellChange(const Position& pos)
+{
+    if (isValidPosition(pos))
+    {
+        m_map[absPosition(pos)]->forceChange();
     }
 }
 
@@ -192,6 +195,11 @@ Position Map::nearAvaliblePosition(const Position& pos) const
     return pos + curPos;
 }
 
+VectorAnts Map::nearestEnemies(const Position& pos, int16_t radius) const
+{
+    return {};
+}
+
 Position Map::nearestFood(const Position& pos, uint32_t visible) const
 {
     std::vector<const Position*> arrMinDist;
@@ -223,7 +231,7 @@ Position Map::nearestFood(const Position& pos, uint32_t visible) const
     return *arrMinDist[idx];
 }
 
-void Map::moveAnt(const std::shared_ptr<Ant>& ant, const Position& pos)
+void Map::moveAnt(const AntPtr& ant, const Position& pos)
 {
     int32_t old_idx = absPosition(ant->position());
     int32_t new_idx = absPosition(pos);
