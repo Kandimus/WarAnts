@@ -5,6 +5,8 @@ output/*
 # logs
 *.log
 
+sources/asm/_antasm.y.output
+
 # Prerequisites
 *.d
 
