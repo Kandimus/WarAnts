@@ -8,30 +8,28 @@ namespace WarAnts
 namespace Asm
 {
 
-struct Statetment;
-
-struct Function
+struct Define
 {
-    NOCOPY_STRUCT(Function)
+    NOCOPY_STRUCT(Define)
 
-    Function(const std::string& name, Statetment* stat)
+    Define(const std::string& name, int16_t val)
     {
-        m_stat = stat;
+        m_value = val;
         m_name = name;
         m_next = nullptr;
     }
-    virtual ~Function();
+    virtual ~Define();
 
-    Function* add(Function* next)
+    Define* add(Define* next)
     {
         m_next = next;
         return this;
     }
 
     std::string m_name = "";
-    Statetment* m_stat = nullptr;
+    int16_t m_value = 0;
 
-    Function* m_next = nullptr;
+    Define* m_next = nullptr;
 };
 
 }; // namespace Asm

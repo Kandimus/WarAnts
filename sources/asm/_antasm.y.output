@@ -1,4 +1,4 @@
-Grammar
+Грамматика
 
     0 $accept: code $end
 
@@ -65,7 +65,7 @@ Grammar
    43       | HEX_NUMBER
 
 
-Terminals, with rules where they appear
+Терминальные символы с правилами, в которых они появляются
 
 $end (0) 0
 error (256)
@@ -102,911 +102,911 @@ BSR (287) 19
 MOV (288) 20
 
 
-Nonterminals, with rules where they appear
+Нетерминальные символы с правилами, в которых они появляются
 
 $accept (34)
-    on left: 0
+    налево: 0
 code (35)
-    on left: 1, on right: 0
+    налево: 1, направо: 0
 list_of_pragma (36)
-    on left: 2 3, on right: 1 2
+    налево: 2 3, направо: 1 2
 pragma_definition (37)
-    on left: 4, on right: 2 3
+    налево: 4, направо: 2 3
 pragma (38)
-    on left: 5 6 7, on right: 4
+    налево: 5 6 7, направо: 4
 list_of_asm_function (39)
-    on left: 8 9, on right: 1 8
+    налево: 8 9, направо: 1 8
 asm_function (40)
-    on left: 10, on right: 8 9
+    налево: 10, направо: 8 9
 asm_function_name (41)
-    on left: 11, on right: 10
+    налево: 11, направо: 10
 list_of_command (42)
-    on left: 12 13, on right: 10 12
+    налево: 12 13, направо: 10 12
 asm_command_line (43)
-    on left: 14, on right: 12 13
+    налево: 14, направо: 12 13
 asm_command (44)
-    on left: 15 16 17 18 19 20, on right: 14
+    налево: 15 16 17 18 19 20, направо: 14
 quted_string (45)
-    on left: 21, on right: 4
+    налево: 21, направо: 4
 label (46)
-    on left: 22, on right: 11 15
+    налево: 22, направо: 11 15
 address (47)
-    on left: 23 24, on right: 16 17 18 19 20
+    налево: 23 24, направо: 16 17 18 19 20
 expression (48)
-    on left: 25, on right: 23 24
+    налево: 25, направо: 23 24
 expr_0 (49)
-    on left: 26 27 28, on right: 25 27 28 32
+    налево: 26 27 28, направо: 25 27 28 32
 expr_1 (50)
-    on left: 29 30, on right: 26 27 28 30
+    налево: 29 30, направо: 26 27 28 30
 expr_2 (51)
-    on left: 31 32, on right: 29 30
+    налево: 31 32, направо: 29 30
 expr_3 (52)
-    on left: 33 34 35 36 37 38 39 40 41, on right: 31
+    налево: 33 34 35 36 37 38 39 40 41, направо: 31
 number (53)
-    on left: 42 43, on right: 41
+    налево: 42 43, направо: 41
 
 
-state 0
+состояние 0
 
     0 $accept: . code $end
 
-    PRAGMA_NAME     shift, and go to state 1
-    PRAGMA_VERSION  shift, and go to state 2
-    PRAGMA_CLASS    shift, and go to state 3
+    PRAGMA_NAME     сдвиг, и переход в состояние 1
+    PRAGMA_VERSION  сдвиг, и переход в состояние 2
+    PRAGMA_CLASS    сдвиг, и переход в состояние 3
 
-    code               go to state 4
-    list_of_pragma     go to state 5
-    pragma_definition  go to state 6
-    pragma             go to state 7
+    code               переход в состояние 4
+    list_of_pragma     переход в состояние 5
+    pragma_definition  переход в состояние 6
+    pragma             переход в состояние 7
 
 
-state 1
+состояние 1
 
     6 pragma: PRAGMA_NAME .
 
-    $default  reduce using rule 6 (pragma)
+    $default  вывод с использованием правила 6 (pragma)
 
 
-state 2
+состояние 2
 
     7 pragma: PRAGMA_VERSION .
 
-    $default  reduce using rule 7 (pragma)
+    $default  вывод с использованием правила 7 (pragma)
 
 
-state 3
+состояние 3
 
     5 pragma: PRAGMA_CLASS .
 
-    $default  reduce using rule 5 (pragma)
+    $default  вывод с использованием правила 5 (pragma)
 
 
-state 4
+состояние 4
 
     0 $accept: code . $end
 
-    $end  shift, and go to state 8
+    $end  сдвиг, и переход в состояние 8
 
 
-state 5
+состояние 5
 
     1 code: list_of_pragma . list_of_asm_function
     2 list_of_pragma: list_of_pragma . pragma_definition
 
-    DOT             shift, and go to state 9
-    PRAGMA_NAME     shift, and go to state 1
-    PRAGMA_VERSION  shift, and go to state 2
-    PRAGMA_CLASS    shift, and go to state 3
+    DOT             сдвиг, и переход в состояние 9
+    PRAGMA_NAME     сдвиг, и переход в состояние 1
+    PRAGMA_VERSION  сдвиг, и переход в состояние 2
+    PRAGMA_CLASS    сдвиг, и переход в состояние 3
 
-    pragma_definition     go to state 10
-    pragma                go to state 7
-    list_of_asm_function  go to state 11
-    asm_function          go to state 12
-    asm_function_name     go to state 13
+    pragma_definition     переход в состояние 10
+    pragma                переход в состояние 7
+    list_of_asm_function  переход в состояние 11
+    asm_function          переход в состояние 12
+    asm_function_name     переход в состояние 13
 
 
-state 6
+состояние 6
 
     3 list_of_pragma: pragma_definition .
 
-    $default  reduce using rule 3 (list_of_pragma)
+    $default  вывод с использованием правила 3 (list_of_pragma)
 
 
-state 7
+состояние 7
 
     4 pragma_definition: pragma . quted_string NEW_LINE
 
-    CHARACTER_STRING  shift, and go to state 14
+    CHARACTER_STRING  сдвиг, и переход в состояние 14
 
-    quted_string  go to state 15
+    quted_string  переход в состояние 15
 
 
-state 8
+состояние 8
 
     0 $accept: code $end .
 
     $default  accept
 
 
-state 9
+состояние 9
 
    11 asm_function_name: DOT . label NEW_LINE
 
-    ID  shift, and go to state 16
+    ID  сдвиг, и переход в состояние 16
 
-    label  go to state 17
+    label  переход в состояние 17
 
 
-state 10
+состояние 10
 
     2 list_of_pragma: list_of_pragma pragma_definition .
 
-    $default  reduce using rule 2 (list_of_pragma)
+    $default  вывод с использованием правила 2 (list_of_pragma)
 
 
-state 11
+состояние 11
 
     1 code: list_of_pragma list_of_asm_function .
     8 list_of_asm_function: list_of_asm_function . asm_function
 
-    DOT  shift, and go to state 9
+    DOT  сдвиг, и переход в состояние 9
 
-    $default  reduce using rule 1 (code)
+    $default  вывод с использованием правила 1 (code)
 
-    asm_function       go to state 18
-    asm_function_name  go to state 13
+    asm_function       переход в состояние 18
+    asm_function_name  переход в состояние 13
 
 
-state 12
+состояние 12
 
     9 list_of_asm_function: asm_function .
 
-    $default  reduce using rule 9 (list_of_asm_function)
+    $default  вывод с использованием правила 9 (list_of_asm_function)
 
 
-state 13
+состояние 13
 
    10 asm_function: asm_function_name . list_of_command
 
-    ID   shift, and go to state 16
-    ADD  shift, and go to state 19
-    AND  shift, and go to state 20
-    BSF  shift, and go to state 21
-    BSR  shift, and go to state 22
-    MOV  shift, and go to state 23
+    ID   сдвиг, и переход в состояние 16
+    ADD  сдвиг, и переход в состояние 19
+    AND  сдвиг, и переход в состояние 20
+    BSF  сдвиг, и переход в состояние 21
+    BSR  сдвиг, и переход в состояние 22
+    MOV  сдвиг, и переход в состояние 23
 
-    list_of_command   go to state 24
-    asm_command_line  go to state 25
-    asm_command       go to state 26
-    label             go to state 27
+    list_of_command   переход в состояние 24
+    asm_command_line  переход в состояние 25
+    asm_command       переход в состояние 26
+    label             переход в состояние 27
 
 
-state 14
+состояние 14
 
    21 quted_string: CHARACTER_STRING .
 
-    $default  reduce using rule 21 (quted_string)
+    $default  вывод с использованием правила 21 (quted_string)
 
 
-state 15
+состояние 15
 
     4 pragma_definition: pragma quted_string . NEW_LINE
 
-    NEW_LINE  shift, and go to state 28
+    NEW_LINE  сдвиг, и переход в состояние 28
 
 
-state 16
+состояние 16
 
    22 label: ID .
 
-    $default  reduce using rule 22 (label)
+    $default  вывод с использованием правила 22 (label)
 
 
-state 17
+состояние 17
 
    11 asm_function_name: DOT label . NEW_LINE
 
-    NEW_LINE  shift, and go to state 29
+    NEW_LINE  сдвиг, и переход в состояние 29
 
 
-state 18
+состояние 18
 
     8 list_of_asm_function: list_of_asm_function asm_function .
 
-    $default  reduce using rule 8 (list_of_asm_function)
+    $default  вывод с использованием правила 8 (list_of_asm_function)
 
 
-state 19
+состояние 19
 
    16 asm_command: ADD . address COMMA address
 
-    LROUND      shift, and go to state 30
-    LSQUARE     shift, and go to state 31
-    INT_NUMBER  shift, and go to state 32
-    HEX_NUMBER  shift, and go to state 33
-    R0          shift, and go to state 34
-    R1          shift, and go to state 35
-    R2          shift, and go to state 36
-    R3          shift, and go to state 37
-    RC          shift, and go to state 38
-    RF          shift, and go to state 39
-    IF          shift, and go to state 40
-    IR          shift, and go to state 41
+    LROUND      сдвиг, и переход в состояние 30
+    LSQUARE     сдвиг, и переход в состояние 31
+    INT_NUMBER  сдвиг, и переход в состояние 32
+    HEX_NUMBER  сдвиг, и переход в состояние 33
+    R0          сдвиг, и переход в состояние 34
+    R1          сдвиг, и переход в состояние 35
+    R2          сдвиг, и переход в состояние 36
+    R3          сдвиг, и переход в состояние 37
+    RC          сдвиг, и переход в состояние 38
+    RF          сдвиг, и переход в состояние 39
+    IF          сдвиг, и переход в состояние 40
+    IR          сдвиг, и переход в состояние 41
 
-    address     go to state 42
-    expression  go to state 43
-    expr_0      go to state 44
-    expr_1      go to state 45
-    expr_2      go to state 46
-    expr_3      go to state 47
-    number      go to state 48
+    address     переход в состояние 42
+    expression  переход в состояние 43
+    expr_0      переход в состояние 44
+    expr_1      переход в состояние 45
+    expr_2      переход в состояние 46
+    expr_3      переход в состояние 47
+    number      переход в состояние 48
 
 
-state 20
+состояние 20
 
    17 asm_command: AND . address COMMA address
 
-    LROUND      shift, and go to state 30
-    LSQUARE     shift, and go to state 31
-    INT_NUMBER  shift, and go to state 32
-    HEX_NUMBER  shift, and go to state 33
-    R0          shift, and go to state 34
-    R1          shift, and go to state 35
-    R2          shift, and go to state 36
-    R3          shift, and go to state 37
-    RC          shift, and go to state 38
-    RF          shift, and go to state 39
-    IF          shift, and go to state 40
-    IR          shift, and go to state 41
+    LROUND      сдвиг, и переход в состояние 30
+    LSQUARE     сдвиг, и переход в состояние 31
+    INT_NUMBER  сдвиг, и переход в состояние 32
+    HEX_NUMBER  сдвиг, и переход в состояние 33
+    R0          сдвиг, и переход в состояние 34
+    R1          сдвиг, и переход в состояние 35
+    R2          сдвиг, и переход в состояние 36
+    R3          сдвиг, и переход в состояние 37
+    RC          сдвиг, и переход в состояние 38
+    RF          сдвиг, и переход в состояние 39
+    IF          сдвиг, и переход в состояние 40
+    IR          сдвиг, и переход в состояние 41
 
-    address     go to state 49
-    expression  go to state 43
-    expr_0      go to state 44
-    expr_1      go to state 45
-    expr_2      go to state 46
-    expr_3      go to state 47
-    number      go to state 48
+    address     переход в состояние 49
+    expression  переход в состояние 43
+    expr_0      переход в состояние 44
+    expr_1      переход в состояние 45
+    expr_2      переход в состояние 46
+    expr_3      переход в состояние 47
+    number      переход в состояние 48
 
 
-state 21
+состояние 21
 
    18 asm_command: BSF . address COMMA address
 
-    LROUND      shift, and go to state 30
-    LSQUARE     shift, and go to state 31
-    INT_NUMBER  shift, and go to state 32
-    HEX_NUMBER  shift, and go to state 33
-    R0          shift, and go to state 34
-    R1          shift, and go to state 35
-    R2          shift, and go to state 36
-    R3          shift, and go to state 37
-    RC          shift, and go to state 38
-    RF          shift, and go to state 39
-    IF          shift, and go to state 40
-    IR          shift, and go to state 41
+    LROUND      сдвиг, и переход в состояние 30
+    LSQUARE     сдвиг, и переход в состояние 31
+    INT_NUMBER  сдвиг, и переход в состояние 32
+    HEX_NUMBER  сдвиг, и переход в состояние 33
+    R0          сдвиг, и переход в состояние 34
+    R1          сдвиг, и переход в состояние 35
+    R2          сдвиг, и переход в состояние 36
+    R3          сдвиг, и переход в состояние 37
+    RC          сдвиг, и переход в состояние 38
+    RF          сдвиг, и переход в состояние 39
+    IF          сдвиг, и переход в состояние 40
+    IR          сдвиг, и переход в состояние 41
 
-    address     go to state 50
-    expression  go to state 43
-    expr_0      go to state 44
-    expr_1      go to state 45
-    expr_2      go to state 46
-    expr_3      go to state 47
-    number      go to state 48
+    address     переход в состояние 50
+    expression  переход в состояние 43
+    expr_0      переход в состояние 44
+    expr_1      переход в состояние 45
+    expr_2      переход в состояние 46
+    expr_3      переход в состояние 47
+    number      переход в состояние 48
 
 
-state 22
+состояние 22
 
    19 asm_command: BSR . address COMMA address
 
-    LROUND      shift, and go to state 30
-    LSQUARE     shift, and go to state 31
-    INT_NUMBER  shift, and go to state 32
-    HEX_NUMBER  shift, and go to state 33
-    R0          shift, and go to state 34
-    R1          shift, and go to state 35
-    R2          shift, and go to state 36
-    R3          shift, and go to state 37
-    RC          shift, and go to state 38
-    RF          shift, and go to state 39
-    IF          shift, and go to state 40
-    IR          shift, and go to state 41
+    LROUND      сдвиг, и переход в состояние 30
+    LSQUARE     сдвиг, и переход в состояние 31
+    INT_NUMBER  сдвиг, и переход в состояние 32
+    HEX_NUMBER  сдвиг, и переход в состояние 33
+    R0          сдвиг, и переход в состояние 34
+    R1          сдвиг, и переход в состояние 35
+    R2          сдвиг, и переход в состояние 36
+    R3          сдвиг, и переход в состояние 37
+    RC          сдвиг, и переход в состояние 38
+    RF          сдвиг, и переход в состояние 39
+    IF          сдвиг, и переход в состояние 40
+    IR          сдвиг, и переход в состояние 41
 
-    address     go to state 51
-    expression  go to state 43
-    expr_0      go to state 44
-    expr_1      go to state 45
-    expr_2      go to state 46
-    expr_3      go to state 47
-    number      go to state 48
+    address     переход в состояние 51
+    expression  переход в состояние 43
+    expr_0      переход в состояние 44
+    expr_1      переход в состояние 45
+    expr_2      переход в состояние 46
+    expr_3      переход в состояние 47
+    number      переход в состояние 48
 
 
-state 23
+состояние 23
 
    20 asm_command: MOV . address COMMA address
 
-    LROUND      shift, and go to state 30
-    LSQUARE     shift, and go to state 31
-    INT_NUMBER  shift, and go to state 32
-    HEX_NUMBER  shift, and go to state 33
-    R0          shift, and go to state 34
-    R1          shift, and go to state 35
-    R2          shift, and go to state 36
-    R3          shift, and go to state 37
-    RC          shift, and go to state 38
-    RF          shift, and go to state 39
-    IF          shift, and go to state 40
-    IR          shift, and go to state 41
+    LROUND      сдвиг, и переход в состояние 30
+    LSQUARE     сдвиг, и переход в состояние 31
+    INT_NUMBER  сдвиг, и переход в состояние 32
+    HEX_NUMBER  сдвиг, и переход в состояние 33
+    R0          сдвиг, и переход в состояние 34
+    R1          сдвиг, и переход в состояние 35
+    R2          сдвиг, и переход в состояние 36
+    R3          сдвиг, и переход в состояние 37
+    RC          сдвиг, и переход в состояние 38
+    RF          сдвиг, и переход в состояние 39
+    IF          сдвиг, и переход в состояние 40
+    IR          сдвиг, и переход в состояние 41
 
-    address     go to state 52
-    expression  go to state 43
-    expr_0      go to state 44
-    expr_1      go to state 45
-    expr_2      go to state 46
-    expr_3      go to state 47
-    number      go to state 48
+    address     переход в состояние 52
+    expression  переход в состояние 43
+    expr_0      переход в состояние 44
+    expr_1      переход в состояние 45
+    expr_2      переход в состояние 46
+    expr_3      переход в состояние 47
+    number      переход в состояние 48
 
 
-state 24
+состояние 24
 
    10 asm_function: asm_function_name list_of_command .
    12 list_of_command: list_of_command . asm_command_line
 
-    ID   shift, and go to state 16
-    ADD  shift, and go to state 19
-    AND  shift, and go to state 20
-    BSF  shift, and go to state 21
-    BSR  shift, and go to state 22
-    MOV  shift, and go to state 23
+    ID   сдвиг, и переход в состояние 16
+    ADD  сдвиг, и переход в состояние 19
+    AND  сдвиг, и переход в состояние 20
+    BSF  сдвиг, и переход в состояние 21
+    BSR  сдвиг, и переход в состояние 22
+    MOV  сдвиг, и переход в состояние 23
 
-    $default  reduce using rule 10 (asm_function)
+    $default  вывод с использованием правила 10 (asm_function)
 
-    asm_command_line  go to state 53
-    asm_command       go to state 26
-    label             go to state 27
+    asm_command_line  переход в состояние 53
+    asm_command       переход в состояние 26
+    label             переход в состояние 27
 
 
-state 25
+состояние 25
 
    13 list_of_command: asm_command_line .
 
-    $default  reduce using rule 13 (list_of_command)
+    $default  вывод с использованием правила 13 (list_of_command)
 
 
-state 26
+состояние 26
 
    14 asm_command_line: asm_command . NEW_LINE
 
-    NEW_LINE  shift, and go to state 54
+    NEW_LINE  сдвиг, и переход в состояние 54
 
 
-state 27
+состояние 27
 
    15 asm_command: label . COLON
 
-    COLON  shift, and go to state 55
+    COLON  сдвиг, и переход в состояние 55
 
 
-state 28
+состояние 28
 
     4 pragma_definition: pragma quted_string NEW_LINE .
 
-    $default  reduce using rule 4 (pragma_definition)
+    $default  вывод с использованием правила 4 (pragma_definition)
 
 
-state 29
+состояние 29
 
    11 asm_function_name: DOT label NEW_LINE .
 
-    $default  reduce using rule 11 (asm_function_name)
+    $default  вывод с использованием правила 11 (asm_function_name)
 
 
-state 30
+состояние 30
 
    32 expr_2: LROUND . expr_0 RROUND
 
-    LROUND      shift, and go to state 30
-    INT_NUMBER  shift, and go to state 32
-    HEX_NUMBER  shift, and go to state 33
-    R0          shift, and go to state 34
-    R1          shift, and go to state 35
-    R2          shift, and go to state 36
-    R3          shift, and go to state 37
-    RC          shift, and go to state 38
-    RF          shift, and go to state 39
-    IF          shift, and go to state 40
-    IR          shift, and go to state 41
+    LROUND      сдвиг, и переход в состояние 30
+    INT_NUMBER  сдвиг, и переход в состояние 32
+    HEX_NUMBER  сдвиг, и переход в состояние 33
+    R0          сдвиг, и переход в состояние 34
+    R1          сдвиг, и переход в состояние 35
+    R2          сдвиг, и переход в состояние 36
+    R3          сдвиг, и переход в состояние 37
+    RC          сдвиг, и переход в состояние 38
+    RF          сдвиг, и переход в состояние 39
+    IF          сдвиг, и переход в состояние 40
+    IR          сдвиг, и переход в состояние 41
 
-    expr_0  go to state 56
-    expr_1  go to state 45
-    expr_2  go to state 46
-    expr_3  go to state 47
-    number  go to state 48
+    expr_0  переход в состояние 56
+    expr_1  переход в состояние 45
+    expr_2  переход в состояние 46
+    expr_3  переход в состояние 47
+    number  переход в состояние 48
 
 
-state 31
+состояние 31
 
    24 address: LSQUARE . expression RSQUARE
 
-    LROUND      shift, and go to state 30
-    INT_NUMBER  shift, and go to state 32
-    HEX_NUMBER  shift, and go to state 33
-    R0          shift, and go to state 34
-    R1          shift, and go to state 35
-    R2          shift, and go to state 36
-    R3          shift, and go to state 37
-    RC          shift, and go to state 38
-    RF          shift, and go to state 39
-    IF          shift, and go to state 40
-    IR          shift, and go to state 41
+    LROUND      сдвиг, и переход в состояние 30
+    INT_NUMBER  сдвиг, и переход в состояние 32
+    HEX_NUMBER  сдвиг, и переход в состояние 33
+    R0          сдвиг, и переход в состояние 34
+    R1          сдвиг, и переход в состояние 35
+    R2          сдвиг, и переход в состояние 36
+    R3          сдвиг, и переход в состояние 37
+    RC          сдвиг, и переход в состояние 38
+    RF          сдвиг, и переход в состояние 39
+    IF          сдвиг, и переход в состояние 40
+    IR          сдвиг, и переход в состояние 41
 
-    expression  go to state 57
-    expr_0      go to state 44
-    expr_1      go to state 45
-    expr_2      go to state 46
-    expr_3      go to state 47
-    number      go to state 48
+    expression  переход в состояние 57
+    expr_0      переход в состояние 44
+    expr_1      переход в состояние 45
+    expr_2      переход в состояние 46
+    expr_3      переход в состояние 47
+    number      переход в состояние 48
 
 
-state 32
+состояние 32
 
    42 number: INT_NUMBER .
 
-    $default  reduce using rule 42 (number)
+    $default  вывод с использованием правила 42 (number)
 
 
-state 33
+состояние 33
 
    43 number: HEX_NUMBER .
 
-    $default  reduce using rule 43 (number)
+    $default  вывод с использованием правила 43 (number)
 
 
-state 34
+состояние 34
 
    33 expr_3: R0 .
 
-    $default  reduce using rule 33 (expr_3)
+    $default  вывод с использованием правила 33 (expr_3)
 
 
-state 35
+состояние 35
 
    34 expr_3: R1 .
 
-    $default  reduce using rule 34 (expr_3)
+    $default  вывод с использованием правила 34 (expr_3)
 
 
-state 36
+состояние 36
 
    35 expr_3: R2 .
 
-    $default  reduce using rule 35 (expr_3)
+    $default  вывод с использованием правила 35 (expr_3)
 
 
-state 37
+состояние 37
 
    36 expr_3: R3 .
 
-    $default  reduce using rule 36 (expr_3)
+    $default  вывод с использованием правила 36 (expr_3)
 
 
-state 38
+состояние 38
 
    37 expr_3: RC .
 
-    $default  reduce using rule 37 (expr_3)
+    $default  вывод с использованием правила 37 (expr_3)
 
 
-state 39
+состояние 39
 
    38 expr_3: RF .
 
-    $default  reduce using rule 38 (expr_3)
+    $default  вывод с использованием правила 38 (expr_3)
 
 
-state 40
+состояние 40
 
    39 expr_3: IF .
 
-    $default  reduce using rule 39 (expr_3)
+    $default  вывод с использованием правила 39 (expr_3)
 
 
-state 41
+состояние 41
 
    40 expr_3: IR .
 
-    $default  reduce using rule 40 (expr_3)
+    $default  вывод с использованием правила 40 (expr_3)
 
 
-state 42
+состояние 42
 
    16 asm_command: ADD address . COMMA address
 
-    COMMA  shift, and go to state 58
+    COMMA  сдвиг, и переход в состояние 58
 
 
-state 43
+состояние 43
 
    23 address: expression .
 
-    $default  reduce using rule 23 (address)
+    $default  вывод с использованием правила 23 (address)
 
 
-state 44
+состояние 44
 
    25 expression: expr_0 .
    27 expr_0: expr_0 . PLUS expr_1
    28       | expr_0 . MINUS expr_1
 
-    PLUS   shift, and go to state 59
-    MINUS  shift, and go to state 60
+    PLUS   сдвиг, и переход в состояние 59
+    MINUS  сдвиг, и переход в состояние 60
 
-    $default  reduce using rule 25 (expression)
+    $default  вывод с использованием правила 25 (expression)
 
 
-state 45
+состояние 45
 
    26 expr_0: expr_1 .
    30 expr_1: expr_1 . STAR expr_2
 
-    STAR  shift, and go to state 61
+    STAR  сдвиг, и переход в состояние 61
 
-    $default  reduce using rule 26 (expr_0)
+    $default  вывод с использованием правила 26 (expr_0)
 
 
-state 46
+состояние 46
 
    29 expr_1: expr_2 .
 
-    $default  reduce using rule 29 (expr_1)
+    $default  вывод с использованием правила 29 (expr_1)
 
 
-state 47
+состояние 47
 
    31 expr_2: expr_3 .
 
-    $default  reduce using rule 31 (expr_2)
+    $default  вывод с использованием правила 31 (expr_2)
 
 
-state 48
+состояние 48
 
    41 expr_3: number .
 
-    $default  reduce using rule 41 (expr_3)
+    $default  вывод с использованием правила 41 (expr_3)
 
 
-state 49
+состояние 49
 
    17 asm_command: AND address . COMMA address
 
-    COMMA  shift, and go to state 62
+    COMMA  сдвиг, и переход в состояние 62
 
 
-state 50
+состояние 50
 
    18 asm_command: BSF address . COMMA address
 
-    COMMA  shift, and go to state 63
+    COMMA  сдвиг, и переход в состояние 63
 
 
-state 51
+состояние 51
 
    19 asm_command: BSR address . COMMA address
 
-    COMMA  shift, and go to state 64
+    COMMA  сдвиг, и переход в состояние 64
 
 
-state 52
+состояние 52
 
    20 asm_command: MOV address . COMMA address
 
-    COMMA  shift, and go to state 65
+    COMMA  сдвиг, и переход в состояние 65
 
 
-state 53
+состояние 53
 
    12 list_of_command: list_of_command asm_command_line .
 
-    $default  reduce using rule 12 (list_of_command)
+    $default  вывод с использованием правила 12 (list_of_command)
 
 
-state 54
+состояние 54
 
    14 asm_command_line: asm_command NEW_LINE .
 
-    $default  reduce using rule 14 (asm_command_line)
+    $default  вывод с использованием правила 14 (asm_command_line)
 
 
-state 55
+состояние 55
 
    15 asm_command: label COLON .
 
-    $default  reduce using rule 15 (asm_command)
+    $default  вывод с использованием правила 15 (asm_command)
 
 
-state 56
+состояние 56
 
    27 expr_0: expr_0 . PLUS expr_1
    28       | expr_0 . MINUS expr_1
    32 expr_2: LROUND expr_0 . RROUND
 
-    RROUND  shift, and go to state 66
-    PLUS    shift, and go to state 59
-    MINUS   shift, and go to state 60
+    RROUND  сдвиг, и переход в состояние 66
+    PLUS    сдвиг, и переход в состояние 59
+    MINUS   сдвиг, и переход в состояние 60
 
 
-state 57
+состояние 57
 
    24 address: LSQUARE expression . RSQUARE
 
-    RSQUARE  shift, and go to state 67
+    RSQUARE  сдвиг, и переход в состояние 67
 
 
-state 58
+состояние 58
 
    16 asm_command: ADD address COMMA . address
 
-    LROUND      shift, and go to state 30
-    LSQUARE     shift, and go to state 31
-    INT_NUMBER  shift, and go to state 32
-    HEX_NUMBER  shift, and go to state 33
-    R0          shift, and go to state 34
-    R1          shift, and go to state 35
-    R2          shift, and go to state 36
-    R3          shift, and go to state 37
-    RC          shift, and go to state 38
-    RF          shift, and go to state 39
-    IF          shift, and go to state 40
-    IR          shift, and go to state 41
+    LROUND      сдвиг, и переход в состояние 30
+    LSQUARE     сдвиг, и переход в состояние 31
+    INT_NUMBER  сдвиг, и переход в состояние 32
+    HEX_NUMBER  сдвиг, и переход в состояние 33
+    R0          сдвиг, и переход в состояние 34
+    R1          сдвиг, и переход в состояние 35
+    R2          сдвиг, и переход в состояние 36
+    R3          сдвиг, и переход в состояние 37
+    RC          сдвиг, и переход в состояние 38
+    RF          сдвиг, и переход в состояние 39
+    IF          сдвиг, и переход в состояние 40
+    IR          сдвиг, и переход в состояние 41
 
-    address     go to state 68
-    expression  go to state 43
-    expr_0      go to state 44
-    expr_1      go to state 45
-    expr_2      go to state 46
-    expr_3      go to state 47
-    number      go to state 48
+    address     переход в состояние 68
+    expression  переход в состояние 43
+    expr_0      переход в состояние 44
+    expr_1      переход в состояние 45
+    expr_2      переход в состояние 46
+    expr_3      переход в состояние 47
+    number      переход в состояние 48
 
 
-state 59
+состояние 59
 
    27 expr_0: expr_0 PLUS . expr_1
 
-    LROUND      shift, and go to state 30
-    INT_NUMBER  shift, and go to state 32
-    HEX_NUMBER  shift, and go to state 33
-    R0          shift, and go to state 34
-    R1          shift, and go to state 35
-    R2          shift, and go to state 36
-    R3          shift, and go to state 37
-    RC          shift, and go to state 38
-    RF          shift, and go to state 39
-    IF          shift, and go to state 40
-    IR          shift, and go to state 41
+    LROUND      сдвиг, и переход в состояние 30
+    INT_NUMBER  сдвиг, и переход в состояние 32
+    HEX_NUMBER  сдвиг, и переход в состояние 33
+    R0          сдвиг, и переход в состояние 34
+    R1          сдвиг, и переход в состояние 35
+    R2          сдвиг, и переход в состояние 36
+    R3          сдвиг, и переход в состояние 37
+    RC          сдвиг, и переход в состояние 38
+    RF          сдвиг, и переход в состояние 39
+    IF          сдвиг, и переход в состояние 40
+    IR          сдвиг, и переход в состояние 41
 
-    expr_1  go to state 69
-    expr_2  go to state 46
-    expr_3  go to state 47
-    number  go to state 48
+    expr_1  переход в состояние 69
+    expr_2  переход в состояние 46
+    expr_3  переход в состояние 47
+    number  переход в состояние 48
 
 
-state 60
+состояние 60
 
    28 expr_0: expr_0 MINUS . expr_1
 
-    LROUND      shift, and go to state 30
-    INT_NUMBER  shift, and go to state 32
-    HEX_NUMBER  shift, and go to state 33
-    R0          shift, and go to state 34
-    R1          shift, and go to state 35
-    R2          shift, and go to state 36
-    R3          shift, and go to state 37
-    RC          shift, and go to state 38
-    RF          shift, and go to state 39
-    IF          shift, and go to state 40
-    IR          shift, and go to state 41
+    LROUND      сдвиг, и переход в состояние 30
+    INT_NUMBER  сдвиг, и переход в состояние 32
+    HEX_NUMBER  сдвиг, и переход в состояние 33
+    R0          сдвиг, и переход в состояние 34
+    R1          сдвиг, и переход в состояние 35
+    R2          сдвиг, и переход в состояние 36
+    R3          сдвиг, и переход в состояние 37
+    RC          сдвиг, и переход в состояние 38
+    RF          сдвиг, и переход в состояние 39
+    IF          сдвиг, и переход в состояние 40
+    IR          сдвиг, и переход в состояние 41
 
-    expr_1  go to state 70
-    expr_2  go to state 46
-    expr_3  go to state 47
-    number  go to state 48
+    expr_1  переход в состояние 70
+    expr_2  переход в состояние 46
+    expr_3  переход в состояние 47
+    number  переход в состояние 48
 
 
-state 61
+состояние 61
 
    30 expr_1: expr_1 STAR . expr_2
 
-    LROUND      shift, and go to state 30
-    INT_NUMBER  shift, and go to state 32
-    HEX_NUMBER  shift, and go to state 33
-    R0          shift, and go to state 34
-    R1          shift, and go to state 35
-    R2          shift, and go to state 36
-    R3          shift, and go to state 37
-    RC          shift, and go to state 38
-    RF          shift, and go to state 39
-    IF          shift, and go to state 40
-    IR          shift, and go to state 41
+    LROUND      сдвиг, и переход в состояние 30
+    INT_NUMBER  сдвиг, и переход в состояние 32
+    HEX_NUMBER  сдвиг, и переход в состояние 33
+    R0          сдвиг, и переход в состояние 34
+    R1          сдвиг, и переход в состояние 35
+    R2          сдвиг, и переход в состояние 36
+    R3          сдвиг, и переход в состояние 37
+    RC          сдвиг, и переход в состояние 38
+    RF          сдвиг, и переход в состояние 39
+    IF          сдвиг, и переход в состояние 40
+    IR          сдвиг, и переход в состояние 41
 
-    expr_2  go to state 71
-    expr_3  go to state 47
-    number  go to state 48
+    expr_2  переход в состояние 71
+    expr_3  переход в состояние 47
+    number  переход в состояние 48
 
 
-state 62
+состояние 62
 
    17 asm_command: AND address COMMA . address
 
-    LROUND      shift, and go to state 30
-    LSQUARE     shift, and go to state 31
-    INT_NUMBER  shift, and go to state 32
-    HEX_NUMBER  shift, and go to state 33
-    R0          shift, and go to state 34
-    R1          shift, and go to state 35
-    R2          shift, and go to state 36
-    R3          shift, and go to state 37
-    RC          shift, and go to state 38
-    RF          shift, and go to state 39
-    IF          shift, and go to state 40
-    IR          shift, and go to state 41
+    LROUND      сдвиг, и переход в состояние 30
+    LSQUARE     сдвиг, и переход в состояние 31
+    INT_NUMBER  сдвиг, и переход в состояние 32
+    HEX_NUMBER  сдвиг, и переход в состояние 33
+    R0          сдвиг, и переход в состояние 34
+    R1          сдвиг, и переход в состояние 35
+    R2          сдвиг, и переход в состояние 36
+    R3          сдвиг, и переход в состояние 37
+    RC          сдвиг, и переход в состояние 38
+    RF          сдвиг, и переход в состояние 39
+    IF          сдвиг, и переход в состояние 40
+    IR          сдвиг, и переход в состояние 41
 
-    address     go to state 72
-    expression  go to state 43
-    expr_0      go to state 44
-    expr_1      go to state 45
-    expr_2      go to state 46
-    expr_3      go to state 47
-    number      go to state 48
+    address     переход в состояние 72
+    expression  переход в состояние 43
+    expr_0      переход в состояние 44
+    expr_1      переход в состояние 45
+    expr_2      переход в состояние 46
+    expr_3      переход в состояние 47
+    number      переход в состояние 48
 
 
-state 63
+состояние 63
 
    18 asm_command: BSF address COMMA . address
 
-    LROUND      shift, and go to state 30
-    LSQUARE     shift, and go to state 31
-    INT_NUMBER  shift, and go to state 32
-    HEX_NUMBER  shift, and go to state 33
-    R0          shift, and go to state 34
-    R1          shift, and go to state 35
-    R2          shift, and go to state 36
-    R3          shift, and go to state 37
-    RC          shift, and go to state 38
-    RF          shift, and go to state 39
-    IF          shift, and go to state 40
-    IR          shift, and go to state 41
+    LROUND      сдвиг, и переход в состояние 30
+    LSQUARE     сдвиг, и переход в состояние 31
+    INT_NUMBER  сдвиг, и переход в состояние 32
+    HEX_NUMBER  сдвиг, и переход в состояние 33
+    R0          сдвиг, и переход в состояние 34
+    R1          сдвиг, и переход в состояние 35
+    R2          сдвиг, и переход в состояние 36
+    R3          сдвиг, и переход в состояние 37
+    RC          сдвиг, и переход в состояние 38
+    RF          сдвиг, и переход в состояние 39
+    IF          сдвиг, и переход в состояние 40
+    IR          сдвиг, и переход в состояние 41
 
-    address     go to state 73
-    expression  go to state 43
-    expr_0      go to state 44
-    expr_1      go to state 45
-    expr_2      go to state 46
-    expr_3      go to state 47
-    number      go to state 48
+    address     переход в состояние 73
+    expression  переход в состояние 43
+    expr_0      переход в состояние 44
+    expr_1      переход в состояние 45
+    expr_2      переход в состояние 46
+    expr_3      переход в состояние 47
+    number      переход в состояние 48
 
 
-state 64
+состояние 64
 
    19 asm_command: BSR address COMMA . address
 
-    LROUND      shift, and go to state 30
-    LSQUARE     shift, and go to state 31
-    INT_NUMBER  shift, and go to state 32
-    HEX_NUMBER  shift, and go to state 33
-    R0          shift, and go to state 34
-    R1          shift, and go to state 35
-    R2          shift, and go to state 36
-    R3          shift, and go to state 37
-    RC          shift, and go to state 38
-    RF          shift, and go to state 39
-    IF          shift, and go to state 40
-    IR          shift, and go to state 41
+    LROUND      сдвиг, и переход в состояние 30
+    LSQUARE     сдвиг, и переход в состояние 31
+    INT_NUMBER  сдвиг, и переход в состояние 32
+    HEX_NUMBER  сдвиг, и переход в состояние 33
+    R0          сдвиг, и переход в состояние 34
+    R1          сдвиг, и переход в состояние 35
+    R2          сдвиг, и переход в состояние 36
+    R3          сдвиг, и переход в состояние 37
+    RC          сдвиг, и переход в состояние 38
+    RF          сдвиг, и переход в состояние 39
+    IF          сдвиг, и переход в состояние 40
+    IR          сдвиг, и переход в состояние 41
 
-    address     go to state 74
-    expression  go to state 43
-    expr_0      go to state 44
-    expr_1      go to state 45
-    expr_2      go to state 46
-    expr_3      go to state 47
-    number      go to state 48
+    address     переход в состояние 74
+    expression  переход в состояние 43
+    expr_0      переход в состояние 44
+    expr_1      переход в состояние 45
+    expr_2      переход в состояние 46
+    expr_3      переход в состояние 47
+    number      переход в состояние 48
 
 
-state 65
+состояние 65
 
    20 asm_command: MOV address COMMA . address
 
-    LROUND      shift, and go to state 30
-    LSQUARE     shift, and go to state 31
-    INT_NUMBER  shift, and go to state 32
-    HEX_NUMBER  shift, and go to state 33
-    R0          shift, and go to state 34
-    R1          shift, and go to state 35
-    R2          shift, and go to state 36
-    R3          shift, and go to state 37
-    RC          shift, and go to state 38
-    RF          shift, and go to state 39
-    IF          shift, and go to state 40
-    IR          shift, and go to state 41
+    LROUND      сдвиг, и переход в состояние 30
+    LSQUARE     сдвиг, и переход в состояние 31
+    INT_NUMBER  сдвиг, и переход в состояние 32
+    HEX_NUMBER  сдвиг, и переход в состояние 33
+    R0          сдвиг, и переход в состояние 34
+    R1          сдвиг, и переход в состояние 35
+    R2          сдвиг, и переход в состояние 36
+    R3          сдвиг, и переход в состояние 37
+    RC          сдвиг, и переход в состояние 38
+    RF          сдвиг, и переход в состояние 39
+    IF          сдвиг, и переход в состояние 40
+    IR          сдвиг, и переход в состояние 41
 
-    address     go to state 75
-    expression  go to state 43
-    expr_0      go to state 44
-    expr_1      go to state 45
-    expr_2      go to state 46
-    expr_3      go to state 47
-    number      go to state 48
+    address     переход в состояние 75
+    expression  переход в состояние 43
+    expr_0      переход в состояние 44
+    expr_1      переход в состояние 45
+    expr_2      переход в состояние 46
+    expr_3      переход в состояние 47
+    number      переход в состояние 48
 
 
-state 66
+состояние 66
 
    32 expr_2: LROUND expr_0 RROUND .
 
-    $default  reduce using rule 32 (expr_2)
+    $default  вывод с использованием правила 32 (expr_2)
 
 
-state 67
+состояние 67
 
    24 address: LSQUARE expression RSQUARE .
 
-    $default  reduce using rule 24 (address)
+    $default  вывод с использованием правила 24 (address)
 
 
-state 68
+состояние 68
 
    16 asm_command: ADD address COMMA address .
 
-    $default  reduce using rule 16 (asm_command)
+    $default  вывод с использованием правила 16 (asm_command)
 
 
-state 69
+состояние 69
 
    27 expr_0: expr_0 PLUS expr_1 .
    30 expr_1: expr_1 . STAR expr_2
 
-    STAR  shift, and go to state 61
+    STAR  сдвиг, и переход в состояние 61
 
-    $default  reduce using rule 27 (expr_0)
+    $default  вывод с использованием правила 27 (expr_0)
 
 
-state 70
+состояние 70
 
    28 expr_0: expr_0 MINUS expr_1 .
    30 expr_1: expr_1 . STAR expr_2
 
-    STAR  shift, and go to state 61
+    STAR  сдвиг, и переход в состояние 61
 
-    $default  reduce using rule 28 (expr_0)
+    $default  вывод с использованием правила 28 (expr_0)
 
 
-state 71
+состояние 71
 
    30 expr_1: expr_1 STAR expr_2 .
 
-    $default  reduce using rule 30 (expr_1)
+    $default  вывод с использованием правила 30 (expr_1)
 
 
-state 72
+состояние 72
 
    17 asm_command: AND address COMMA address .
 
-    $default  reduce using rule 17 (asm_command)
+    $default  вывод с использованием правила 17 (asm_command)
 
 
-state 73
+состояние 73
 
    18 asm_command: BSF address COMMA address .
 
-    $default  reduce using rule 18 (asm_command)
+    $default  вывод с использованием правила 18 (asm_command)
 
 
-state 74
+состояние 74
 
    19 asm_command: BSR address COMMA address .
 
-    $default  reduce using rule 19 (asm_command)
+    $default  вывод с использованием правила 19 (asm_command)
 
 
-state 75
+состояние 75
 
    20 asm_command: MOV address COMMA address .
 
-    $default  reduce using rule 20 (asm_command)
+    $default  вывод с использованием правила 20 (asm_command)

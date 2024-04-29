@@ -30,6 +30,7 @@ struct Pragma
     Pragma* add(Pragma* next)
     {
         m_next = next;
+        return this;
     }
 
     PragmaType m_type;

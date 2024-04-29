@@ -1,3 +1,14 @@
+%{
+#pragma warning(disable:4102)
+#pragma warning(disable:4244)
+#pragma warning(disable:4267)
+#pragma warning(disable:4273)
+
+void skipSignleLineComment(void);
+void skipMultiLineComment(void);
+
+%}
+
 %option noyywrap
 %option yylineno
 
@@ -13,49 +24,110 @@ hex_num   "0x"{hexdigit}+
 
 %%
 
-{delim}+                      { ; }
-{int_num}                     { return INT_NUMBER; }
-{hex_num}                     { return HEX_NUMBER; }
-\"({NQUOTE}|"")+\"            { return CHARACTER_STRING; }
-{new_line}+                   { return NEW_LINE; }
-{id}                          { return ID; }
+{delim}+                    { ; }
+{int_num}                   { return INT_NUMBER; }
+{hex_num}                   { return HEX_NUMBER; }
+\"({NQUOTE}|"")+\"          { return CHARACTER_STRING; }
+{new_line}+                 { return NEW_LINE; }
+{id}                        { return ID; }
 
-"("                           { return LROUND; }
-")"                           { return RROUND; }
-"["                           { return LSQUARE; }
-"]"                           { return RSQUARE; }
-","                           { return COMMA; }
-":"                           { return COLON; }
-"."                           { return DOT; }
+"("                         { return LROUND; }
+")"                         { return RROUND; }
+"["                         { return LSQUARE; }
+"]"                         { return RSQUARE; }
+","                         { return COMMA; }
+":"                         { return COLON; }
+"."                         { return DOT; }
 
-"#name"                       { return PRAGMA_NAME; }
-"#version"                    { return PRAGMA_VERSION; }
-"#class"                      { return PRAGMA_CLASS; }
+"#name"                     { return PRAGMA_NAME; }
+"#version"                  { return PRAGMA_VERSION; }
+"#class"                    { return PRAGMA_CLASS; }
+"#define"                   { return PRAGMA_DEFINE; }
 
-"R0"                          { return R0; }
-"R1"                          { return R1; }
-"R2"                          { return R2; }
-"R3"                          { return R3; }
-"RC"                          { return RC; }
-"RF"                          { return RF; }
-"IF"                          { return IF; }
-"IR"                          { return IR; }
+"r0"                        { return R0; }
+"r1"                        { return R1; }
+"r2"                        { return R2; }
+"r3"                        { return R3; }
+"rc"                        { return RC; }
+"rf"                        { return RF; }
+"if"                        { return IF; }
+"ir"                        { return IR; }
 
-"+"                           { return PLUS; }
-"-"                           { return MINUS; }
-"*"                           { return STAR; }
+"+"                         { return PLUS; }
+"-"                         { return MINUS; }
+"*"                         { return STAR; }
 
-"add"                         { return ADD; }
-"and"                         { return AND; }
+"add"                       { return ADD; }
+"and"                       { return AND; }
+"dec"                       { return DEC; }
+"div"                       { return DIV; }
+"inc"                       { return INC; }
+"mod"                       { return MOD; }
+"mul"                       { return MUL; }
+"neg"                       { return NEG; }
+"not"                       { return NOT; }
+"or"                        { return OR; }
+"sub"                       { return SUB; }
+"xor"                       { return XOR; }
+"min"                       { return MIN; }
+"max"                       { return MAX; }
 
-"//"                          { skipSignleLineComment(); }
-"/*"                          { skipMultiLineComment(); }
+"bsf"                       { return BSF; }
+"bsr"                       { return BSR; }
+"bt"                        { return BT; }
+"btr"                       { return BTR; }
+"btc"                       { return BTC; }
+"shl"                       { return SHL; }
+"shr"                       { return SHR; }
+"rol"                       { return ROL; }
+"ror"                       { return ROR; }
 
-.                             { return yytext[0]; }
+"eq"                        { return EQ; }
+"neq"                       { return NEQ; }
+"gt"                        { return GT; }
+"ge"                        { return GE; }
+"lt"                        { return LT; }
+"le"                        { return LE; }
+"test"                      { return TEST; }
+
+"jmp"                       { return JMP; }
+"jz"                        { return JZ; }
+"jnz"                       { return JNZ; }
+"jo"                        { return JO; }
+"jno"                       { return JNO; }
+"jcz"                       { return JCZ; }
+"jncz"                      { return JCNZ; }
+"loop"                      { return LOOP; }
+
+"mov"                       { return MOV; }
+"call"                      { return CALL; }
+"len"                       { return LEN; }
+"exit"                      { return EXIT; }
+
+"ldtr"                      { return LDTR; }
+"ldfd"                      { return LDFD; }
+"lden"                      { return LDEN; }
+"ldfr"                      { return LDFR; }
+
+"cidl"                      { return CIDL; }
+"cmov"                      { return CMOV; }
+"catt"                      { return CATT; }
+"ctkf"                      { return CTKF; }
+"cgvf"                      { return CGVF; }
+"ceat"                      { return CEAT; }
+"cps"                       { return CPS; }
+"spw"                       { return CPW; }
+
+"nop"                       { return NOP;}
+
+"//"                        { skipSignleLineComment(); }
+"/*"                        { skipMultiLineComment(); }
+
+.                           { return yytext[0]; }
 
 %%
 
-void skipSignleLineComment(void)
+static void skipSignleLineComment(void)
 {
     int c;
     while ((c = yyinput()))
@@ -74,7 +146,7 @@ void skipSignleLineComment(void)
     }
 }
 
-void skipMultiLineComment(void)
+static void skipMultiLineComment(void)
 {
     int c;
     while((c = yyinput()))

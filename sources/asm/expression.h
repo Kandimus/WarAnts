@@ -1,6 +1,7 @@
-#pragma once
+п»ї#pragma once
 
 #include "asm_defines.h"
+#include <string>
 
 namespace WarAnts
 {
@@ -13,6 +14,7 @@ enum class ExpressionType
     Number,
     Operand,
     Address,
+    Define,
 };
 
 enum class OperandType
@@ -30,7 +32,7 @@ enum class RegisterType
     R3,
     RC,
     RF,
-    RA, // специальный регистр для вычисления адреса
+    RA, // СЃРїРµС†РёР°Р»СЊРЅС‹Р№ СЂРµРіРёСЃС‚СЂ РґР»СЏ РІС‹С‡РёСЃР»РµРЅРёСЏ Р°РґСЂРµСЃР°
     IF,
     IR,
 };
@@ -67,17 +69,26 @@ struct Expression
         m_type = ExpressionType::Operand;
         m_value.op = op;
     }
-    Expression(OperandType op, Expression* left)
+    Expression(Expression* left)
     {
         m_left = left;
         m_right = nullptr;
         m_type = ExpressionType::Address;
         m_value.num = 0;
     }
+    Expression(const std::string& label)
+    {
+        m_left = nullptr;
+        m_right = nullptr;
+        m_type = ExpressionType::Define;
+        m_label = label;
+        m_value.num = 0;
+    }
     virtual ~Expression();
 
     ExpressionType m_type;
     ExpressionValue m_value;
+    std::string m_label = "";
 
     Expression* m_left = nullptr;
     Expression* m_right = nullptr;

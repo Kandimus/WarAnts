@@ -10,7 +10,7 @@ namespace WarAnts
 namespace Asm
 {
 
-Code* yy_compile(const char* Func);
+Code* yy_compile(const char* Func, std::string& outError);
 
 void compileFile(const std::string& filename)
 {
@@ -27,8 +27,8 @@ void compileFile(const std::string& filename)
     file.close();
     text = buffer.str();
 
-
-    auto code = yy_compile(text.c_str());
+    std::string strError = "";
+    auto code = yy_compile(text.c_str(), strError);
 }
 
 }; // namespace Asm

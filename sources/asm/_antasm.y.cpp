@@ -80,23 +80,26 @@
 #include "pragma.h"
 #include "statetment.h"
 
-namespace WarAnts
-{
-namespace Asm
-{
+//namespace WarAnts
+//{
+//namespace Asm
+//{
 
-std::string yy_errorString = "";
+static std::string yy_errorString = "";
+static WarAnts::Asm::Code* yy_result = nullptr;
 
 /* For BISON */
 extern char *yytext;
 
 int16_t getIntNumber(const char* text);
 int16_t getHexNumber(const char* text);
-void yy_error(const char *msg);
+void yyerror(const char *msg);
+
 int  yylex();
 
-};
-};
+#pragma warning(disable:4065)
+#pragma warning(disable:4244)
+#pragma warning(disable:5033)
 
 
 
@@ -170,10 +173,10 @@ typedef union YYSTYPE
     WarAnts::Asm::PragmaType TPRAGMATYPE;
     WarAnts::Asm::Pragma* TPRAGMA;
     WarAnts::Asm::Function* TFUNCTION;
-    std::string TSTRING;
     WarAnts::Asm::Expression* TEXPR;
     WarAnts::Asm::Statetment* TSTATETMENT;
     WarAnts::Asm::Code* TCODE;
+    std::string* TSTRING;
     int64_t TINEGER;
 
 
@@ -487,11 +490,11 @@ static const yytype_int8 yyrhs[] =
 /* YYRLINE[YYN] -- source line where rule number YYN was defined.  */
 static const yytype_uint8 yyrline[] =
 {
-       0,    67,    67,    71,    72,    76,    80,    81,    82,    86,
-      87,    91,    95,    99,   100,   104,   108,   111,   112,   115,
-     116,   118,   124,   128,   132,   133,   137,   153,   154,   155,
-     159,   160,   164,   165,   169,   170,   171,   172,   173,   174,
-     175,   176,   177,   181,   182
+       0,    70,    70,    74,    75,    79,    83,    84,    85,    89,
+      90,    94,    98,   102,   103,   107,   111,   114,   115,   118,
+     119,   121,   127,   131,   135,   136,   140,   156,   157,   158,
+     162,   163,   167,   168,   172,   173,   174,   175,   176,   177,
+     178,   179,   180,   184,   185
 };
 #endif
 
@@ -1441,7 +1444,7 @@ yyreduce:
     {
         case 2:
 
-    { (yyval.TCODE) = new Code((yyvsp[(1) - (2)].TPRAGMA), (yyvsp[(2) - (2)].TFUNCTION)); ;}
+    { (yyval.TCODE) = yy_result = new WarAnts::Asm::Code((yyvsp[(1) - (2)].TPRAGMA), (yyvsp[(2) - (2)].TFUNCTION)); ;}
     break;
 
   case 3:
@@ -1456,22 +1459,22 @@ yyreduce:
 
   case 5:
 
-    { (yyval.TPRAGMA) = new Pragma((yyvsp[(1) - (3)].TPRAGMATYPE), (yyvsp[(2) - (3)].TSTRING)); ;}
+    { (yyval.TPRAGMA) = new WarAnts::Asm::Pragma((yyvsp[(1) - (3)].TPRAGMATYPE), *(yyvsp[(2) - (3)].TSTRING)); delete (yyvsp[(2) - (3)].TSTRING); ;}
     break;
 
   case 6:
 
-    { (yyval.TPRAGMATYPE) = PragmaType::Class; ;}
+    { (yyval.TPRAGMATYPE) = WarAnts::Asm::PragmaType::Class; ;}
     break;
 
   case 7:
 
-    { (yyval.TPRAGMATYPE) = PragmaType::Name; ;}
+    { (yyval.TPRAGMATYPE) = WarAnts::Asm::PragmaType::Name; ;}
     break;
 
   case 8:
 
-    { (yyval.TPRAGMATYPE) = PragmaType::Version; ;}
+    { (yyval.TPRAGMATYPE) = WarAnts::Asm::PragmaType::Version; ;}
     break;
 
   case 9:
@@ -1486,7 +1489,7 @@ yyreduce:
 
   case 11:
 
-    { (yyval.TFUNCTION) = new Function((yyvsp[(1) - (2)].TSTRING), (yyvsp[(2) - (2)].TSTATETMENT)); ;}
+    { (yyval.TFUNCTION) = new WarAnts::Asm::Function(*(yyvsp[(1) - (2)].TSTRING), (yyvsp[(2) - (2)].TSTATETMENT)); delete (yyvsp[(1) - (2)].TSTRING); ;}
     break;
 
   case 12:
@@ -1511,42 +1514,42 @@ yyreduce:
 
   case 16:
 
-    { (yyval.TSTATETMENT) = new Statetment((yyvsp[(1) - (2)].TSTRING)); ;}
+    { (yyval.TSTATETMENT) = new WarAnts::Asm::Statetment(*(yyvsp[(1) - (2)].TSTRING)); delete (yyvsp[(1) - (2)].TSTRING);;}
     break;
 
   case 17:
 
-    { (yyval.TSTATETMENT) = new Statetment(WarAnts::Asm::AsmCommand::ADD, (yyvsp[(2) - (4)].TEXPR), (yyvsp[(4) - (4)].TEXPR)); ;}
+    { (yyval.TSTATETMENT) = new WarAnts::Asm::Statetment(WarAnts::Asm::AsmCommand::ADD, (yyvsp[(2) - (4)].TEXPR), (yyvsp[(4) - (4)].TEXPR)); ;}
     break;
 
   case 18:
 
-    { (yyval.TSTATETMENT) = new Statetment(WarAnts::Asm::AsmCommand::AND, (yyvsp[(2) - (4)].TEXPR), (yyvsp[(4) - (4)].TEXPR)); ;}
+    { (yyval.TSTATETMENT) = new WarAnts::Asm::Statetment(WarAnts::Asm::AsmCommand::AND, (yyvsp[(2) - (4)].TEXPR), (yyvsp[(4) - (4)].TEXPR)); ;}
     break;
 
   case 19:
 
-    { (yyval.TSTATETMENT) = new Statetment(WarAnts::Asm::AsmCommand::BSF, (yyvsp[(2) - (4)].TEXPR), (yyvsp[(4) - (4)].TEXPR)); ;}
+    { (yyval.TSTATETMENT) = new WarAnts::Asm::Statetment(WarAnts::Asm::AsmCommand::BSF, (yyvsp[(2) - (4)].TEXPR), (yyvsp[(4) - (4)].TEXPR)); ;}
     break;
 
   case 20:
 
-    { (yyval.TSTATETMENT) = new Statetment(WarAnts::Asm::AsmCommand::BSR, (yyvsp[(2) - (4)].TEXPR), (yyvsp[(4) - (4)].TEXPR)); ;}
+    { (yyval.TSTATETMENT) = new WarAnts::Asm::Statetment(WarAnts::Asm::AsmCommand::BSR, (yyvsp[(2) - (4)].TEXPR), (yyvsp[(4) - (4)].TEXPR)); ;}
     break;
 
   case 21:
 
-    { (yyval.TSTATETMENT) = new Statetment(WarAnts::Asm::AsmCommand::MOV, (yyvsp[(2) - (4)].TEXPR), (yyvsp[(4) - (4)].TEXPR)); ;}
+    { (yyval.TSTATETMENT) = new WarAnts::Asm::Statetment(WarAnts::Asm::AsmCommand::MOV, (yyvsp[(2) - (4)].TEXPR), (yyvsp[(4) - (4)].TEXPR)); ;}
     break;
 
   case 22:
 
-    { (yyval.TSTRING) = std::string(yytext); ;}
+    { (yyval.TSTRING) = new std::string(yytext); ;}
     break;
 
   case 23:
 
-    { (yyval.TSTRING) = std::string(yytext); ;}
+    { (yyval.TSTRING) = new std::string(yytext); ;}
     break;
 
   case 24:
@@ -1556,7 +1559,7 @@ yyreduce:
 
   case 25:
 
-    { (yyval.TEXPR) = new Expression((yyvsp[(2) - (3)].TEXPR)); ;}
+    { (yyval.TEXPR) = new WarAnts::Asm::Expression((yyvsp[(2) - (3)].TEXPR)); ;}
     break;
 
   case 26:
@@ -1571,12 +1574,12 @@ yyreduce:
 
   case 28:
 
-    { (yyval.TEXPR) = new Expression(OperandType::Plus, (yyvsp[(1) - (3)].TEXPR), (yyvsp[(3) - (3)].TEXPR)); ;}
+    { (yyval.TEXPR) = new WarAnts::Asm::Expression(WarAnts::Asm::OperandType::Plus, (yyvsp[(1) - (3)].TEXPR), (yyvsp[(3) - (3)].TEXPR)); ;}
     break;
 
   case 29:
 
-    { (yyval.TEXPR) = new Expression(OperandType::Minus, (yyvsp[(1) - (3)].TEXPR), (yyvsp[(3) - (3)].TEXPR)); ;}
+    { (yyval.TEXPR) = new WarAnts::Asm::Expression(WarAnts::Asm::OperandType::Minus, (yyvsp[(1) - (3)].TEXPR), (yyvsp[(3) - (3)].TEXPR)); ;}
     break;
 
   case 30:
@@ -1586,7 +1589,7 @@ yyreduce:
 
   case 31:
 
-    { (yyval.TEXPR) = new Expression(OperandType::Star, (yyvsp[(1) - (3)].TEXPR), (yyvsp[(3) - (3)].TEXPR)); ;}
+    { (yyval.TEXPR) = new WarAnts::Asm::Expression(WarAnts::Asm::OperandType::Star, (yyvsp[(1) - (3)].TEXPR), (yyvsp[(3) - (3)].TEXPR)); ;}
     break;
 
   case 32:
@@ -1601,47 +1604,47 @@ yyreduce:
 
   case 34:
 
-    { (yyval.TEXPR) = new Expression(RegisterType::R0); ;}
+    { (yyval.TEXPR) = new WarAnts::Asm::Expression(WarAnts::Asm::RegisterType::R0); ;}
     break;
 
   case 35:
 
-    { (yyval.TEXPR) = new Expression(RegisterType::R1); ;}
+    { (yyval.TEXPR) = new WarAnts::Asm::Expression(WarAnts::Asm::RegisterType::R1); ;}
     break;
 
   case 36:
 
-    { (yyval.TEXPR) = new Expression(RegisterType::R2); ;}
+    { (yyval.TEXPR) = new WarAnts::Asm::Expression(WarAnts::Asm::RegisterType::R2); ;}
     break;
 
   case 37:
 
-    { (yyval.TEXPR) = new Expression(RegisterType::R3); ;}
+    { (yyval.TEXPR) = new WarAnts::Asm::Expression(WarAnts::Asm::RegisterType::R3); ;}
     break;
 
   case 38:
 
-    { (yyval.TEXPR) = new Expression(RegisterType::RC); ;}
+    { (yyval.TEXPR) = new WarAnts::Asm::Expression(WarAnts::Asm::RegisterType::RC); ;}
     break;
 
   case 39:
 
-    { (yyval.TEXPR) = new Expression(RegisterType::RF); ;}
+    { (yyval.TEXPR) = new WarAnts::Asm::Expression(WarAnts::Asm::RegisterType::RF); ;}
     break;
 
   case 40:
 
-    { (yyval.TEXPR) = new Expression(RegisterType::IF); ;}
+    { (yyval.TEXPR) = new WarAnts::Asm::Expression(WarAnts::Asm::RegisterType::IF); ;}
     break;
 
   case 41:
 
-    { (yyval.TEXPR) = new Expression(RegisterType::IR); ;}
+    { (yyval.TEXPR) = new WarAnts::Asm::Expression(WarAnts::Asm::RegisterType::IR); ;}
     break;
 
   case 42:
 
-    { (yyval.TEXPR) = new Expression((yyvsp[(1) - (1)].TINEGER)); ;}
+    { (yyval.TEXPR) = new WarAnts::Asm::Expression((yyvsp[(1) - (1)].TINEGER)); ;}
     break;
 
   case 43:
@@ -1868,13 +1871,9 @@ yyreturn:
 
 
 
-namespace WarAnts
-{
-namespace Asm
-{
 #include "_antasm.l.h"
 
-int16_t getHexNumber(const char* text)
+static int16_t getHexNumber(const char* text)
 {
     unsigned int val = 0;
 
@@ -1894,7 +1893,7 @@ int16_t getHexNumber(const char* text)
     return *(int16_t*)&val16;
 }
 
-int16_t getIntNumber(const char* text)
+static int16_t getIntNumber(const char* text)
 {
     int64_t val = atol(text);
 
@@ -1906,22 +1905,28 @@ int16_t getIntNumber(const char* text)
     return static_cast<uint16_t>(val);
 }
 
-void yy_error(const char *msg)
+static void yyerror(const char *msg)
 {
     yy_errorString += su::String_format2("%i: %s at or before '%s'.", yylineno, msg, yytext);
 }
 
-Code* yy_compile(const char *Func)
-{
-    CodeErrStr = "";
 
-    memset(BCode, 0, BCodeMaxLen);
-    
+namespace WarAnts
+{
+namespace Asm
+{
+
+Code* yy_compile(const char *Func, std::string& outError)
+{
+    yy_errorString = "";
+
     YY_BUFFER_STATE b = yy_scan_string(Func);
     yyparse();
     yy_delete_buffer(b);
 
-    return CodeErrStr.empty();
+    outError = yy_errorString;
+
+    return yy_result;
 }
 
 }; // namespace Asm

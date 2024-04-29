@@ -7,21 +7,24 @@ namespace WarAnts
 namespace Asm
 {
 
-struct Pragma;
+struct Define;
 struct Function;
+struct Pragma;
 
 struct Code
 {
     NOCOPY_STRUCT(Code)
 
-    Code(Pragma* pragma, Function* function)
+    Code(Pragma* pragma, Define* define, Function* function)
     {
         m_pragma = pragma;
+        m_define = define;
         m_function = function;
     }
     virtual ~Code();
 
     Pragma* m_pragma = nullptr;
+    Define* m_define = nullptr;
     Function* m_function = nullptr;
 };
 

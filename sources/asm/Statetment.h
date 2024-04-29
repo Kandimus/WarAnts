@@ -19,13 +19,69 @@ enum class StatetmentType
 
 enum class AsmCommand
 {
+    UNDEF = 0,
+
     ADD,
     AND,
+    DEC,
+    DIV,
+    INC,
+    MOD,
+    MUL,
+    NEG,
+    NOT,
+    OR,
+    SUB,
+    XOR,
+    MIN,
+    MAX,
 
     BSF,
     BSR,
+    BT,
+    BTR,
+    BTS,
+    BTC,
+    SHL,
+    SHR,
+    ROL,
+    ROR,
+
+    EQ,
+    NEQ,
+    GT,
+    GE,
+    LT,
+    LE,
+    TEST,
+
+    JMP,
+    JZ,
+    JNZ,
+    JO,
+    JNO,
+    JCZ,
+    JCNZ,
+    LOOP,
 
     MOV,
+    CALL,
+    LEN,
+    EXIT,
+
+    LDTR,
+    LDFD,
+    LDEN,
+    LDFR,
+
+    CIDL,
+    CMOV,
+    CATT,
+    CTKF,
+    CGVF,
+    CEAT,
+    CPS,
+    CPW,
 
     NOP
 };
@@ -50,13 +106,22 @@ struct Statetment
         m_type = StatetmentType::Command;
         m_cmd = cmd;
         m_next = nullptr;
-
+    }
+    Statetment(AsmCommand cmd, const std::string& label)
+    {
+        m_dst = nullptr;
+        m_src = nullptr;
+        m_cmd = cmd;
+        m_type = StatetmentType::Command;
+        m_jump = label;
+        m_next = nullptr;
     }
     virtual ~Statetment();
 
     Statetment* add(Statetment* next)
     {
         m_next = next;
+        return this;
     }
 
     StatetmentType m_type;
@@ -64,6 +129,7 @@ struct Statetment
     Expression* m_dst = nullptr;
     Expression* m_src = nullptr;
     std::string m_label = "";
+    std::string m_jump = "";
 
     Statetment* m_next = nullptr;
 };
