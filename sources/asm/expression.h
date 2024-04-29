@@ -14,7 +14,6 @@ enum class ExpressionType
     Number,
     Operand,
     Address,
-    Define,
 };
 
 enum class OperandType
@@ -76,19 +75,10 @@ struct Expression
         m_type = ExpressionType::Address;
         m_value.num = 0;
     }
-    Expression(const std::string& label)
-    {
-        m_left = nullptr;
-        m_right = nullptr;
-        m_type = ExpressionType::Define;
-        m_label = label;
-        m_value.num = 0;
-    }
     virtual ~Expression();
 
     ExpressionType m_type;
     ExpressionValue m_value;
-    std::string m_label = "";
 
     Expression* m_left = nullptr;
     Expression* m_right = nullptr;

@@ -1,6 +1,7 @@
 %{
 #pragma warning(disable:4996)
 
+#include <memory>
 #include <string>
 
 #include "stringex.h"
@@ -12,13 +13,14 @@
 #include "statetment.h"
 
 static std::string yy_errorString = "";
-static WarAnts::Asm::Code* yy_result = nullptr;
+static WarAnts::Asm::Code yy_code;
 
 /* For BISON */
 extern char *yytext;
 
 int16_t getIntNumber(const char* text);
 int16_t getHexNumber(const char* text);
+int16_t getDefine(const std::string& text);
 void yyerror(const char *msg);
 
 int  yylex();
@@ -32,12 +34,9 @@ int  yylex();
 %union
 {
     WarAnts::Asm::PragmaType TPRAGMATYPE;
-    WarAnts::Asm::Pragma* TPRAGMA;
-    WarAnts::Asm::Define* TDEFINE;
     WarAnts::Asm::Function* TFUNCTION;
     WarAnts::Asm::Expression* TEXPR;
     WarAnts::Asm::Statetment* TSTATETMENT;
-    WarAnts::Asm::Code* TCODE;
     std::string* TSTRING;
     int64_t TINEGER;
 }
@@ -57,13 +56,10 @@ int  yylex();
 %token NOP
 
 %type <TPRAGMATYPE> pragma
-%type <TPRAGMA> list_of_pragmas pragma_definition
-%type <TDEFINE> list_of_defines define_declaration
 %type <TFUNCTION> list_of_asm_functions asm_function
 %type <TSTATETMENT> list_of_commands asm_command_line asm_command
 %type <TSTRING> asm_function_name label quted_string
 %type <TEXPR> address expression expr_0 expr_1 expr_2 expr_3
-%type <TCODE> code
 %type <TINEGER> number
 
 %start code
@@ -71,18 +67,16 @@ int  yylex();
 %%
 
 code
-    : list_of_pragmas
-      list_of_defines
-      list_of_asm_functions                             { $$ = yy_result = new WarAnts::Asm::Code($1, $2, $3); }
+    : list_of_pragmas list_of_asm_functions
     ;
 
 list_of_pragmas
-    : list_of_pragmas pragma_definition                 { $$ = $1->add($2); }
-    | pragma_definition                                 { $$ = $1; }
+    : list_of_pragmas pragma_definition
+    | pragma_definition
     ;
 
 pragma_definition
-    : pragma quted_string NEW_LINE                      { $$ = new WarAnts::Asm::Pragma($1, *$2); delete $2; }
+    : pragma quted_string NEW_LINE                      { yy_code.addPragma(std::make_shared<WarAnts::Asm::Pragma>($1, *$2)); delete $2; }
     ;
 
 pragma
@@ -92,13 +86,13 @@ pragma
     ;
 
 list_of_defines
-    : list_of_defines define_declaration                { $$ = $1->add($2); }
-    | define_declaration                                { $$ = $1; }
+    : list_of_defines define_declaration
+    | define_declaration
+    |
     ;
 
 define_declaration
-    : PRAGMA_DEFINE label number NEW_LINE               { $$ = new WarAnts::Asm::Define(*$2, $3); delete $2; }
-    |                                                   { $$ = nullptr; }
+    : PRAGMA_DEFINE label number NEW_LINE               { yy_code.addDefine(*$2, $3); delete $2; }
     ;
 
 list_of_asm_functions
@@ -107,7 +101,8 @@ list_of_asm_functions
     ;
 
 asm_function
-    : asm_function_name list_of_commands                { $$ = new WarAnts::Asm::Function(*$1, $2); delete $1; }
+    : list_of_defines
+      asm_function_name list_of_commands                { $$ = new WarAnts::Asm::Function(*$2, $3); delete $2; }
     ;
 
 asm_function_name
@@ -164,18 +159,18 @@ asm_command
     | TEST address COMMA address                        { $$ = new WarAnts::Asm::Statetment(WarAnts::Asm::AsmCommand::TEST, $2, $4); }
 
     // Jump
-    | JMP  label                                        { $$ = new WarAnts::Asm::Statetment(WarAnts::Asm::AsmCommand::JMP , $2); }
-    | JZ   label                                        { $$ = new WarAnts::Asm::Statetment(WarAnts::Asm::AsmCommand::JZ  , $2); }
-    | JNZ  label                                        { $$ = new WarAnts::Asm::Statetment(WarAnts::Asm::AsmCommand::JNZ , $2); }
-    | JO   label                                        { $$ = new WarAnts::Asm::Statetment(WarAnts::Asm::AsmCommand::JO  , $2); }
-    | JNO  label                                        { $$ = new WarAnts::Asm::Statetment(WarAnts::Asm::AsmCommand::JNO , $2); }
-    | JCZ  label                                        { $$ = new WarAnts::Asm::Statetment(WarAnts::Asm::AsmCommand::JCZ , $2); }
-    | JCNZ label                                        { $$ = new WarAnts::Asm::Statetment(WarAnts::Asm::AsmCommand::JCNZ, $2); }
-    | LOOP label                                        { $$ = new WarAnts::Asm::Statetment(WarAnts::Asm::AsmCommand::LOOP, $2); }
+    | JMP  label                                        { $$ = new WarAnts::Asm::Statetment(WarAnts::Asm::AsmCommand::JMP , *$2); delete $2; }
+    | JZ   label                                        { $$ = new WarAnts::Asm::Statetment(WarAnts::Asm::AsmCommand::JZ  , *$2); delete $2; }
+    | JNZ  label                                        { $$ = new WarAnts::Asm::Statetment(WarAnts::Asm::AsmCommand::JNZ , *$2); delete $2; }
+    | JO   label                                        { $$ = new WarAnts::Asm::Statetment(WarAnts::Asm::AsmCommand::JO  , *$2); delete $2; }
+    | JNO  label                                        { $$ = new WarAnts::Asm::Statetment(WarAnts::Asm::AsmCommand::JNO , *$2); delete $2; }
+    | JCZ  label                                        { $$ = new WarAnts::Asm::Statetment(WarAnts::Asm::AsmCommand::JCZ , *$2); delete $2; }
+    | JCNZ label                                        { $$ = new WarAnts::Asm::Statetment(WarAnts::Asm::AsmCommand::JCNZ, *$2); delete $2; }
+    | LOOP label                                        { $$ = new WarAnts::Asm::Statetment(WarAnts::Asm::AsmCommand::LOOP, *$2); delete $2; }
 
     // Other
     | MOV  address COMMA address                        { $$ = new WarAnts::Asm::Statetment(WarAnts::Asm::AsmCommand::MOV , $2, $4); }
-    | CALL label                                        { $$ = new WarAnts::Asm::Statetment(WarAnts::Asm::AsmCommand::CALL, $2); }
+    | CALL label                                        { $$ = new WarAnts::Asm::Statetment(WarAnts::Asm::AsmCommand::CALL, *$2); delete $2; }
     | LEN  address COMMA address                        { $$ = new WarAnts::Asm::Statetment(WarAnts::Asm::AsmCommand::LEN , $2, $4); }
     | EXIT                                              { $$ = new WarAnts::Asm::Statetment(WarAnts::Asm::AsmCommand::EXIT, nullptr, nullptr); }
 
@@ -255,7 +250,7 @@ expr_3
     | IF                                                { $$ = new WarAnts::Asm::Expression(WarAnts::Asm::RegisterType::IF); }
     | IR                                                { $$ = new WarAnts::Asm::Expression(WarAnts::Asm::RegisterType::IR); }
     | number                                            { $$ = new WarAnts::Asm::Expression($1); }
-    | label                                             { $$ = new WarAnts::Asm::Expression($1); }
+    | label                                             { $$ = new WarAnts::Asm::Expression(getDefine(*$1)); delete $1; }
     ;
 
 number
@@ -304,6 +299,15 @@ static void yyerror(const char *msg)
     yy_errorString += su::String_format2("%i: %s at or before '%s'.", yylineno, msg, yytext);
 }
 
+int16_t getDefine(const std::string& text)
+{
+    if (!yy_code.containsDefine(text))
+    {
+        yy_errorString += su::String_format2("%i: '%s' is not defined", yylineno, text.c_str());
+        return 0;
+    }
+    return yy_code.define(text);
+}
 
 namespace WarAnts
 {
@@ -312,6 +316,7 @@ namespace Asm
 
 Code* yy_compile(const char *Func, std::string& outError)
 {
+    yy_code.init();
     yy_errorString = "";
 
     YY_BUFFER_STATE b = yy_scan_string(Func);
@@ -320,7 +325,7 @@ Code* yy_compile(const char *Func, std::string& outError)
 
     outError = yy_errorString;
 
-    return yy_result;
+    return &yy_code;
 }
 
 }; // namespace Asm

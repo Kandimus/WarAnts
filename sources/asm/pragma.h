@@ -1,5 +1,6 @@
 #pragma once
 
+#include <memory>
 #include <string>
 #include "asm_defines.h"
 
@@ -17,7 +18,7 @@ enum class PragmaType
 
 struct Pragma
 {
-    NOCOPY_STRUCT(Pragma)
+    //NOCOPY_STRUCT(Pragma)
 
     Pragma(PragmaType type, const std::string& value)
     {
@@ -25,9 +26,9 @@ struct Pragma
         m_value = value;
         m_next = nullptr;
     }
-    virtual ~Pragma();
+    virtual ~Pragma() = default;
 
-    Pragma* add(Pragma* next)
+    Pragma* add(std::shared_ptr<Pragma>& next)
     {
         m_next = next;
         return this;
@@ -36,7 +37,7 @@ struct Pragma
     PragmaType m_type;
     std::string m_value = "";
 
-    Pragma* m_next = nullptr;
+    std::shared_ptr<Pragma> m_next = nullptr;
 };
 
 }; // namespace Asm
