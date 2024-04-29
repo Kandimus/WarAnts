@@ -1,26 +1,29 @@
 #pragma once
 
 #include <string>
-#include "asm_defines.h"
+#include "BaseNode.h"
 
 namespace WarAnts
 {
 namespace Asm
 {
 
-struct Statetment;
+class Statetment;
 
-struct Function
+class Function : public BaseNode
 {
     NOCOPY_STRUCT(Function)
 
-    Function(const std::string& name, Statetment* stat)
+public:
+    Function(const std::string& name, Statetment* stat, BaseNode* parent)
+        : BaseNode(parent)
     {
         m_stat = stat;
         m_name = name;
         m_next = nullptr;
+        printf("Function(%s)\n", name.c_str());
     }
-    virtual ~Function();
+    virtual ~Function() = default;
 
     Function* add(Function* next)
     {
@@ -28,6 +31,7 @@ struct Function
         return this;
     }
 
+public:
     std::string m_name = "";
     Statetment* m_stat = nullptr;
 

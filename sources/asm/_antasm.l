@@ -12,19 +12,21 @@ void skipMultiLineComment(void);
 %option noyywrap
 %option yylineno
 
-delim     [ \t\r]
+delim     [ \t]
 new_line  [\n]
 NQUOTE    [^"]
 id        [A-Z_]([A-Z0-9_])*
 digit     [0-9]
 hexdigit  [0-9a-fA-F]
 
+uint_num   {digit}+
 int_num    "-"{digit}+
 hex_num   {hexdigit}+"H"
 
 %%
 
 {delim}+                    { ; }
+{uint_num}                  { return INT_NUMBER; }
 {int_num}                   { return INT_NUMBER; }
 {hex_num}                   { return HEX_NUMBER; }
 \"({NQUOTE}|"")+\"          { return CHARACTER_STRING; }
@@ -124,7 +126,7 @@ hex_num   {hexdigit}+"H"
 
 {id}                        { return ID; }
 
-.                           { return yytext[0]; }
+.                           { printf("flex: UNDEF!!!!\n");  return yytext[0]; }
 
 %%
 

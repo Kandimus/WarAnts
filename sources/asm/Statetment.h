@@ -1,14 +1,14 @@
 #pragma once
 
 #include <string>
-#include "asm_defines.h"
+#include "baseNode.h"
 
 namespace WarAnts
 {
 namespace Asm
 {
 
-struct Expression;
+class Expression;
 
 enum class StatetmentType
 {
@@ -86,11 +86,14 @@ enum class AsmCommand
     NOP
 };
 
-struct Statetment
+class Statetment : public BaseNode
 {
     NOCOPY_STRUCT(Statetment)
 
-    Statetment(const std::string& label)
+public:
+    // label
+    Statetment(const std::string& label, BaseNode* parent)
+        : BaseNode(parent)
     {
         m_dst = nullptr;
         m_src = nullptr;
@@ -99,7 +102,9 @@ struct Statetment
         m_label = label;
         m_next = nullptr;
     }
-    Statetment(AsmCommand cmd, Expression* dst, Expression* src)
+    // normal
+    Statetment(AsmCommand cmd, Expression* dst, Expression* src, BaseNode* parent)
+        : BaseNode(parent)
     {
         m_dst = dst;
         m_src = src;
@@ -107,7 +112,29 @@ struct Statetment
         m_cmd = cmd;
         m_next = nullptr;
     }
-    Statetment(AsmCommand cmd, const std::string& label)
+    // single
+    Statetment(AsmCommand cmd, Expression* dst, BaseNode* parent)
+        : BaseNode(parent)
+    {
+        m_dst = dst;
+        m_src = nullptr;
+        m_type = StatetmentType::Command;
+        m_cmd = cmd;
+        m_next = nullptr;
+    }
+    // without params
+    Statetment(AsmCommand cmd, BaseNode* parent)
+        : BaseNode(parent)
+    {
+        m_dst = nullptr;
+        m_src = nullptr;
+        m_type = StatetmentType::Command;
+        m_cmd = cmd;
+        m_next = nullptr;
+    }
+    // call, jumps
+    Statetment(AsmCommand cmd, const std::string& label, BaseNode* parent)
+        : BaseNode(parent)
     {
         m_dst = nullptr;
         m_src = nullptr;
@@ -116,7 +143,7 @@ struct Statetment
         m_jump = label;
         m_next = nullptr;
     }
-    virtual ~Statetment();
+    virtual ~Statetment() = default;
 
     Statetment* add(Statetment* next)
     {

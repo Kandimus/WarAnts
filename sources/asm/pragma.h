@@ -2,7 +2,7 @@
 
 #include <memory>
 #include <string>
-#include "asm_defines.h"
+#include "baseNode.h"
 
 namespace WarAnts
 {
@@ -16,18 +16,26 @@ enum class PragmaType
     Version,
 };
 
-struct Pragma
+class Pragma : public BaseNode
 {
-    Pragma(PragmaType type, const std::string& value)
+    NOCOPY_STRUCT(Pragma)
+
+public:
+    Pragma(PragmaType type, const std::string& value, BaseNode* parent)
+        : BaseNode(parent)
     {
         m_type = type;
         m_value = value;
         m_next = nullptr;
+
         printf("Pragma::Pragma(%i, '%s')\n", (int)type, value.c_str());
     }
-    virtual ~Pragma() = default;
+    virtual ~Pragma()
+    {
+        printf("Pragma::~Pragma()\n");
+    }
 
-    Pragma* add(std::shared_ptr<Pragma>& next)
+    Pragma* add(Pragma* next)
     {
         m_next = next;
         return this;
@@ -36,7 +44,7 @@ struct Pragma
     PragmaType m_type;
     std::string m_value = "";
 
-    std::shared_ptr<Pragma> m_next = nullptr;
+    Pragma* m_next = nullptr;
 };
 
 }; // namespace Asm

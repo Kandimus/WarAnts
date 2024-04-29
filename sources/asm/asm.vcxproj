@@ -37,22 +37,18 @@
   <ItemGroup>
     <ClCompile Include="code.cpp" />
     <ClCompile Include="Compiler.cpp" />
-    <ClCompile Include="define.cpp" />
-    <ClCompile Include="expression.cpp" />
-    <ClCompile Include="function.cpp" />
-    <ClCompile Include="pragma.cpp" />
-    <ClCompile Include="statetment.cpp" />
     <ClCompile Include="_antasm.y.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="asm_defines.h" />
+    <ClInclude Include="baseNode.h" />
     <ClInclude Include="code.h" />
     <ClInclude Include="Compiler.h" />
-    <ClInclude Include="define.h" />
     <ClInclude Include="Expression.h" />
     <ClInclude Include="function.h" />
     <ClInclude Include="pragma.h" />
     <ClInclude Include="Statetment.h" />
+    <ClInclude Include="stringNode.h" />
     <ClInclude Include="unistd.h" />
     <ClInclude Include="_antasm.l.h" />
   </ItemGroup>

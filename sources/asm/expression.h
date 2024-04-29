@@ -1,7 +1,7 @@
 ﻿#pragma once
 
-#include "asm_defines.h"
 #include <string>
+#include "baseNode.h"
 
 namespace WarAnts
 {
@@ -43,19 +43,22 @@ union ExpressionValue
     OperandType op;
 };
 
-struct Expression
+class Expression : public BaseNode
 {
     NOCOPY_STRUCT(Expression)
 
-    Expression(RegisterType reg)
+public:
+    Expression(RegisterType reg, BaseNode* parent)
+        : BaseNode(parent)
     {
         m_left = nullptr;
         m_right = nullptr;
         m_type = ExpressionType::Register;
         m_value.reg = reg;
-        printf("Expression::Expression(reg)\n");
+        printf("Expression::Expression(reg %i)\n", (uint32_t)reg);
     }
-    Expression(int16_t num)
+    Expression(int16_t num, BaseNode* parent)
+        : BaseNode(parent)
     {
         m_left = nullptr;
         m_right = nullptr;
@@ -63,21 +66,25 @@ struct Expression
         m_value.num = num;
         printf("Expression::Expression(int16_t)\n");
     }
-    Expression(OperandType op, Expression* left, Expression* right)
+    Expression(OperandType op, Expression* left, Expression* right, BaseNode* parent)
+        : BaseNode(parent)
     {
         m_left = left;
         m_right = right;
         m_type = ExpressionType::Operand;
         m_value.op = op;
+        printf("Expression::Expression(operator)\n");
     }
-    Expression(Expression* left)
+    Expression(Expression* left, BaseNode* parent)
+        : BaseNode(parent)
     {
         m_left = left;
         m_right = nullptr;
         m_type = ExpressionType::Address;
         m_value.num = 0;
+        printf("Expression::Expression(address)\n");
     }
-    virtual ~Expression();
+    virtual ~Expression() = default;
 
     ExpressionType m_type;
     ExpressionValue m_value;

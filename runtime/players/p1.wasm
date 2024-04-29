@@ -1,11 +1,12 @@
-#name "Black stupid ants"
-#version "1"
+//#name "Black stupid ants"
+//#version "1"
 #class "black"
+
 
 #define food_count 07H
 
+
 .worker
-    MOV R0, [2]
     LE  [2], 50
     JNZ go_to_food
     GE  [6], 2
@@ -13,11 +14,15 @@
     JMP finish
 go_to_food:
     GT [7], 0
-    JZ move_any_way
+    JNZ eat_from_cargo
     LDFD 0
 //    CMOV RC, [food_count]
-    CEAT [48], [49]
+    CTKF [48], [49]
     JMP finish
+
+eat_from_cargo:
+    CEAT 2
+    JMP  finish
 
 attack_enemy:
     LDEN 0
@@ -26,4 +31,3 @@ attack_enemy:
 
 finish:
     EXIT
-

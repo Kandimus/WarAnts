@@ -24,17 +24,22 @@ int main(int argc, const char **argv)
     for (size_t ii = 0; ii < cl.getCountArgument(); ++ii)
     {
         std::vector<int8_t> data;
-        std::string error;
+        std::vector<std::string> errors;
         std::string filename = cl.getArgument(ii);
-        auto result = WarAnts::Asm::compileFile(filename, error, data);
+        auto result = WarAnts::Asm::compileFile(filename, errors, data);
 
         printf("%s\n", filename.c_str());
 
-        if (error.size())
+        if (errors.size())
         {
-            printf("%s\n", error.c_str());
+            for (const auto& err : errors)
+            {
+                printf("%s\n", err.c_str());
+            }
         }
     }
+
+    printf("Build finished...\n");
 
     return true;
 }

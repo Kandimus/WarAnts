@@ -36,10 +36,13 @@
     <ClInclude Include="unistd.h">
       <Filter>Headers</Filter>
     </ClInclude>
-    <ClInclude Include="define.h">
+    <ClInclude Include="Compiler.h">
       <Filter>Headers</Filter>
     </ClInclude>
-    <ClInclude Include="Compiler.h">
+    <ClInclude Include="baseNode.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="stringNode.h">
       <Filter>Headers</Filter>
     </ClInclude>
   </ItemGroup>
@@ -51,21 +54,6 @@
       <Filter>Sources</Filter>
     </ClCompile>
     <ClCompile Include="code.cpp">
-      <Filter>Sources</Filter>
-    </ClCompile>
-    <ClCompile Include="expression.cpp">
-      <Filter>Sources</Filter>
-    </ClCompile>
-    <ClCompile Include="function.cpp">
-      <Filter>Sources</Filter>
-    </ClCompile>
-    <ClCompile Include="pragma.cpp">
-      <Filter>Sources</Filter>
-    </ClCompile>
-    <ClCompile Include="statetment.cpp">
-      <Filter>Sources</Filter>
-    </ClCompile>
-    <ClCompile Include="define.cpp">
       <Filter>Sources</Filter>
     </ClCompile>
   </ItemGroup>
