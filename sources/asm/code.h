@@ -1,5 +1,7 @@
 #pragma once
 
+#include <stdio.h>
+
 #include "asm_defines.h"
 
 namespace WarAnts
@@ -20,6 +22,7 @@ struct Code
         m_pragma = pragma;
         m_define = define;
         m_function = function;
+        printf("Code:Code\n");
     }
     virtual ~Code();
 

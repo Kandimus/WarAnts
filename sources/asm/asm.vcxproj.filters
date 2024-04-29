@@ -36,6 +36,12 @@
     <ClInclude Include="unistd.h">
       <Filter>Headers</Filter>
     </ClInclude>
+    <ClInclude Include="define.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="Compiler.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="_antasm.y.cpp">
@@ -57,6 +63,9 @@
       <Filter>Sources</Filter>
     </ClCompile>
     <ClCompile Include="statetment.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="define.cpp">
       <Filter>Sources</Filter>
     </ClCompile>
   </ItemGroup>

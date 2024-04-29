@@ -13,6 +13,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "core", "core\core.vcxproj",
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "asm", "asm\asm.vcxproj", "{0A232C44-A132-4601-A1C1-B589F2D8AF68}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "compiler", "compiler\compiler.vcxproj", "{ABC4D888-95F3-4537-9714-3199CAD1920D}"
+EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "tests", "tests\tests.vcxproj", "{572F2008-425E-4138-927D-DE8F33D71E32}"
 EndProject
 Global
@@ -37,6 +39,10 @@ Global
 		{0A232C44-A132-4601-A1C1-B589F2D8AF68}.Debug|x64.Build.0 = Debug|x64
 		{0A232C44-A132-4601-A1C1-B589F2D8AF68}.Release|x64.ActiveCfg = Release|x64
 		{0A232C44-A132-4601-A1C1-B589F2D8AF68}.Release|x64.Build.0 = Release|x64
+		{ABC4D888-95F3-4537-9714-3199CAD1920D}.Debug|x64.ActiveCfg = Debug|x64
+		{ABC4D888-95F3-4537-9714-3199CAD1920D}.Debug|x64.Build.0 = Debug|x64
+		{ABC4D888-95F3-4537-9714-3199CAD1920D}.Release|x64.ActiveCfg = Release|x64
+		{ABC4D888-95F3-4537-9714-3199CAD1920D}.Release|x64.Build.0 = Release|x64
 		{572F2008-425E-4138-927D-DE8F33D71E32}.Debug|x64.ActiveCfg = Debug|x64
 		{572F2008-425E-4138-927D-DE8F33D71E32}.Debug|x64.Build.0 = Debug|x64
 		{572F2008-425E-4138-927D-DE8F33D71E32}.Release|x64.ActiveCfg = Release|x64

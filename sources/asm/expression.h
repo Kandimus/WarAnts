@@ -54,6 +54,7 @@ struct Expression
         m_right = nullptr;
         m_type = ExpressionType::Register;
         m_value.reg = reg;
+        printf("Expression::Expression(reg)\n");
     }
     Expression(int16_t num)
     {
@@ -61,6 +62,7 @@ struct Expression
         m_right = nullptr;
         m_type = ExpressionType::Number;
         m_value.num = num;
+        printf("Expression::Expression(int16_t)\n");
     }
     Expression(OperandType op, Expression* left, Expression* right)
     {

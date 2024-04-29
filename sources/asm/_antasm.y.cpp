@@ -75,15 +75,11 @@
 #include "stringex.h"
 
 #include "code.h"
+#include "define.h"
 #include "expression.h"
 #include "function.h"
 #include "pragma.h"
 #include "statetment.h"
-
-//namespace WarAnts
-//{
-//namespace Asm
-//{
 
 static std::string yy_errorString = "";
 static WarAnts::Asm::Code* yy_result = nullptr;
@@ -144,22 +140,74 @@ int  yylex();
      PRAGMA_NAME = 270,
      PRAGMA_VERSION = 271,
      PRAGMA_CLASS = 272,
-     R0 = 273,
-     R1 = 274,
-     R2 = 275,
-     R3 = 276,
-     RC = 277,
-     RF = 278,
-     IF = 279,
-     IR = 280,
-     PLUS = 281,
-     MINUS = 282,
-     STAR = 283,
-     ADD = 284,
-     AND = 285,
-     BSF = 286,
-     BSR = 287,
-     MOV = 288
+     PRAGMA_DEFINE = 273,
+     R0 = 274,
+     R1 = 275,
+     R2 = 276,
+     R3 = 277,
+     RC = 278,
+     RF = 279,
+     IF = 280,
+     IR = 281,
+     PLUS = 282,
+     MINUS = 283,
+     STAR = 284,
+     ADD = 285,
+     AND = 286,
+     DEC = 287,
+     DIV = 288,
+     INC = 289,
+     MOD = 290,
+     MUL = 291,
+     NEG = 292,
+     NOT = 293,
+     OR = 294,
+     SUB = 295,
+     XOR = 296,
+     MIN = 297,
+     MAX = 298,
+     BSF = 299,
+     BSR = 300,
+     BT = 301,
+     BTR = 302,
+     BTS = 303,
+     BTC = 304,
+     SHL = 305,
+     SHR = 306,
+     ROL = 307,
+     ROR = 308,
+     EQ = 309,
+     NEQ = 310,
+     GT = 311,
+     GE = 312,
+     LT = 313,
+     LE = 314,
+     TEST = 315,
+     JMP = 316,
+     JZ = 317,
+     JNZ = 318,
+     JO = 319,
+     JNO = 320,
+     JCZ = 321,
+     JCNZ = 322,
+     LOOP = 323,
+     MOV = 324,
+     CALL = 325,
+     LEN = 326,
+     EXIT = 327,
+     LDTR = 328,
+     LDFD = 329,
+     LDEN = 330,
+     LDFR = 331,
+     CIDL = 332,
+     CMOV = 333,
+     CATT = 334,
+     CTKF = 335,
+     CGVF = 336,
+     CEAT = 337,
+     CPS = 338,
+     CPW = 339,
+     NOP = 340
    };
 #endif
 
@@ -172,6 +220,7 @@ typedef union YYSTYPE
 
     WarAnts::Asm::PragmaType TPRAGMATYPE;
     WarAnts::Asm::Pragma* TPRAGMA;
+    WarAnts::Asm::Define* TDEFINE;
     WarAnts::Asm::Function* TFUNCTION;
     WarAnts::Asm::Expression* TEXPR;
     WarAnts::Asm::Statetment* TSTATETMENT;
@@ -405,20 +454,20 @@ union yyalloc
 /* YYFINAL -- State number of the termination state.  */
 #define YYFINAL  8
 /* YYLAST -- Last index in YYTABLE.  */
-#define YYLAST   73
+#define YYLAST   266
 
 /* YYNTOKENS -- Number of terminals.  */
-#define YYNTOKENS  34
+#define YYNTOKENS  86
 /* YYNNTS -- Number of nonterminals.  */
-#define YYNNTS  20
+#define YYNNTS  21
 /* YYNRULES -- Number of rules.  */
-#define YYNRULES  44
+#define YYNRULES  99
 /* YYNRULES -- Number of states.  */
-#define YYNSTATES  76
+#define YYNSTATES  237
 
 /* YYTRANSLATE(YYLEX) -- Bison symbol number corresponding to YYLEX.  */
 #define YYUNDEFTOK  2
-#define YYMAXUTOK   288
+#define YYMAXUTOK   340
 
 #define YYTRANSLATE(YYX)						\
   ((unsigned int) (YYX) <= YYMAXUTOK ? yytranslate[YYX] : YYUNDEFTOK)
@@ -454,47 +503,85 @@ static const yytype_uint8 yytranslate[] =
        2,     2,     2,     2,     2,     2,     1,     2,     3,     4,
        5,     6,     7,     8,     9,    10,    11,    12,    13,    14,
       15,    16,    17,    18,    19,    20,    21,    22,    23,    24,
-      25,    26,    27,    28,    29,    30,    31,    32,    33
+      25,    26,    27,    28,    29,    30,    31,    32,    33,    34,
+      35,    36,    37,    38,    39,    40,    41,    42,    43,    44,
+      45,    46,    47,    48,    49,    50,    51,    52,    53,    54,
+      55,    56,    57,    58,    59,    60,    61,    62,    63,    64,
+      65,    66,    67,    68,    69,    70,    71,    72,    73,    74,
+      75,    76,    77,    78,    79,    80,    81,    82,    83,    84,
+      85
 };
 
 #if YYDEBUG
 /* YYPRHS[YYN] -- Index of the first RHS symbol of rule number YYN in
    YYRHS.  */
-static const yytype_uint8 yyprhs[] =
+static const yytype_uint16 yyprhs[] =
 {
-       0,     0,     3,     6,     9,    11,    15,    17,    19,    21,
-      24,    26,    29,    33,    36,    38,    41,    44,    49,    54,
-      59,    64,    69,    71,    73,    75,    79,    81,    83,    87,
-      91,    93,    97,    99,   103,   105,   107,   109,   111,   113,
-     115,   117,   119,   121,   123
+       0,     0,     3,     7,    10,    12,    16,    18,    20,    22,
+      25,    27,    28,    33,    36,    38,    41,    45,    48,    50,
+      53,    56,    61,    66,    69,    74,    77,    82,    87,    90,
+      93,    98,   103,   108,   113,   118,   123,   128,   133,   138,
+     143,   148,   153,   158,   163,   168,   173,   178,   183,   188,
+     193,   198,   203,   206,   209,   212,   215,   218,   221,   224,
+     227,   232,   235,   240,   242,   245,   248,   251,   254,   257,
+     262,   267,   272,   277,   280,   282,   284,   286,   288,   290,
+     292,   296,   298,   302,   306,   308,   312,   314,   318,   320,
+     322,   324,   326,   328,   330,   332,   334,   336,   338,   340
 };
 
 /* YYRHS -- A `-1'-separated list of the rules' RHS.  */
 static const yytype_int8 yyrhs[] =
 {
-      35,     0,    -1,    36,    39,    -1,    36,    37,    -1,    37,
-      -1,    38,    45,     8,    -1,    17,    -1,    15,    -1,    16,
-      -1,    39,    40,    -1,    40,    -1,    41,    42,    -1,    10,
-      46,     8,    -1,    42,    43,    -1,    43,    -1,    44,     8,
-      -1,    46,     9,    -1,    29,    47,     7,    47,    -1,    30,
-      47,     7,    47,    -1,    31,    47,     7,    47,    -1,    32,
-      47,     7,    47,    -1,    33,    47,     7,    47,    -1,    14,
-      -1,    13,    -1,    48,    -1,     5,    48,     6,    -1,    49,
-      -1,    50,    -1,    49,    26,    50,    -1,    49,    27,    50,
-      -1,    51,    -1,    50,    28,    51,    -1,    52,    -1,     3,
-      49,     4,    -1,    18,    -1,    19,    -1,    20,    -1,    21,
-      -1,    22,    -1,    23,    -1,    24,    -1,    25,    -1,    53,
-      -1,    11,    -1,    12,    -1
+      87,     0,    -1,    88,    91,    93,    -1,    88,    89,    -1,
+      89,    -1,    90,    99,     8,    -1,    17,    -1,    15,    -1,
+      16,    -1,    91,    92,    -1,    92,    -1,    -1,    18,   100,
+     106,     8,    -1,    93,    94,    -1,    94,    -1,    95,    96,
+      -1,    10,   100,     8,    -1,    96,    97,    -1,    97,    -1,
+      98,     8,    -1,   100,     9,    -1,    30,   101,     7,   101,
+      -1,    31,   101,     7,   101,    -1,    32,   101,    -1,    33,
+     101,     7,   101,    -1,    34,   101,    -1,    35,   101,     7,
+     101,    -1,    36,   101,     7,   101,    -1,    37,   101,    -1,
+      38,   101,    -1,    39,   101,     7,   101,    -1,    40,   101,
+       7,   101,    -1,    41,   101,     7,   101,    -1,    42,   101,
+       7,   101,    -1,    43,   101,     7,   101,    -1,    44,   101,
+       7,   101,    -1,    45,   101,     7,   101,    -1,    46,   101,
+       7,   101,    -1,    47,   101,     7,   101,    -1,    48,   101,
+       7,   101,    -1,    49,   101,     7,   101,    -1,    50,   101,
+       7,   101,    -1,    51,   101,     7,   101,    -1,    52,   101,
+       7,   101,    -1,    53,   101,     7,   101,    -1,    54,   101,
+       7,   101,    -1,    55,   101,     7,   101,    -1,    56,   101,
+       7,   101,    -1,    57,   101,     7,   101,    -1,    58,   101,
+       7,   101,    -1,    59,   101,     7,   101,    -1,    60,   101,
+       7,   101,    -1,    61,   100,    -1,    62,   100,    -1,    63,
+     100,    -1,    64,   100,    -1,    65,   100,    -1,    66,   100,
+      -1,    67,   100,    -1,    68,   100,    -1,    69,   101,     7,
+     101,    -1,    70,   100,    -1,    71,   101,     7,   101,    -1,
+      72,    -1,    73,   101,    -1,    74,   101,    -1,    75,   101,
+      -1,    76,   101,    -1,    77,   101,    -1,    78,   101,     7,
+     101,    -1,    79,   101,     7,   101,    -1,    80,   101,     7,
+     101,    -1,    81,   101,     7,   101,    -1,    82,   101,    -1,
+      83,    -1,    84,    -1,    85,    -1,    14,    -1,    13,    -1,
+     102,    -1,     5,   102,     6,    -1,   103,    -1,   102,    27,
+     103,    -1,   102,    28,   103,    -1,   104,    -1,   103,    29,
+     104,    -1,   105,    -1,     3,   102,     4,    -1,    19,    -1,
+      20,    -1,    21,    -1,    22,    -1,    23,    -1,    24,    -1,
+      25,    -1,    26,    -1,   106,    -1,   100,    -1,    11,    -1,
+      12,    -1
 };
 
 /* YYRLINE[YYN] -- source line where rule number YYN was defined.  */
-static const yytype_uint8 yyrline[] =
+static const yytype_uint16 yyrline[] =
 {
-       0,    70,    70,    74,    75,    79,    83,    84,    85,    89,
-      90,    94,    98,   102,   103,   107,   111,   114,   115,   118,
-     119,   121,   127,   131,   135,   136,   140,   156,   157,   158,
-     162,   163,   167,   168,   172,   173,   174,   175,   176,   177,
-     178,   179,   180,   184,   185
+       0,    75,    75,    81,    82,    86,    90,    91,    92,    96,
+      97,    98,   102,   106,   107,   111,   115,   119,   120,   124,
+     128,   131,   132,   133,   134,   135,   136,   137,   138,   139,
+     140,   141,   142,   143,   144,   147,   148,   149,   150,   151,
+     152,   153,   154,   155,   156,   159,   160,   161,   162,   163,
+     164,   165,   168,   169,   170,   171,   172,   173,   174,   175,
+     178,   179,   180,   181,   184,   185,   186,   187,   190,   191,
+     192,   193,   194,   195,   196,   197,   199,   205,   209,   213,
+     214,   230,   231,   232,   236,   237,   241,   242,   246,   247,
+     248,   249,   250,   251,   252,   253,   254,   255,   259,   260
 };
 #endif
 
@@ -506,11 +593,17 @@ static const char *const yytname[] =
   "$end", "error", "$undefined", "LROUND", "RROUND", "LSQUARE", "RSQUARE",
   "COMMA", "NEW_LINE", "COLON", "DOT", "INT_NUMBER", "HEX_NUMBER", "ID",
   "CHARACTER_STRING", "PRAGMA_NAME", "PRAGMA_VERSION", "PRAGMA_CLASS",
-  "R0", "R1", "R2", "R3", "RC", "RF", "IF", "IR", "PLUS", "MINUS", "STAR",
-  "ADD", "AND", "BSF", "BSR", "MOV", "$accept", "code", "list_of_pragma",
-  "pragma_definition", "pragma", "list_of_asm_function", "asm_function",
-  "asm_function_name", "list_of_command", "asm_command_line",
-  "asm_command", "quted_string", "label", "address", "expression",
+  "PRAGMA_DEFINE", "R0", "R1", "R2", "R3", "RC", "RF", "IF", "IR", "PLUS",
+  "MINUS", "STAR", "ADD", "AND", "DEC", "DIV", "INC", "MOD", "MUL", "NEG",
+  "NOT", "OR", "SUB", "XOR", "MIN", "MAX", "BSF", "BSR", "BT", "BTR",
+  "BTS", "BTC", "SHL", "SHR", "ROL", "ROR", "EQ", "NEQ", "GT", "GE", "LT",
+  "LE", "TEST", "JMP", "JZ", "JNZ", "JO", "JNO", "JCZ", "JCNZ", "LOOP",
+  "MOV", "CALL", "LEN", "EXIT", "LDTR", "LDFD", "LDEN", "LDFR", "CIDL",
+  "CMOV", "CATT", "CTKF", "CGVF", "CEAT", "CPS", "CPW", "NOP", "$accept",
+  "code", "list_of_pragmas", "pragma_definition", "pragma",
+  "list_of_defines", "define_declaration", "list_of_asm_functions",
+  "asm_function", "asm_function_name", "list_of_commands",
+  "asm_command_line", "asm_command", "quted_string", "label", "address",
   "expr_0", "expr_1", "expr_2", "expr_3", "number", 0
 };
 #endif
@@ -523,28 +616,43 @@ static const yytype_uint16 yytoknum[] =
        0,   256,   257,   258,   259,   260,   261,   262,   263,   264,
      265,   266,   267,   268,   269,   270,   271,   272,   273,   274,
      275,   276,   277,   278,   279,   280,   281,   282,   283,   284,
-     285,   286,   287,   288
+     285,   286,   287,   288,   289,   290,   291,   292,   293,   294,
+     295,   296,   297,   298,   299,   300,   301,   302,   303,   304,
+     305,   306,   307,   308,   309,   310,   311,   312,   313,   314,
+     315,   316,   317,   318,   319,   320,   321,   322,   323,   324,
+     325,   326,   327,   328,   329,   330,   331,   332,   333,   334,
+     335,   336,   337,   338,   339,   340
 };
 # endif
 
 /* YYR1[YYN] -- Symbol number of symbol that rule YYN derives.  */
 static const yytype_uint8 yyr1[] =
 {
-       0,    34,    35,    36,    36,    37,    38,    38,    38,    39,
-      39,    40,    41,    42,    42,    43,    44,    44,    44,    44,
-      44,    44,    45,    46,    47,    47,    48,    49,    49,    49,
-      50,    50,    51,    51,    52,    52,    52,    52,    52,    52,
-      52,    52,    52,    53,    53
+       0,    86,    87,    88,    88,    89,    90,    90,    90,    91,
+      91,    91,    92,    93,    93,    94,    95,    96,    96,    97,
+      98,    98,    98,    98,    98,    98,    98,    98,    98,    98,
+      98,    98,    98,    98,    98,    98,    98,    98,    98,    98,
+      98,    98,    98,    98,    98,    98,    98,    98,    98,    98,
+      98,    98,    98,    98,    98,    98,    98,    98,    98,    98,
+      98,    98,    98,    98,    98,    98,    98,    98,    98,    98,
+      98,    98,    98,    98,    98,    98,    98,    99,   100,   101,
+     101,   102,   102,   102,   103,   103,   104,   104,   105,   105,
+     105,   105,   105,   105,   105,   105,   105,   105,   106,   106
 };
 
 /* YYR2[YYN] -- Number of symbols composing right hand side of rule YYN.  */
 static const yytype_uint8 yyr2[] =
 {
-       0,     2,     2,     2,     1,     3,     1,     1,     1,     2,
-       1,     2,     3,     2,     1,     2,     2,     4,     4,     4,
-       4,     4,     1,     1,     1,     3,     1,     1,     3,     3,
-       1,     3,     1,     3,     1,     1,     1,     1,     1,     1,
-       1,     1,     1,     1,     1
+       0,     2,     3,     2,     1,     3,     1,     1,     1,     2,
+       1,     0,     4,     2,     1,     2,     3,     2,     1,     2,
+       2,     4,     4,     2,     4,     2,     4,     4,     2,     2,
+       4,     4,     4,     4,     4,     4,     4,     4,     4,     4,
+       4,     4,     4,     4,     4,     4,     4,     4,     4,     4,
+       4,     4,     2,     2,     2,     2,     2,     2,     2,     2,
+       4,     2,     4,     1,     2,     2,     2,     2,     2,     4,
+       4,     4,     4,     2,     1,     1,     1,     1,     1,     1,
+       3,     1,     3,     3,     1,     3,     1,     3,     1,     1,
+       1,     1,     1,     1,     1,     1,     1,     1,     1,     1
 };
 
 /* YYDEFACT[STATE-NAME] -- Default rule to reduce with in state
@@ -552,43 +660,77 @@ static const yytype_uint8 yyr2[] =
    means the default is an error.  */
 static const yytype_uint8 yydefact[] =
 {
-       0,     7,     8,     6,     0,     0,     4,     0,     1,     0,
-       3,     2,    10,     0,    22,     0,    23,     0,     9,     0,
-       0,     0,     0,     0,    11,    14,     0,     0,     5,    12,
-       0,     0,    43,    44,    34,    35,    36,    37,    38,    39,
-      40,    41,     0,    24,    26,    27,    30,    32,    42,     0,
-       0,     0,     0,    13,    15,    16,     0,     0,     0,     0,
-       0,     0,     0,     0,     0,     0,    33,    25,    17,    28,
-      29,    31,    18,    19,    20,    21
+       0,     7,     8,     6,     0,    11,     4,     0,     1,     0,
+       3,     0,    10,    77,     0,    78,     0,     0,     9,     2,
+      14,     0,     5,    98,    99,     0,     0,    13,     0,     0,
+       0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
+       0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
+       0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
+       0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
+      63,     0,     0,     0,     0,     0,     0,     0,     0,     0,
+       0,    74,    75,    76,    15,    18,     0,     0,    12,    16,
+       0,     0,    88,    89,    90,    91,    92,    93,    94,    95,
+      97,     0,    79,    81,    84,    86,    96,     0,    23,     0,
+      25,     0,     0,    28,    29,     0,     0,     0,     0,     0,
+       0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
+       0,     0,     0,     0,     0,     0,     0,    52,    53,    54,
+      55,    56,    57,    58,    59,     0,    61,     0,    64,    65,
+      66,    67,    68,     0,     0,     0,     0,    73,    17,    19,
+      20,     0,     0,     0,     0,     0,     0,     0,     0,     0,
+       0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
+       0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
+       0,     0,     0,     0,     0,     0,     0,     0,     0,    87,
+      80,    21,    82,    83,    85,    22,    24,    26,    27,    30,
+      31,    32,    33,    34,    35,    36,    37,    38,    39,    40,
+      41,    42,    43,    44,    45,    46,    47,    48,    49,    50,
+      51,    60,    62,    69,    70,    71,    72
 };
 
 /* YYDEFGOTO[NTERM-NUM].  */
 static const yytype_int8 yydefgoto[] =
 {
-      -1,     4,     5,     6,     7,    11,    12,    13,    24,    25,
-      26,    15,    27,    42,    43,    44,    45,    46,    47,    48
+      -1,     4,     5,     6,     7,    11,    12,    19,    20,    21,
+      84,    85,    86,    14,   100,   101,   102,   103,   104,   105,
+     106
 };
 
 /* YYPACT[STATE-NUM] -- Index in YYTABLE of the portion describing
    STATE-NUM.  */
-#define YYPACT_NINF -42
-static const yytype_int8 yypact[] =
+#define YYPACT_NINF -82
+static const yytype_int16 yypact[] =
 {
-      -9,   -42,   -42,   -42,     9,    -5,   -42,     6,   -42,     1,
-     -42,    13,   -42,    33,   -42,    16,   -42,    17,   -42,    10,
-      10,    10,    10,    10,    33,   -42,    28,    31,   -42,   -42,
-      36,    36,   -42,   -42,   -42,   -42,   -42,   -42,   -42,   -42,
-     -42,   -42,    30,   -42,   -10,    21,   -42,   -42,   -42,    34,
-      43,    44,    45,   -42,   -42,   -42,     0,    47,    10,    36,
-      36,    36,    10,    10,    10,    10,   -42,   -42,   -42,    21,
-      21,   -42,   -42,   -42,   -42,   -42
+      20,   -82,   -82,   -82,    41,    53,   -82,    44,   -82,    59,
+     -82,    21,   -82,   -82,    55,   -82,    50,    59,   -82,    75,
+     -82,   157,   -82,   -82,   -82,    78,    79,   -82,    54,    54,
+      54,    54,    54,    54,    54,    54,    54,    54,    54,    54,
+      54,    54,    54,    54,    54,    54,    54,    54,    54,    54,
+      54,    54,    54,    54,    54,    54,    54,    54,    54,    59,
+      59,    59,    59,    59,    59,    59,    59,    54,    59,    54,
+     -82,    54,    54,    54,    54,    54,    54,    54,    54,    54,
+      54,   -82,   -82,   -82,   157,   -82,    80,    81,   -82,   -82,
+     240,   240,   -82,   -82,   -82,   -82,   -82,   -82,   -82,   -82,
+     -82,    82,     5,    62,   -82,   -82,   -82,    85,   -82,    86,
+     -82,    87,    88,   -82,   -82,    89,    90,    91,    92,    93,
+      94,   103,   105,   106,   107,   108,   109,   110,   111,   112,
+     113,   114,   115,   116,   117,   118,   119,   -82,   -82,   -82,
+     -82,   -82,   -82,   -82,   -82,   121,   -82,   122,   -82,   -82,
+     -82,   -82,   -82,   123,   124,   125,   126,   -82,   -82,   -82,
+     -82,    26,    28,    54,   240,   240,   240,    54,    54,    54,
+      54,    54,    54,    54,    54,    54,    54,    54,    54,    54,
+      54,    54,    54,    54,    54,    54,    54,    54,    54,    54,
+      54,    54,    54,    54,    54,    54,    54,    54,    54,   -82,
+     -82,   -82,    62,    62,   -82,   -82,   -82,   -82,   -82,   -82,
+     -82,   -82,   -82,   -82,   -82,   -82,   -82,   -82,   -82,   -82,
+     -82,   -82,   -82,   -82,   -82,   -82,   -82,   -82,   -82,   -82,
+     -82,   -82,   -82,   -82,   -82,   -82,   -82
 };
 
 /* YYPGOTO[NTERM-NUM].  */
-static const yytype_int8 yypgoto[] =
+static const yytype_int16 yypgoto[] =
 {
-     -42,   -42,   -42,    62,   -42,   -42,    57,   -42,   -42,    46,
-     -42,   -42,    60,   -20,    40,    42,   -41,    12,   -42,   -42
+     -82,   -82,   -82,   130,   -82,   -82,   160,   -82,   153,   -82,
+     -82,    52,   -82,   -82,    43,   -29,    -9,   -81,     7,   -82,
+     158
 };
 
 /* YYTABLE[YYPACT[STATE-NUM]].  What to do in state STATE-NUM.  If
@@ -598,40 +740,94 @@ static const yytype_int8 yypgoto[] =
 #define YYTABLE_NINF -1
 static const yytype_uint8 yytable[] =
 {
-      49,    50,    51,    52,    66,     9,     1,     2,     3,     8,
-       1,     2,     3,    30,    16,    31,    59,    60,    69,    70,
-      14,    32,    33,     9,    28,    29,    59,    60,    34,    35,
-      36,    37,    38,    39,    40,    41,    54,    58,    68,    30,
-      55,    62,    72,    73,    74,    75,    16,    32,    33,    61,
-      63,    64,    65,    67,    34,    35,    36,    37,    38,    39,
-      40,    41,    19,    20,    21,    22,    23,    10,    18,    17,
-      53,    57,    56,    71
+     107,   108,   109,   110,   111,   112,   113,   114,   115,   116,
+     117,   118,   119,   120,   121,   122,   123,   124,   125,   126,
+     127,   128,   129,   130,   131,   132,   133,   134,   135,   136,
+     199,    17,   164,   165,   200,     1,     2,     3,   145,     9,
+     147,     8,   148,   149,   150,   151,   152,   153,   154,   155,
+     156,   157,    16,   164,   165,   164,   165,    90,    13,    91,
+      26,    23,    24,    22,    87,    23,    24,    15,     1,     2,
+       3,     9,    15,    92,    93,    94,    95,    96,    97,    98,
+      99,   161,   162,   202,   203,    17,    88,    89,   159,   163,
+     160,   166,   167,   168,   169,   170,   171,   172,   173,   174,
+     175,   176,   137,   138,   139,   140,   141,   142,   143,   144,
+     177,   146,   178,   179,   180,   181,   182,   183,   184,   185,
+     186,   187,   188,   189,   190,   191,   192,    87,   193,   194,
+     195,   196,   197,   198,   201,    10,   158,     0,   205,   206,
+     207,   208,   209,   210,   211,   212,   213,   214,   215,   216,
+     217,   218,   219,   220,   221,   222,   223,   224,   225,   226,
+     227,   228,   229,   230,   231,   232,   233,   234,   235,   236,
+      15,    18,    27,   204,    25,     0,     0,     0,     0,     0,
+       0,     0,     0,     0,     0,     0,     0,    28,    29,    30,
+      31,    32,    33,    34,    35,    36,    37,    38,    39,    40,
+      41,    42,    43,    44,    45,    46,    47,    48,    49,    50,
+      51,    52,    53,    54,    55,    56,    57,    58,    59,    60,
+      61,    62,    63,    64,    65,    66,    67,    68,    69,    70,
+      71,    72,    73,    74,    75,    76,    77,    78,    79,    80,
+      81,    82,    83,    90,     0,     0,     0,     0,     0,     0,
+       0,    23,    24,    15,     0,     0,     0,     0,     0,    92,
+      93,    94,    95,    96,    97,    98,    99
 };
 
-static const yytype_uint8 yycheck[] =
+static const yytype_int16 yycheck[] =
 {
-      20,    21,    22,    23,     4,    10,    15,    16,    17,     0,
-      15,    16,    17,     3,    13,     5,    26,    27,    59,    60,
-      14,    11,    12,    10,     8,     8,    26,    27,    18,    19,
-      20,    21,    22,    23,    24,    25,     8,     7,    58,     3,
-       9,     7,    62,    63,    64,    65,    13,    11,    12,    28,
-       7,     7,     7,     6,    18,    19,    20,    21,    22,    23,
-      24,    25,    29,    30,    31,    32,    33,     5,    11,     9,
-      24,    31,    30,    61
+      29,    30,    31,    32,    33,    34,    35,    36,    37,    38,
+      39,    40,    41,    42,    43,    44,    45,    46,    47,    48,
+      49,    50,    51,    52,    53,    54,    55,    56,    57,    58,
+       4,    10,    27,    28,     6,    15,    16,    17,    67,    18,
+      69,     0,    71,    72,    73,    74,    75,    76,    77,    78,
+      79,    80,     9,    27,    28,    27,    28,     3,    14,     5,
+      17,    11,    12,     8,    21,    11,    12,    13,    15,    16,
+      17,    18,    13,    19,    20,    21,    22,    23,    24,    25,
+      26,    90,    91,   164,   165,    10,     8,     8,     8,     7,
+       9,    29,     7,     7,     7,     7,     7,     7,     7,     7,
+       7,     7,    59,    60,    61,    62,    63,    64,    65,    66,
+       7,    68,     7,     7,     7,     7,     7,     7,     7,     7,
+       7,     7,     7,     7,     7,     7,     7,    84,     7,     7,
+       7,     7,     7,     7,   163,     5,    84,    -1,   167,   168,
+     169,   170,   171,   172,   173,   174,   175,   176,   177,   178,
+     179,   180,   181,   182,   183,   184,   185,   186,   187,   188,
+     189,   190,   191,   192,   193,   194,   195,   196,   197,   198,
+      13,    11,    19,   166,    16,    -1,    -1,    -1,    -1,    -1,
+      -1,    -1,    -1,    -1,    -1,    -1,    -1,    30,    31,    32,
+      33,    34,    35,    36,    37,    38,    39,    40,    41,    42,
+      43,    44,    45,    46,    47,    48,    49,    50,    51,    52,
+      53,    54,    55,    56,    57,    58,    59,    60,    61,    62,
+      63,    64,    65,    66,    67,    68,    69,    70,    71,    72,
+      73,    74,    75,    76,    77,    78,    79,    80,    81,    82,
+      83,    84,    85,     3,    -1,    -1,    -1,    -1,    -1,    -1,
+      -1,    11,    12,    13,    -1,    -1,    -1,    -1,    -1,    19,
+      20,    21,    22,    23,    24,    25,    26
 };
 
 /* YYSTOS[STATE-NUM] -- The (internal number of the) accessing
    symbol of state STATE-NUM.  */
 static const yytype_uint8 yystos[] =
 {
-       0,    15,    16,    17,    35,    36,    37,    38,     0,    10,
-      37,    39,    40,    41,    14,    45,    13,    46,    40,    29,
-      30,    31,    32,    33,    42,    43,    44,    46,     8,     8,
-       3,     5,    11,    12,    18,    19,    20,    21,    22,    23,
-      24,    25,    47,    48,    49,    50,    51,    52,    53,    47,
-      47,    47,    47,    43,     8,     9,    49,    48,     7,    26,
-      27,    28,     7,     7,     7,     7,     4,     6,    47,    50,
-      50,    51,    47,    47,    47,    47
+       0,    15,    16,    17,    87,    88,    89,    90,     0,    18,
+      89,    91,    92,    14,    99,    13,   100,    10,    92,    93,
+      94,    95,     8,    11,    12,   106,   100,    94,    30,    31,
+      32,    33,    34,    35,    36,    37,    38,    39,    40,    41,
+      42,    43,    44,    45,    46,    47,    48,    49,    50,    51,
+      52,    53,    54,    55,    56,    57,    58,    59,    60,    61,
+      62,    63,    64,    65,    66,    67,    68,    69,    70,    71,
+      72,    73,    74,    75,    76,    77,    78,    79,    80,    81,
+      82,    83,    84,    85,    96,    97,    98,   100,     8,     8,
+       3,     5,    19,    20,    21,    22,    23,    24,    25,    26,
+     100,   101,   102,   103,   104,   105,   106,   101,   101,   101,
+     101,   101,   101,   101,   101,   101,   101,   101,   101,   101,
+     101,   101,   101,   101,   101,   101,   101,   101,   101,   101,
+     101,   101,   101,   101,   101,   101,   101,   100,   100,   100,
+     100,   100,   100,   100,   100,   101,   100,   101,   101,   101,
+     101,   101,   101,   101,   101,   101,   101,   101,    97,     8,
+       9,   102,   102,     7,    27,    28,    29,     7,     7,     7,
+       7,     7,     7,     7,     7,     7,     7,     7,     7,     7,
+       7,     7,     7,     7,     7,     7,     7,     7,     7,     7,
+       7,     7,     7,     7,     7,     7,     7,     7,     7,     4,
+       6,   101,   103,   103,   104,   101,   101,   101,   101,   101,
+     101,   101,   101,   101,   101,   101,   101,   101,   101,   101,
+     101,   101,   101,   101,   101,   101,   101,   101,   101,   101,
+     101,   101,   101,   101,   101,   101,   101
 };
 
 #define yyerrok		(yyerrstatus = 0)
@@ -1444,7 +1640,7 @@ yyreduce:
     {
         case 2:
 
-    { (yyval.TCODE) = yy_result = new WarAnts::Asm::Code((yyvsp[(1) - (2)].TPRAGMA), (yyvsp[(2) - (2)].TFUNCTION)); ;}
+    { (yyval.TCODE) = yy_result = new WarAnts::Asm::Code((yyvsp[(1) - (3)].TPRAGMA), (yyvsp[(2) - (3)].TDEFINE), (yyvsp[(3) - (3)].TFUNCTION)); ;}
     break;
 
   case 3:
@@ -1479,180 +1675,450 @@ yyreduce:
 
   case 9:
 
-    { (yyval.TFUNCTION) = (yyvsp[(1) - (2)].TFUNCTION)->add((yyvsp[(2) - (2)].TFUNCTION)); ;}
+    { (yyval.TDEFINE) = (yyvsp[(1) - (2)].TDEFINE)->add((yyvsp[(2) - (2)].TDEFINE)); ;}
     break;
 
   case 10:
 
-    { (yyval.TFUNCTION) = (yyvsp[(1) - (1)].TFUNCTION); ;}
-    break;
-
-  case 11:
-
-    { (yyval.TFUNCTION) = new WarAnts::Asm::Function(*(yyvsp[(1) - (2)].TSTRING), (yyvsp[(2) - (2)].TSTATETMENT)); delete (yyvsp[(1) - (2)].TSTRING); ;}
+    { (yyval.TDEFINE) = (yyvsp[(1) - (1)].TDEFINE); ;}
     break;
 
   case 12:
 
-    { (yyval.TSTRING) = (yyvsp[(2) - (3)].TSTRING); ;}
+    { (yyval.TDEFINE) = new WarAnts::Asm::Define(*(yyvsp[(2) - (4)].TSTRING), (yyvsp[(3) - (4)].TINEGER)); delete (yyvsp[(2) - (4)].TSTRING); ;}
     break;
 
   case 13:
 
-    { (yyval.TSTATETMENT) = (yyvsp[(1) - (2)].TSTATETMENT)->add((yyvsp[(2) - (2)].TSTATETMENT)); ;}
+    { (yyval.TFUNCTION) = (yyvsp[(1) - (2)].TFUNCTION)->add((yyvsp[(2) - (2)].TFUNCTION)); ;}
     break;
 
   case 14:
 
-    { (yyval.TSTATETMENT) = (yyvsp[(1) - (1)].TSTATETMENT); ;}
+    { (yyval.TFUNCTION) = (yyvsp[(1) - (1)].TFUNCTION); ;}
     break;
 
   case 15:
 
-    { (yyval.TSTATETMENT) = (yyvsp[(1) - (2)].TSTATETMENT); ;}
+    { (yyval.TFUNCTION) = new WarAnts::Asm::Function(*(yyvsp[(1) - (2)].TSTRING), (yyvsp[(2) - (2)].TSTATETMENT)); delete (yyvsp[(1) - (2)].TSTRING); ;}
     break;
 
   case 16:
 
-    { (yyval.TSTATETMENT) = new WarAnts::Asm::Statetment(*(yyvsp[(1) - (2)].TSTRING)); delete (yyvsp[(1) - (2)].TSTRING);;}
+    { (yyval.TSTRING) = (yyvsp[(2) - (3)].TSTRING); ;}
     break;
 
   case 17:
 
-    { (yyval.TSTATETMENT) = new WarAnts::Asm::Statetment(WarAnts::Asm::AsmCommand::ADD, (yyvsp[(2) - (4)].TEXPR), (yyvsp[(4) - (4)].TEXPR)); ;}
+    { (yyval.TSTATETMENT) = (yyvsp[(1) - (2)].TSTATETMENT)->add((yyvsp[(2) - (2)].TSTATETMENT)); ;}
     break;
 
   case 18:
 
-    { (yyval.TSTATETMENT) = new WarAnts::Asm::Statetment(WarAnts::Asm::AsmCommand::AND, (yyvsp[(2) - (4)].TEXPR), (yyvsp[(4) - (4)].TEXPR)); ;}
+    { (yyval.TSTATETMENT) = (yyvsp[(1) - (1)].TSTATETMENT); ;}
     break;
 
   case 19:
 
-    { (yyval.TSTATETMENT) = new WarAnts::Asm::Statetment(WarAnts::Asm::AsmCommand::BSF, (yyvsp[(2) - (4)].TEXPR), (yyvsp[(4) - (4)].TEXPR)); ;}
+    { (yyval.TSTATETMENT) = (yyvsp[(1) - (2)].TSTATETMENT); ;}
     break;
 
   case 20:
 
-    { (yyval.TSTATETMENT) = new WarAnts::Asm::Statetment(WarAnts::Asm::AsmCommand::BSR, (yyvsp[(2) - (4)].TEXPR), (yyvsp[(4) - (4)].TEXPR)); ;}
+    { (yyval.TSTATETMENT) = new WarAnts::Asm::Statetment(*(yyvsp[(1) - (2)].TSTRING)); delete (yyvsp[(1) - (2)].TSTRING);;}
     break;
 
   case 21:
 
-    { (yyval.TSTATETMENT) = new WarAnts::Asm::Statetment(WarAnts::Asm::AsmCommand::MOV, (yyvsp[(2) - (4)].TEXPR), (yyvsp[(4) - (4)].TEXPR)); ;}
+    { (yyval.TSTATETMENT) = new WarAnts::Asm::Statetment(WarAnts::Asm::AsmCommand::ADD , (yyvsp[(2) - (4)].TEXPR), (yyvsp[(4) - (4)].TEXPR)); ;}
     break;
 
   case 22:
 
-    { (yyval.TSTRING) = new std::string(yytext); ;}
+    { (yyval.TSTATETMENT) = new WarAnts::Asm::Statetment(WarAnts::Asm::AsmCommand::AND , (yyvsp[(2) - (4)].TEXPR), (yyvsp[(4) - (4)].TEXPR)); ;}
     break;
 
   case 23:
 
-    { (yyval.TSTRING) = new std::string(yytext); ;}
+    { (yyval.TSTATETMENT) = new WarAnts::Asm::Statetment(WarAnts::Asm::AsmCommand::DEC , (yyvsp[(2) - (2)].TEXPR), nullptr); ;}
     break;
 
   case 24:
 
-    { (yyval.TEXPR) = (yyvsp[(1) - (1)].TEXPR); ;}
+    { (yyval.TSTATETMENT) = new WarAnts::Asm::Statetment(WarAnts::Asm::AsmCommand::DIV , (yyvsp[(2) - (4)].TEXPR), (yyvsp[(4) - (4)].TEXPR)); ;}
     break;
 
   case 25:
 
-    { (yyval.TEXPR) = new WarAnts::Asm::Expression((yyvsp[(2) - (3)].TEXPR)); ;}
+    { (yyval.TSTATETMENT) = new WarAnts::Asm::Statetment(WarAnts::Asm::AsmCommand::INC , (yyvsp[(2) - (2)].TEXPR), nullptr); ;}
     break;
 
   case 26:
 
-    { (yyval.TEXPR) = (yyvsp[(1) - (1)].TEXPR); ;}
+    { (yyval.TSTATETMENT) = new WarAnts::Asm::Statetment(WarAnts::Asm::AsmCommand::MOD , (yyvsp[(2) - (4)].TEXPR), (yyvsp[(4) - (4)].TEXPR)); ;}
     break;
 
   case 27:
 
-    { (yyval.TEXPR) = (yyvsp[(1) - (1)].TEXPR); ;}
+    { (yyval.TSTATETMENT) = new WarAnts::Asm::Statetment(WarAnts::Asm::AsmCommand::MUL , (yyvsp[(2) - (4)].TEXPR), (yyvsp[(4) - (4)].TEXPR)); ;}
     break;
 
   case 28:
 
-    { (yyval.TEXPR) = new WarAnts::Asm::Expression(WarAnts::Asm::OperandType::Plus, (yyvsp[(1) - (3)].TEXPR), (yyvsp[(3) - (3)].TEXPR)); ;}
+    { (yyval.TSTATETMENT) = new WarAnts::Asm::Statetment(WarAnts::Asm::AsmCommand::NEG , (yyvsp[(2) - (2)].TEXPR), nullptr); ;}
     break;
 
   case 29:
 
-    { (yyval.TEXPR) = new WarAnts::Asm::Expression(WarAnts::Asm::OperandType::Minus, (yyvsp[(1) - (3)].TEXPR), (yyvsp[(3) - (3)].TEXPR)); ;}
+    { (yyval.TSTATETMENT) = new WarAnts::Asm::Statetment(WarAnts::Asm::AsmCommand::NOT , (yyvsp[(2) - (2)].TEXPR), nullptr); ;}
     break;
 
   case 30:
 
-    { (yyval.TEXPR) = (yyvsp[(1) - (1)].TEXPR); ;}
+    { (yyval.TSTATETMENT) = new WarAnts::Asm::Statetment(WarAnts::Asm::AsmCommand::OR  , (yyvsp[(2) - (4)].TEXPR), (yyvsp[(4) - (4)].TEXPR)); ;}
     break;
 
   case 31:
 
-    { (yyval.TEXPR) = new WarAnts::Asm::Expression(WarAnts::Asm::OperandType::Star, (yyvsp[(1) - (3)].TEXPR), (yyvsp[(3) - (3)].TEXPR)); ;}
+    { (yyval.TSTATETMENT) = new WarAnts::Asm::Statetment(WarAnts::Asm::AsmCommand::SUB , (yyvsp[(2) - (4)].TEXPR), (yyvsp[(4) - (4)].TEXPR)); ;}
     break;
 
   case 32:
 
-    { (yyval.TEXPR) = (yyvsp[(1) - (1)].TEXPR); ;}
+    { (yyval.TSTATETMENT) = new WarAnts::Asm::Statetment(WarAnts::Asm::AsmCommand::XOR , (yyvsp[(2) - (4)].TEXPR), (yyvsp[(4) - (4)].TEXPR)); ;}
     break;
 
   case 33:
 
-    { (yyval.TEXPR) = (yyvsp[(2) - (3)].TEXPR); ;}
+    { (yyval.TSTATETMENT) = new WarAnts::Asm::Statetment(WarAnts::Asm::AsmCommand::MIN , (yyvsp[(2) - (4)].TEXPR), (yyvsp[(4) - (4)].TEXPR)); ;}
     break;
 
   case 34:
 
-    { (yyval.TEXPR) = new WarAnts::Asm::Expression(WarAnts::Asm::RegisterType::R0); ;}
+    { (yyval.TSTATETMENT) = new WarAnts::Asm::Statetment(WarAnts::Asm::AsmCommand::MAX , (yyvsp[(2) - (4)].TEXPR), (yyvsp[(4) - (4)].TEXPR)); ;}
     break;
 
   case 35:
 
-    { (yyval.TEXPR) = new WarAnts::Asm::Expression(WarAnts::Asm::RegisterType::R1); ;}
+    { (yyval.TSTATETMENT) = new WarAnts::Asm::Statetment(WarAnts::Asm::AsmCommand::BSF , (yyvsp[(2) - (4)].TEXPR), (yyvsp[(4) - (4)].TEXPR)); ;}
     break;
 
   case 36:
 
-    { (yyval.TEXPR) = new WarAnts::Asm::Expression(WarAnts::Asm::RegisterType::R2); ;}
+    { (yyval.TSTATETMENT) = new WarAnts::Asm::Statetment(WarAnts::Asm::AsmCommand::BSR , (yyvsp[(2) - (4)].TEXPR), (yyvsp[(4) - (4)].TEXPR)); ;}
     break;
 
   case 37:
 
-    { (yyval.TEXPR) = new WarAnts::Asm::Expression(WarAnts::Asm::RegisterType::R3); ;}
+    { (yyval.TSTATETMENT) = new WarAnts::Asm::Statetment(WarAnts::Asm::AsmCommand::BT  , (yyvsp[(2) - (4)].TEXPR), (yyvsp[(4) - (4)].TEXPR)); ;}
     break;
 
   case 38:
 
-    { (yyval.TEXPR) = new WarAnts::Asm::Expression(WarAnts::Asm::RegisterType::RC); ;}
+    { (yyval.TSTATETMENT) = new WarAnts::Asm::Statetment(WarAnts::Asm::AsmCommand::BTR , (yyvsp[(2) - (4)].TEXPR), (yyvsp[(4) - (4)].TEXPR)); ;}
     break;
 
   case 39:
 
-    { (yyval.TEXPR) = new WarAnts::Asm::Expression(WarAnts::Asm::RegisterType::RF); ;}
+    { (yyval.TSTATETMENT) = new WarAnts::Asm::Statetment(WarAnts::Asm::AsmCommand::BTS , (yyvsp[(2) - (4)].TEXPR), (yyvsp[(4) - (4)].TEXPR)); ;}
     break;
 
   case 40:
 
-    { (yyval.TEXPR) = new WarAnts::Asm::Expression(WarAnts::Asm::RegisterType::IF); ;}
+    { (yyval.TSTATETMENT) = new WarAnts::Asm::Statetment(WarAnts::Asm::AsmCommand::BTC , (yyvsp[(2) - (4)].TEXPR), (yyvsp[(4) - (4)].TEXPR)); ;}
     break;
 
   case 41:
 
-    { (yyval.TEXPR) = new WarAnts::Asm::Expression(WarAnts::Asm::RegisterType::IR); ;}
+    { (yyval.TSTATETMENT) = new WarAnts::Asm::Statetment(WarAnts::Asm::AsmCommand::SHL , (yyvsp[(2) - (4)].TEXPR), (yyvsp[(4) - (4)].TEXPR)); ;}
     break;
 
   case 42:
 
-    { (yyval.TEXPR) = new WarAnts::Asm::Expression((yyvsp[(1) - (1)].TINEGER)); ;}
+    { (yyval.TSTATETMENT) = new WarAnts::Asm::Statetment(WarAnts::Asm::AsmCommand::SHR , (yyvsp[(2) - (4)].TEXPR), (yyvsp[(4) - (4)].TEXPR)); ;}
     break;
 
   case 43:
 
-    { (yyval.TINEGER) = getIntNumber(yytext); ;}
+    { (yyval.TSTATETMENT) = new WarAnts::Asm::Statetment(WarAnts::Asm::AsmCommand::ROL , (yyvsp[(2) - (4)].TEXPR), (yyvsp[(4) - (4)].TEXPR)); ;}
     break;
 
   case 44:
+
+    { (yyval.TSTATETMENT) = new WarAnts::Asm::Statetment(WarAnts::Asm::AsmCommand::ROR , (yyvsp[(2) - (4)].TEXPR), (yyvsp[(4) - (4)].TEXPR)); ;}
+    break;
+
+  case 45:
+
+    { (yyval.TSTATETMENT) = new WarAnts::Asm::Statetment(WarAnts::Asm::AsmCommand::EQ  , (yyvsp[(2) - (4)].TEXPR), (yyvsp[(4) - (4)].TEXPR)); ;}
+    break;
+
+  case 46:
+
+    { (yyval.TSTATETMENT) = new WarAnts::Asm::Statetment(WarAnts::Asm::AsmCommand::NEQ , (yyvsp[(2) - (4)].TEXPR), (yyvsp[(4) - (4)].TEXPR)); ;}
+    break;
+
+  case 47:
+
+    { (yyval.TSTATETMENT) = new WarAnts::Asm::Statetment(WarAnts::Asm::AsmCommand::GT  , (yyvsp[(2) - (4)].TEXPR), (yyvsp[(4) - (4)].TEXPR)); ;}
+    break;
+
+  case 48:
+
+    { (yyval.TSTATETMENT) = new WarAnts::Asm::Statetment(WarAnts::Asm::AsmCommand::GE  , (yyvsp[(2) - (4)].TEXPR), (yyvsp[(4) - (4)].TEXPR)); ;}
+    break;
+
+  case 49:
+
+    { (yyval.TSTATETMENT) = new WarAnts::Asm::Statetment(WarAnts::Asm::AsmCommand::LT  , (yyvsp[(2) - (4)].TEXPR), (yyvsp[(4) - (4)].TEXPR)); ;}
+    break;
+
+  case 50:
+
+    { (yyval.TSTATETMENT) = new WarAnts::Asm::Statetment(WarAnts::Asm::AsmCommand::LE  , (yyvsp[(2) - (4)].TEXPR), (yyvsp[(4) - (4)].TEXPR)); ;}
+    break;
+
+  case 51:
+
+    { (yyval.TSTATETMENT) = new WarAnts::Asm::Statetment(WarAnts::Asm::AsmCommand::TEST, (yyvsp[(2) - (4)].TEXPR), (yyvsp[(4) - (4)].TEXPR)); ;}
+    break;
+
+  case 52:
+
+    { (yyval.TSTATETMENT) = new WarAnts::Asm::Statetment(WarAnts::Asm::AsmCommand::JMP , *(yyvsp[(2) - (2)].TSTRING)); ;}
+    break;
+
+  case 53:
+
+    { (yyval.TSTATETMENT) = new WarAnts::Asm::Statetment(WarAnts::Asm::AsmCommand::JZ  , *(yyvsp[(2) - (2)].TSTRING)); ;}
+    break;
+
+  case 54:
+
+    { (yyval.TSTATETMENT) = new WarAnts::Asm::Statetment(WarAnts::Asm::AsmCommand::JNZ , *(yyvsp[(2) - (2)].TSTRING)); ;}
+    break;
+
+  case 55:
+
+    { (yyval.TSTATETMENT) = new WarAnts::Asm::Statetment(WarAnts::Asm::AsmCommand::JO  , *(yyvsp[(2) - (2)].TSTRING)); ;}
+    break;
+
+  case 56:
+
+    { (yyval.TSTATETMENT) = new WarAnts::Asm::Statetment(WarAnts::Asm::AsmCommand::JNO , *(yyvsp[(2) - (2)].TSTRING)); ;}
+    break;
+
+  case 57:
+
+    { (yyval.TSTATETMENT) = new WarAnts::Asm::Statetment(WarAnts::Asm::AsmCommand::JCZ , *(yyvsp[(2) - (2)].TSTRING)); ;}
+    break;
+
+  case 58:
+
+    { (yyval.TSTATETMENT) = new WarAnts::Asm::Statetment(WarAnts::Asm::AsmCommand::JCNZ, *(yyvsp[(2) - (2)].TSTRING)); ;}
+    break;
+
+  case 59:
+
+    { (yyval.TSTATETMENT) = new WarAnts::Asm::Statetment(WarAnts::Asm::AsmCommand::LOOP, *(yyvsp[(2) - (2)].TSTRING)); ;}
+    break;
+
+  case 60:
+
+    { (yyval.TSTATETMENT) = new WarAnts::Asm::Statetment(WarAnts::Asm::AsmCommand::MOV , (yyvsp[(2) - (4)].TEXPR), (yyvsp[(4) - (4)].TEXPR)); ;}
+    break;
+
+  case 61:
+
+    { (yyval.TSTATETMENT) = new WarAnts::Asm::Statetment(WarAnts::Asm::AsmCommand::CALL, *(yyvsp[(2) - (2)].TSTRING)); ;}
+    break;
+
+  case 62:
+
+    { (yyval.TSTATETMENT) = new WarAnts::Asm::Statetment(WarAnts::Asm::AsmCommand::LEN , (yyvsp[(2) - (4)].TEXPR), (yyvsp[(4) - (4)].TEXPR)); ;}
+    break;
+
+  case 63:
+
+    { (yyval.TSTATETMENT) = new WarAnts::Asm::Statetment(WarAnts::Asm::AsmCommand::EXIT, nullptr, nullptr); ;}
+    break;
+
+  case 64:
+
+    { (yyval.TSTATETMENT) = new WarAnts::Asm::Statetment(WarAnts::Asm::AsmCommand::LDTR, (yyvsp[(2) - (2)].TEXPR), nullptr); ;}
+    break;
+
+  case 65:
+
+    { (yyval.TSTATETMENT) = new WarAnts::Asm::Statetment(WarAnts::Asm::AsmCommand::LDFD, (yyvsp[(2) - (2)].TEXPR), nullptr); ;}
+    break;
+
+  case 66:
+
+    { (yyval.TSTATETMENT) = new WarAnts::Asm::Statetment(WarAnts::Asm::AsmCommand::LDEN, (yyvsp[(2) - (2)].TEXPR), nullptr); ;}
+    break;
+
+  case 67:
+
+    { (yyval.TSTATETMENT) = new WarAnts::Asm::Statetment(WarAnts::Asm::AsmCommand::LDFR, (yyvsp[(2) - (2)].TEXPR), nullptr); ;}
+    break;
+
+  case 68:
+
+    { (yyval.TSTATETMENT) = new WarAnts::Asm::Statetment(WarAnts::Asm::AsmCommand::CIDL , (yyvsp[(2) - (2)].TEXPR), nullptr); ;}
+    break;
+
+  case 69:
+
+    { (yyval.TSTATETMENT) = new WarAnts::Asm::Statetment(WarAnts::Asm::AsmCommand::CMOV , (yyvsp[(2) - (4)].TEXPR), (yyvsp[(4) - (4)].TEXPR)); ;}
+    break;
+
+  case 70:
+
+    { (yyval.TSTATETMENT) = new WarAnts::Asm::Statetment(WarAnts::Asm::AsmCommand::CATT , (yyvsp[(2) - (4)].TEXPR), (yyvsp[(4) - (4)].TEXPR)); ;}
+    break;
+
+  case 71:
+
+    { (yyval.TSTATETMENT) = new WarAnts::Asm::Statetment(WarAnts::Asm::AsmCommand::CTKF , (yyvsp[(2) - (4)].TEXPR), (yyvsp[(4) - (4)].TEXPR)); ;}
+    break;
+
+  case 72:
+
+    { (yyval.TSTATETMENT) = new WarAnts::Asm::Statetment(WarAnts::Asm::AsmCommand::CGVF , (yyvsp[(2) - (4)].TEXPR), (yyvsp[(4) - (4)].TEXPR)); ;}
+    break;
+
+  case 73:
+
+    { (yyval.TSTATETMENT) = new WarAnts::Asm::Statetment(WarAnts::Asm::AsmCommand::CEAT , (yyvsp[(2) - (2)].TEXPR), nullptr); ;}
+    break;
+
+  case 74:
+
+    { (yyval.TSTATETMENT) = new WarAnts::Asm::Statetment(WarAnts::Asm::AsmCommand::CPS  , nullptr, nullptr); ;}
+    break;
+
+  case 75:
+
+    { (yyval.TSTATETMENT) = new WarAnts::Asm::Statetment(WarAnts::Asm::AsmCommand::CPW  , nullptr, nullptr); ;}
+    break;
+
+  case 76:
+
+    { (yyval.TSTATETMENT) = new WarAnts::Asm::Statetment(WarAnts::Asm::AsmCommand::NOP  , nullptr, nullptr); ;}
+    break;
+
+  case 77:
+
+    { (yyval.TSTRING) = new std::string(yytext); ;}
+    break;
+
+  case 78:
+
+    { (yyval.TSTRING) = new std::string(yytext); ;}
+    break;
+
+  case 79:
+
+    { (yyval.TEXPR) = (yyvsp[(1) - (1)].TEXPR); ;}
+    break;
+
+  case 80:
+
+    { (yyval.TEXPR) = new WarAnts::Asm::Expression((yyvsp[(2) - (3)].TEXPR)); ;}
+    break;
+
+  case 81:
+
+    { (yyval.TEXPR) = (yyvsp[(1) - (1)].TEXPR); ;}
+    break;
+
+  case 82:
+
+    { (yyval.TEXPR) = new WarAnts::Asm::Expression(WarAnts::Asm::OperandType::Plus, (yyvsp[(1) - (3)].TEXPR), (yyvsp[(3) - (3)].TEXPR)); ;}
+    break;
+
+  case 83:
+
+    { (yyval.TEXPR) = new WarAnts::Asm::Expression(WarAnts::Asm::OperandType::Minus, (yyvsp[(1) - (3)].TEXPR), (yyvsp[(3) - (3)].TEXPR)); ;}
+    break;
+
+  case 84:
+
+    { (yyval.TEXPR) = (yyvsp[(1) - (1)].TEXPR); ;}
+    break;
+
+  case 85:
+
+    { (yyval.TEXPR) = new WarAnts::Asm::Expression(WarAnts::Asm::OperandType::Star, (yyvsp[(1) - (3)].TEXPR), (yyvsp[(3) - (3)].TEXPR)); ;}
+    break;
+
+  case 86:
+
+    { (yyval.TEXPR) = (yyvsp[(1) - (1)].TEXPR); ;}
+    break;
+
+  case 87:
+
+    { (yyval.TEXPR) = (yyvsp[(2) - (3)].TEXPR); ;}
+    break;
+
+  case 88:
+
+    { (yyval.TEXPR) = new WarAnts::Asm::Expression(WarAnts::Asm::RegisterType::R0); ;}
+    break;
+
+  case 89:
+
+    { (yyval.TEXPR) = new WarAnts::Asm::Expression(WarAnts::Asm::RegisterType::R1); ;}
+    break;
+
+  case 90:
+
+    { (yyval.TEXPR) = new WarAnts::Asm::Expression(WarAnts::Asm::RegisterType::R2); ;}
+    break;
+
+  case 91:
+
+    { (yyval.TEXPR) = new WarAnts::Asm::Expression(WarAnts::Asm::RegisterType::R3); ;}
+    break;
+
+  case 92:
+
+    { (yyval.TEXPR) = new WarAnts::Asm::Expression(WarAnts::Asm::RegisterType::RC); ;}
+    break;
+
+  case 93:
+
+    { (yyval.TEXPR) = new WarAnts::Asm::Expression(WarAnts::Asm::RegisterType::RF); ;}
+    break;
+
+  case 94:
+
+    { (yyval.TEXPR) = new WarAnts::Asm::Expression(WarAnts::Asm::RegisterType::IF); ;}
+    break;
+
+  case 95:
+
+    { (yyval.TEXPR) = new WarAnts::Asm::Expression(WarAnts::Asm::RegisterType::IR); ;}
+    break;
+
+  case 96:
+
+    { (yyval.TEXPR) = new WarAnts::Asm::Expression((yyvsp[(1) - (1)].TINEGER)); ;}
+    break;
+
+  case 97:
+
+    { (yyval.TEXPR) = new WarAnts::Asm::Expression(*(yyvsp[(1) - (1)].TSTRING)); ;}
+    break;
+
+  case 98:
+
+    { (yyval.TINEGER) = getIntNumber(yytext); ;}
+    break;
+
+  case 99:
 
     { (yyval.TINEGER) = getHexNumber(yytext); ;}
     break;
@@ -1876,8 +2342,10 @@ yyreturn:
 static int16_t getHexNumber(const char* text)
 {
     unsigned int val = 0;
+    std::string numbers = text;
+    numbers = numbers.substr(0, numbers.size() - 1);
 
-    if (!su::String_isValidHex(text, val))
+    if (!su::String_isValidHex(numbers.c_str(), val))
     {
         yy_errorString += su::String_format2("%i: number '%s' is not hex val.", yylineno, yytext);
         return 0;

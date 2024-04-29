@@ -2,6 +2,7 @@
 #include <fstream>
 #include <sstream>
 #include <string>
+#include <vector>
 
 #include "code.h"
 
@@ -12,7 +13,7 @@ namespace Asm
 
 Code* yy_compile(const char* Func, std::string& outError);
 
-void compileFile(const std::string& filename)
+bool compileFile(const std::string& filename, std::string& error, std::vector<int8_t>& data)
 {
     std::ifstream file(filename);
     std::stringstream buffer;
@@ -20,15 +21,16 @@ void compileFile(const std::string& filename)
 
     if (!file.is_open())
     {
-        return;
+        return false;
     }
 
     buffer << file.rdbuf();
     file.close();
     text = buffer.str();
 
-    std::string strError = "";
-    auto code = yy_compile(text.c_str(), strError);
+    auto code = yy_compile(text.c_str(), error);
+
+    return true;
 }
 
 }; // namespace Asm

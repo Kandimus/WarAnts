@@ -24,6 +24,7 @@ struct Pragma
         m_type = type;
         m_value = value;
         m_next = nullptr;
+        printf("Pragma::Pragma(%i, '%s')\n", (int)type, value.c_str());
     }
     virtual ~Pragma();
 

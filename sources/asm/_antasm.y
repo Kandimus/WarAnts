@@ -6,6 +6,7 @@
 #include "stringex.h"
 
 #include "code.h"
+#include "define.h"
 #include "expression.h"
 #include "function.h"
 #include "pragma.h"
@@ -62,7 +63,7 @@ int  yylex();
 %type <TFUNCTION> list_of_asm_functions asm_function
 %type <TSTATETMENT> list_of_commands asm_command_line asm_command
 %type <TSTRING> asm_function_name label quted_string
-%type <TEXPR> address expression expr_0 expr_1 expr_2 expr_3
+%type <TEXPR> address expr_0 expr_1 expr_2 expr_3
 %type <TCODE> code
 %type <TINEGER> number
 
@@ -94,11 +95,11 @@ pragma
 list_of_defines
     : list_of_defines define_declaration                { $$ = $1->add($2); }
     | define_declaration                                { $$ = $1; }
+    |
     ;
 
 define_declaration
     : PRAGMA_DEFINE label number NEW_LINE               { $$ = new WarAnts::Asm::Define(*$2, $3); delete $2; }
-    |                                                   { $$ = nullptr; }
     ;
 
 list_of_asm_functions
@@ -164,18 +165,18 @@ asm_command
     | TEST address COMMA address                        { $$ = new WarAnts::Asm::Statetment(WarAnts::Asm::AsmCommand::TEST, $2, $4); }
 
     // Jump
-    | JMP  label                                        { $$ = new WarAnts::Asm::Statetment(WarAnts::Asm::AsmCommand::JMP , $2); }
-    | JZ   label                                        { $$ = new WarAnts::Asm::Statetment(WarAnts::Asm::AsmCommand::JZ  , $2); }
-    | JNZ  label                                        { $$ = new WarAnts::Asm::Statetment(WarAnts::Asm::AsmCommand::JNZ , $2); }
-    | JO   label                                        { $$ = new WarAnts::Asm::Statetment(WarAnts::Asm::AsmCommand::JO  , $2); }
-    | JNO  label                                        { $$ = new WarAnts::Asm::Statetment(WarAnts::Asm::AsmCommand::JNO , $2); }
-    | JCZ  label                                        { $$ = new WarAnts::Asm::Statetment(WarAnts::Asm::AsmCommand::JCZ , $2); }
-    | JCNZ label                                        { $$ = new WarAnts::Asm::Statetment(WarAnts::Asm::AsmCommand::JCNZ, $2); }
-    | LOOP label                                        { $$ = new WarAnts::Asm::Statetment(WarAnts::Asm::AsmCommand::LOOP, $2); }
+    | JMP  label                                        { $$ = new WarAnts::Asm::Statetment(WarAnts::Asm::AsmCommand::JMP , *$2); }
+    | JZ   label                                        { $$ = new WarAnts::Asm::Statetment(WarAnts::Asm::AsmCommand::JZ  , *$2); }
+    | JNZ  label                                        { $$ = new WarAnts::Asm::Statetment(WarAnts::Asm::AsmCommand::JNZ , *$2); }
+    | JO   label                                        { $$ = new WarAnts::Asm::Statetment(WarAnts::Asm::AsmCommand::JO  , *$2); }
+    | JNO  label                                        { $$ = new WarAnts::Asm::Statetment(WarAnts::Asm::AsmCommand::JNO , *$2); }
+    | JCZ  label                                        { $$ = new WarAnts::Asm::Statetment(WarAnts::Asm::AsmCommand::JCZ , *$2); }
+    | JCNZ label                                        { $$ = new WarAnts::Asm::Statetment(WarAnts::Asm::AsmCommand::JCNZ, *$2); }
+    | LOOP label                                        { $$ = new WarAnts::Asm::Statetment(WarAnts::Asm::AsmCommand::LOOP, *$2); }
 
     // Other
     | MOV  address COMMA address                        { $$ = new WarAnts::Asm::Statetment(WarAnts::Asm::AsmCommand::MOV , $2, $4); }
-    | CALL label                                        { $$ = new WarAnts::Asm::Statetment(WarAnts::Asm::AsmCommand::CALL, $2); }
+    | CALL label                                        { $$ = new WarAnts::Asm::Statetment(WarAnts::Asm::AsmCommand::CALL, *$2); }
     | LEN  address COMMA address                        { $$ = new WarAnts::Asm::Statetment(WarAnts::Asm::AsmCommand::LEN , $2, $4); }
     | EXIT                                              { $$ = new WarAnts::Asm::Statetment(WarAnts::Asm::AsmCommand::EXIT, nullptr, nullptr); }
 
@@ -209,12 +210,8 @@ label
     ;
 
 address
-    : expression                                        { $$ = $1; }
-    | LSQUARE expression RSQUARE                        { $$ = new WarAnts::Asm::Expression($2); }
-    ;
-
-expression
     : expr_0                                            { $$ = $1; }
+    | LSQUARE expr_0 RSQUARE                            { $$ = new WarAnts::Asm::Expression($2); }
     ;
 
 /*
@@ -255,7 +252,7 @@ expr_3
     | IF                                                { $$ = new WarAnts::Asm::Expression(WarAnts::Asm::RegisterType::IF); }
     | IR                                                { $$ = new WarAnts::Asm::Expression(WarAnts::Asm::RegisterType::IR); }
     | number                                            { $$ = new WarAnts::Asm::Expression($1); }
-    | label                                             { $$ = new WarAnts::Asm::Expression($1); }
+    | label                                             { $$ = new WarAnts::Asm::Expression(*$1); }
     ;
 
 number
@@ -270,8 +267,10 @@ number
 static int16_t getHexNumber(const char* text)
 {
     unsigned int val = 0;
+    std::string numbers = text;
+    numbers = numbers.substr(0, numbers.size() - 1);
 
-    if (!su::String_isValidHex(text, val))
+    if (!su::String_isValidHex(numbers.c_str(), val))
     {
         yy_errorString += su::String_format2("%i: number '%s' is not hex val.", yylineno, yytext);
         return 0;

@@ -1,7 +1,29 @@
-#name "Black player"
+#name "Black stupid ants"
 #version "1"
 #class "black"
 
+#define food_count 07H
+
 .worker
-    MOV AX, BX
+    MOV R0, [2]
+    LE  [2], 50
+    JNZ go_to_food
+    GE  [6], 2
+    JNZ attack_enemy
+    JMP finish
+go_to_food:
+    GT [7], 0
+    JZ move_any_way
+    LDFD 0
+//    CMOV RC, [food_count]
+    CEAT [48], [49]
+    JMP finish
+
+attack_enemy:
+    LDEN 0
+    CATT [33], [34]
+    JMP finish
+
+finish:
+    EXIT
 

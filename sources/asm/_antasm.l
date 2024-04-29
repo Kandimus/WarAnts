@@ -20,7 +20,7 @@ digit     [0-9]
 hexdigit  [0-9a-fA-F]
 
 int_num    "-"{digit}+
-hex_num   "0x"{hexdigit}+
+hex_num   {hexdigit}+"H"
 
 %%
 
@@ -29,7 +29,6 @@ hex_num   "0x"{hexdigit}+
 {hex_num}                   { return HEX_NUMBER; }
 \"({NQUOTE}|"")+\"          { return CHARACTER_STRING; }
 {new_line}+                 { return NEW_LINE; }
-{id}                        { return ID; }
 
 "("                         { return LROUND; }
 ")"                         { return RROUND; }
@@ -122,6 +121,8 @@ hex_num   "0x"{hexdigit}+
 
 "//"                        { skipSignleLineComment(); }
 "/*"                        { skipMultiLineComment(); }
+
+{id}                        { return ID; }
 
 .                           { return yytext[0]; }
 
