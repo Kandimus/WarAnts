@@ -39,11 +39,14 @@ hex_num   {hexdigit}+"H"
 ","                         { return COMMA; }
 ":"                         { return COLON; }
 "."                         { return DOT; }
+"#"                         { return SIGN; }
+"%"                         { return PERSENT; }
 
-"#name"                     { return PRAGMA_NAME; }
-"#version"                  { return PRAGMA_VERSION; }
-"#class"                    { return PRAGMA_CLASS; }
-"#define"                   { return PRAGMA_DEFINE; }
+"core"                      { return CORE; }
+"name"                      { return NAME; }
+"version"                   { return VERSION; }
+"class"                     { return CLASS; }
+"define"                    { return DEFINE; }
 
 "r0"                        { return R0; }
 "r1"                        { return R1; }

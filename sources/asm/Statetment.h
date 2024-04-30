@@ -147,7 +147,14 @@ public:
 
     Statetment* add(Statetment* next)
     {
-        m_next = next;
+        if (m_next)
+        {
+            m_next->add(next);
+        }
+        else
+        {
+            m_next = next;
+        }
         return this;
     }
 

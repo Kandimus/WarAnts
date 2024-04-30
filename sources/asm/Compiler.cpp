@@ -1,4 +1,4 @@
-
+﻿
 #include <fstream>
 #include <sstream>
 #include <string>
@@ -43,13 +43,18 @@ bool compileFile(const std::string& filename, std::vector<std::string>& error, s
     }
 
     // Step 1. Uniques function names
+    if (!code->checkFunctionName())
+    {
+        error = code->m_errors; //TODO стырить у Никиты класс для выполнения при завешении
+        return false;
+    }
 
-    // Step 1. removing labels as single statetment.
-    //auto func = code->m_function;
-    //while (func)
-    //{
-    //    auto stat = func->m_stat;
-    //}
+    // Step 2. removing labels as single statetment.
+    if (!code->moveLabelToStatetment())
+    {
+        error = code->m_errors; //TODO стырить у Никиты класс для выполнения при завешении
+        return false;
+    }
     return true;
 }
 

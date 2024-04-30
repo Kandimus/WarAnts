@@ -39,6 +39,14 @@ public:
         m_child.push_back(node);
     }
 
+    uint32_t lineno() const
+    {
+        return m_lineno;
+    }
+
+protected:
+    uint32_t m_lineno = 0;
+
 private:
     BaseNode* m_parent = nullptr;
     std::vector<BaseNode*> m_child;

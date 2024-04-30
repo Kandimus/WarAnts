@@ -20,7 +20,17 @@ public:
     Code() : BaseNode(nullptr) {}
     virtual ~Code() = default;
 
+    void error(const char* format, ...);
+    void error(uint32_t lineno, const char* format, ...);
+
+    bool checkFunctionName();
+    bool moveLabelToStatetment();
+
 public:
+    const std::string FuncNameQueen = "queen";
+    const std::string FuncNameSolder = "solder";
+    const std::string FuncNameWorker = "worker";
+
     Pragma* m_pragma = nullptr;
     Function* m_function = nullptr;
 

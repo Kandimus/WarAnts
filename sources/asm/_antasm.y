@@ -13,9 +13,11 @@
 #include "statetment.h"
 #include "stringNode.h"
 
+
 static std::shared_ptr<WarAnts::Asm::Code> yy_code;
 
 /* For BISON */
+extern int yylineno;
 extern char *yytext;
 
 int16_t getIntNumber(const char* text);
@@ -42,9 +44,9 @@ int  yylex();
     int64_t TINEGER;
 }
 
-%token LROUND RROUND LSQUARE RSQUARE COMMA NEW_LINE COLON DOT
+%token LROUND RROUND LSQUARE RSQUARE COMMA NEW_LINE COLON DOT SIGN PERSENT
 %token INT_NUMBER HEX_NUMBER ID CHARACTER_STRING
-%token PRAGMA_NAME PRAGMA_VERSION PRAGMA_CLASS PRAGMA_DEFINE
+%token NAME VERSION CLASS DEFINE CORE
 %token R0 R1 R2 R3 RC RF IF IR
 %token PLUS MINUS STAR
 %token ADD AND DEC DIV INC MOD MUL NEG NOT OR SUB XOR MIN MAX
@@ -55,6 +57,7 @@ int  yylex();
 %token LDTR LDFD LDEN LDFR
 %token CIDL CMOV CATT CTKF CGVF CEAT CPS CPW
 %token NOP
+%token FAKE
 
 %type <TPRAGMATYPE> pragma
 %type <TPRAGMA> list_of_pragmas pragma_definition
@@ -74,25 +77,28 @@ asm_file
     ;
 
 asm_code
-    : list_of_pragmas                                   { yy_code->m_pragma = $1; printf("add pragma list\n"); }
-      list_of_asm_functions                             { yy_code->m_function = $3; printf("add funct list\n"); }
+    : list_of_pragmas                                   { yy_code->m_pragma   = $1; }
+      list_of_asm_functions                             { yy_code->m_function = $3; }
     ;
 
+// pragmas
 list_of_pragmas
     : list_of_pragmas pragma_definition                 { $$ = $1->add($2); }
     | pragma_definition                                 { $$ = $1; }
     ;
 
 pragma_definition
-    : pragma quted_string newline                       { $$ = new WarAnts::Asm::Pragma($1, $2->get(), yy_code.get()); }
+    : persent pragma quted_string newline               { $$ = new WarAnts::Asm::Pragma($2, $3->get(), yy_code.get()); }
     ;
 
 pragma
-    : PRAGMA_CLASS                                      { $$ = WarAnts::Asm::PragmaType::Class; }
-    | PRAGMA_NAME                                       { $$ = WarAnts::Asm::PragmaType::Name; }
-    | PRAGMA_VERSION                                    { $$ = WarAnts::Asm::PragmaType::Version; }
+    : CLASS                                             { $$ = WarAnts::Asm::PragmaType::Class; }
+    | NAME                                              { $$ = WarAnts::Asm::PragmaType::Name; }
+    | VERSION                                           { $$ = WarAnts::Asm::PragmaType::Version; }
+    | CORE                                              { $$ = WarAnts::Asm::PragmaType::Core; }
     ;
 
+// defines
 define_declaration
     : list_of_defines
     ;
@@ -103,25 +109,26 @@ list_of_defines
     ;
 
 define_definition
-    : PRAGMA_DEFINE label number newline                { yy_code->m_defines[$2->get()] = $3; printf("define %s = %i\n", $2->get().c_str(), $3); }
+    : sign DEFINE label number newline                  { yy_code->m_defines[$3->get()] = $4; }
     ;
 
+// functions
 list_of_asm_functions
-    : list_of_asm_functions asm_function                { $$ = $1->add($2); printf("list_of_asm_functions\n"); }
-    | asm_function                                      { $$ = $1; printf("asm_function\n"); }
+    : list_of_asm_functions asm_function                { $$ = $1->add($2); }
+    | asm_function                                      { $$ = $1; }
     ;
 
 asm_function
-    : define_declaration asm_function_declaration          { $$ = $2; }
+    : define_declaration asm_function_declaration       { $$ = $2; }
     | asm_function_declaration                          { $$ = $1; }
     ;
 
 asm_function_declaration
-    : asm_function_name list_of_commands                { $$ = new WarAnts::Asm::Function($1->get(), $2, yy_code.get()); }
+    : asm_function_name list_of_commands                { $$ = new WarAnts::Asm::Function($1, $2, yy_code.get()); }
     ;
 
 asm_function_name
-    : DOT label newline                                 { $$ = $2; printf("Found function '%s'\n", $2->get().c_str()); }
+    : DOT label newline                                 { $$ = $2; }
     ;
 
 list_of_commands
@@ -266,11 +273,19 @@ newline
     ;
 
 quted_string
-    : CHARACTER_STRING                                  { $$ = new WarAnts::Asm::StringNode(yytext, yy_code.get()); }
+    : CHARACTER_STRING                                  { $$ = new WarAnts::Asm::StringNode(yytext, yy_code.get(), yylineno); }
     ;
 
 label
-    : ID                                                { $$ = new WarAnts::Asm::StringNode(yytext, yy_code.get()); }
+    : ID                                                { $$ = new WarAnts::Asm::StringNode(yytext, yy_code.get(), yylineno); }
+    ;
+
+sign
+    : SIGN
+    ;
+
+persent
+    : PERSENT
     ;
 
 %%

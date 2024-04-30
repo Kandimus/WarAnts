@@ -1,10 +1,8 @@
-//#name "Black stupid ants"
-//#version "1"
-#class "black"
+% name "Black stupid ants"
+% version "1"
+% class "black"
 
-
-#define food_count 07H
-
+# define food_count 07H
 
 .worker
     LE  [2], 50
@@ -31,3 +29,11 @@ attack_enemy:
 
 finish:
     EXIT
+
+
+.solder
+    CIDL 2
+
+
+.queen
+    CIDL 2

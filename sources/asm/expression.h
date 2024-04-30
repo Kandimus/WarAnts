@@ -55,7 +55,6 @@ public:
         m_right = nullptr;
         m_type = ExpressionType::Register;
         m_value.reg = reg;
-        printf("Expression::Expression(reg %i)\n", (uint32_t)reg);
     }
     Expression(int16_t num, BaseNode* parent)
         : BaseNode(parent)
@@ -64,7 +63,6 @@ public:
         m_right = nullptr;
         m_type = ExpressionType::Number;
         m_value.num = num;
-        printf("Expression::Expression(int16_t)\n");
     }
     Expression(OperandType op, Expression* left, Expression* right, BaseNode* parent)
         : BaseNode(parent)
@@ -73,7 +71,6 @@ public:
         m_right = right;
         m_type = ExpressionType::Operand;
         m_value.op = op;
-        printf("Expression::Expression(operator)\n");
     }
     Expression(Expression* left, BaseNode* parent)
         : BaseNode(parent)
@@ -82,7 +79,6 @@ public:
         m_right = nullptr;
         m_type = ExpressionType::Address;
         m_value.num = 0;
-        printf("Expression::Expression(address)\n");
     }
     virtual ~Expression() = default;
 

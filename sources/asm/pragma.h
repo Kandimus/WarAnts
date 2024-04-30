@@ -14,6 +14,7 @@ enum class PragmaType
     Class,
     Name,
     Version,
+    Core,
 };
 
 class Pragma : public BaseNode
@@ -27,17 +28,19 @@ public:
         m_type = type;
         m_value = value;
         m_next = nullptr;
-
-        printf("Pragma::Pragma(%i, '%s')\n", (int)type, value.c_str());
     }
-    virtual ~Pragma()
-    {
-        printf("Pragma::~Pragma()\n");
-    }
+    virtual ~Pragma() = default;
 
     Pragma* add(Pragma* next)
     {
-        m_next = next;
+        if (m_next)
+        {
+            m_next->add(next);
+        }
+        else
+        {
+            m_next = next;
+        }
         return this;
     }
 

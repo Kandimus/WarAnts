@@ -1,6 +1,6 @@
 #pragma once
 
-#include <string>
+#include "stringex.h"
 #include "baseNode.h"
 
 namespace WarAnts
@@ -8,13 +8,14 @@ namespace WarAnts
 namespace Asm
 {
 
-class StringNode : BaseNode
+class StringNode : public BaseNode
 {
 public:
-    StringNode(const char* text, BaseNode* parent)
+    StringNode(const char* text, BaseNode* parent, uint32_t lineno)
         : BaseNode(parent)
     {
-        m_text = text;
+        m_lineno = lineno;
+        m_text = su::String_tolower(text);
     }
     virtual ~StringNode() = default;
 
