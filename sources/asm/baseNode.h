@@ -43,15 +43,9 @@ public:
         m_child.push_back(node);
     }
 
-    uint32_t lineno() const
-    {
-        return m_lineno;
-    }
-
-    uint32_t offset() const
-    {
-        return m_offset;
-    }
+    BaseNode* parent() const { return m_parent; }
+    uint32_t lineno() const { return m_lineno; }
+    uint32_t offset() const { return m_offset; }
 
 protected:
     uint32_t m_lineno = 0;

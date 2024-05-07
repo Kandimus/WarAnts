@@ -10,6 +10,7 @@ namespace Asm
 {
 
 class Code;
+class Statement;
 
 enum class ExpressionType
 {
@@ -100,7 +101,9 @@ public:
         return m_type;
     }
 
+    Statement* extrudeExpression(bool isDst, Code* code);
     int8_t compile(bool isDst, int16_t& val, Code* code) const;
+    std::string toString() const;
 
 protected:
     ExpressionType m_type;

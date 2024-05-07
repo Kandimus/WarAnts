@@ -48,12 +48,22 @@ bool compileFile(const std::string& filename, std::vector<std::string>& error, s
         error = code->m_errors; //TODO стырить у Никиты класс для выполнения при завешении
         return false;
     }
+    code->print(filename + ".step1.txt");
 
-    if (code->compile())
+
+    // Step 2. Move calculation of address in expression to separate statements
+    if (!code->extrudeExpression())
     {
         error = code->m_errors; //TODO стырить у Никиты класс для выполнения при завешении
         return false;
     }
+    code->print(filename + ".step2.txt");
+
+    //if (code->compile())
+    //{
+    //    error = code->m_errors; //TODO стырить у Никиты класс для выполнения при завешении
+    //    return false;
+    //}
 
     return true;
 }

@@ -25,8 +25,11 @@ public:
 
     bool checkFunctionName();
     bool extrudeExpression();
-    Function* getFunction(const std::string& name) const;
     bool compile();
+    void print(const std::string& filename);
+
+    Function* getFunction(const std::string& name) const;
+    
 
     uint32_t offset() const
     {

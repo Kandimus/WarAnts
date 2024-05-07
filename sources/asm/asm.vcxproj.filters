@@ -24,7 +24,7 @@
     <ClInclude Include="code.h">
       <Filter>Headers</Filter>
     </ClInclude>
-    <ClInclude Include="Statetment.h">
+    <ClInclude Include="statement.h">
       <Filter>Headers</Filter>
     </ClInclude>
     <ClInclude Include="function.h">
@@ -59,7 +59,7 @@
     <ClCompile Include="function.cpp">
       <Filter>Sources</Filter>
     </ClCompile>
-    <ClCompile Include="statetment.cpp">
+    <ClCompile Include="statement.cpp">
       <Filter>Sources</Filter>
     </ClCompile>
     <ClCompile Include="expression.cpp">

@@ -79,7 +79,7 @@
 #include "expression.h"
 #include "function.h"
 #include "pragma.h"
-#include "statetment.h"
+#include "statement.h"
 #include "stringNode.h"
 
 
@@ -230,7 +230,7 @@ typedef union YYSTYPE
     WarAnts::Asm::Pragma* TPRAGMA;
     WarAnts::Asm::Function* TFUNCTION;
     WarAnts::Asm::Expression* TEXPR;
-    WarAnts::Asm::Statetment* TSTATETMENT;
+    WarAnts::Asm::Statement* TSTATETMENT;
     WarAnts::Asm::StringNode* TSTRING;
     int64_t TINEGER;
 
@@ -1764,287 +1764,287 @@ yyreduce:
 
   case 26:
 
-    { (yyval.TSTATETMENT) = new WarAnts::Asm::Statetment((yyvsp[(1) - (2)].TSTRING)->get(), yy_code.get()); ;}
+    { (yyval.TSTATETMENT) = new WarAnts::Asm::Statement((yyvsp[(1) - (2)].TSTRING)->get(), yy_code.get()); ;}
     break;
 
   case 27:
 
-    { (yyval.TSTATETMENT) = new WarAnts::Asm::Statetment(WarAnts::Asm::AsmCommand::ADD , (yyvsp[(2) - (4)].TEXPR), (yyvsp[(4) - (4)].TEXPR), yy_code.get()); ;}
+    { (yyval.TSTATETMENT) = new WarAnts::Asm::Statement(WarAnts::Asm::AsmCommand::ADD , (yyvsp[(2) - (4)].TEXPR), (yyvsp[(4) - (4)].TEXPR), yy_code.get()); ;}
     break;
 
   case 28:
 
-    { (yyval.TSTATETMENT) = new WarAnts::Asm::Statetment(WarAnts::Asm::AsmCommand::AND , (yyvsp[(2) - (4)].TEXPR), (yyvsp[(4) - (4)].TEXPR), yy_code.get()); ;}
+    { (yyval.TSTATETMENT) = new WarAnts::Asm::Statement(WarAnts::Asm::AsmCommand::AND , (yyvsp[(2) - (4)].TEXPR), (yyvsp[(4) - (4)].TEXPR), yy_code.get()); ;}
     break;
 
   case 29:
 
-    { (yyval.TSTATETMENT) = new WarAnts::Asm::Statetment(WarAnts::Asm::AsmCommand::DEC , (yyvsp[(2) - (2)].TEXPR),     yy_code.get()); ;}
+    { (yyval.TSTATETMENT) = new WarAnts::Asm::Statement(WarAnts::Asm::AsmCommand::DEC , (yyvsp[(2) - (2)].TEXPR),     yy_code.get()); ;}
     break;
 
   case 30:
 
-    { (yyval.TSTATETMENT) = new WarAnts::Asm::Statetment(WarAnts::Asm::AsmCommand::DIV , (yyvsp[(2) - (4)].TEXPR), (yyvsp[(4) - (4)].TEXPR), yy_code.get()); ;}
+    { (yyval.TSTATETMENT) = new WarAnts::Asm::Statement(WarAnts::Asm::AsmCommand::DIV , (yyvsp[(2) - (4)].TEXPR), (yyvsp[(4) - (4)].TEXPR), yy_code.get()); ;}
     break;
 
   case 31:
 
-    { (yyval.TSTATETMENT) = new WarAnts::Asm::Statetment(WarAnts::Asm::AsmCommand::INC , (yyvsp[(2) - (2)].TEXPR),     yy_code.get()); ;}
+    { (yyval.TSTATETMENT) = new WarAnts::Asm::Statement(WarAnts::Asm::AsmCommand::INC , (yyvsp[(2) - (2)].TEXPR),     yy_code.get()); ;}
     break;
 
   case 32:
 
-    { (yyval.TSTATETMENT) = new WarAnts::Asm::Statetment(WarAnts::Asm::AsmCommand::MOD , (yyvsp[(2) - (4)].TEXPR), (yyvsp[(4) - (4)].TEXPR), yy_code.get()); ;}
+    { (yyval.TSTATETMENT) = new WarAnts::Asm::Statement(WarAnts::Asm::AsmCommand::MOD , (yyvsp[(2) - (4)].TEXPR), (yyvsp[(4) - (4)].TEXPR), yy_code.get()); ;}
     break;
 
   case 33:
 
-    { (yyval.TSTATETMENT) = new WarAnts::Asm::Statetment(WarAnts::Asm::AsmCommand::MUL , (yyvsp[(2) - (4)].TEXPR), (yyvsp[(4) - (4)].TEXPR), yy_code.get()); ;}
+    { (yyval.TSTATETMENT) = new WarAnts::Asm::Statement(WarAnts::Asm::AsmCommand::MUL , (yyvsp[(2) - (4)].TEXPR), (yyvsp[(4) - (4)].TEXPR), yy_code.get()); ;}
     break;
 
   case 34:
 
-    { (yyval.TSTATETMENT) = new WarAnts::Asm::Statetment(WarAnts::Asm::AsmCommand::NEG , (yyvsp[(2) - (2)].TEXPR),     yy_code.get()); ;}
+    { (yyval.TSTATETMENT) = new WarAnts::Asm::Statement(WarAnts::Asm::AsmCommand::NEG , (yyvsp[(2) - (2)].TEXPR),     yy_code.get()); ;}
     break;
 
   case 35:
 
-    { (yyval.TSTATETMENT) = new WarAnts::Asm::Statetment(WarAnts::Asm::AsmCommand::NOT , (yyvsp[(2) - (2)].TEXPR),     yy_code.get()); ;}
+    { (yyval.TSTATETMENT) = new WarAnts::Asm::Statement(WarAnts::Asm::AsmCommand::NOT , (yyvsp[(2) - (2)].TEXPR),     yy_code.get()); ;}
     break;
 
   case 36:
 
-    { (yyval.TSTATETMENT) = new WarAnts::Asm::Statetment(WarAnts::Asm::AsmCommand::OR  , (yyvsp[(2) - (4)].TEXPR), (yyvsp[(4) - (4)].TEXPR), yy_code.get()); ;}
+    { (yyval.TSTATETMENT) = new WarAnts::Asm::Statement(WarAnts::Asm::AsmCommand::OR  , (yyvsp[(2) - (4)].TEXPR), (yyvsp[(4) - (4)].TEXPR), yy_code.get()); ;}
     break;
 
   case 37:
 
-    { (yyval.TSTATETMENT) = new WarAnts::Asm::Statetment(WarAnts::Asm::AsmCommand::SUB , (yyvsp[(2) - (4)].TEXPR), (yyvsp[(4) - (4)].TEXPR), yy_code.get()); ;}
+    { (yyval.TSTATETMENT) = new WarAnts::Asm::Statement(WarAnts::Asm::AsmCommand::SUB , (yyvsp[(2) - (4)].TEXPR), (yyvsp[(4) - (4)].TEXPR), yy_code.get()); ;}
     break;
 
   case 38:
 
-    { (yyval.TSTATETMENT) = new WarAnts::Asm::Statetment(WarAnts::Asm::AsmCommand::XOR , (yyvsp[(2) - (4)].TEXPR), (yyvsp[(4) - (4)].TEXPR), yy_code.get()); ;}
+    { (yyval.TSTATETMENT) = new WarAnts::Asm::Statement(WarAnts::Asm::AsmCommand::XOR , (yyvsp[(2) - (4)].TEXPR), (yyvsp[(4) - (4)].TEXPR), yy_code.get()); ;}
     break;
 
   case 39:
 
-    { (yyval.TSTATETMENT) = new WarAnts::Asm::Statetment(WarAnts::Asm::AsmCommand::MIN , (yyvsp[(2) - (4)].TEXPR), (yyvsp[(4) - (4)].TEXPR), yy_code.get()); ;}
+    { (yyval.TSTATETMENT) = new WarAnts::Asm::Statement(WarAnts::Asm::AsmCommand::MIN , (yyvsp[(2) - (4)].TEXPR), (yyvsp[(4) - (4)].TEXPR), yy_code.get()); ;}
     break;
 
   case 40:
 
-    { (yyval.TSTATETMENT) = new WarAnts::Asm::Statetment(WarAnts::Asm::AsmCommand::MAX , (yyvsp[(2) - (4)].TEXPR), (yyvsp[(4) - (4)].TEXPR), yy_code.get()); ;}
+    { (yyval.TSTATETMENT) = new WarAnts::Asm::Statement(WarAnts::Asm::AsmCommand::MAX , (yyvsp[(2) - (4)].TEXPR), (yyvsp[(4) - (4)].TEXPR), yy_code.get()); ;}
     break;
 
   case 41:
 
-    { (yyval.TSTATETMENT) = new WarAnts::Asm::Statetment(WarAnts::Asm::AsmCommand::BSF , (yyvsp[(2) - (4)].TEXPR), (yyvsp[(4) - (4)].TEXPR), yy_code.get()); ;}
+    { (yyval.TSTATETMENT) = new WarAnts::Asm::Statement(WarAnts::Asm::AsmCommand::BSF , (yyvsp[(2) - (4)].TEXPR), (yyvsp[(4) - (4)].TEXPR), yy_code.get()); ;}
     break;
 
   case 42:
 
-    { (yyval.TSTATETMENT) = new WarAnts::Asm::Statetment(WarAnts::Asm::AsmCommand::BSR , (yyvsp[(2) - (4)].TEXPR), (yyvsp[(4) - (4)].TEXPR), yy_code.get()); ;}
+    { (yyval.TSTATETMENT) = new WarAnts::Asm::Statement(WarAnts::Asm::AsmCommand::BSR , (yyvsp[(2) - (4)].TEXPR), (yyvsp[(4) - (4)].TEXPR), yy_code.get()); ;}
     break;
 
   case 43:
 
-    { (yyval.TSTATETMENT) = new WarAnts::Asm::Statetment(WarAnts::Asm::AsmCommand::BT  , (yyvsp[(2) - (4)].TEXPR), (yyvsp[(4) - (4)].TEXPR), yy_code.get()); ;}
+    { (yyval.TSTATETMENT) = new WarAnts::Asm::Statement(WarAnts::Asm::AsmCommand::BT  , (yyvsp[(2) - (4)].TEXPR), (yyvsp[(4) - (4)].TEXPR), yy_code.get()); ;}
     break;
 
   case 44:
 
-    { (yyval.TSTATETMENT) = new WarAnts::Asm::Statetment(WarAnts::Asm::AsmCommand::BTR , (yyvsp[(2) - (4)].TEXPR), (yyvsp[(4) - (4)].TEXPR), yy_code.get()); ;}
+    { (yyval.TSTATETMENT) = new WarAnts::Asm::Statement(WarAnts::Asm::AsmCommand::BTR , (yyvsp[(2) - (4)].TEXPR), (yyvsp[(4) - (4)].TEXPR), yy_code.get()); ;}
     break;
 
   case 45:
 
-    { (yyval.TSTATETMENT) = new WarAnts::Asm::Statetment(WarAnts::Asm::AsmCommand::BTS , (yyvsp[(2) - (4)].TEXPR), (yyvsp[(4) - (4)].TEXPR), yy_code.get()); ;}
+    { (yyval.TSTATETMENT) = new WarAnts::Asm::Statement(WarAnts::Asm::AsmCommand::BTS , (yyvsp[(2) - (4)].TEXPR), (yyvsp[(4) - (4)].TEXPR), yy_code.get()); ;}
     break;
 
   case 46:
 
-    { (yyval.TSTATETMENT) = new WarAnts::Asm::Statetment(WarAnts::Asm::AsmCommand::BTC , (yyvsp[(2) - (4)].TEXPR), (yyvsp[(4) - (4)].TEXPR), yy_code.get()); ;}
+    { (yyval.TSTATETMENT) = new WarAnts::Asm::Statement(WarAnts::Asm::AsmCommand::BTC , (yyvsp[(2) - (4)].TEXPR), (yyvsp[(4) - (4)].TEXPR), yy_code.get()); ;}
     break;
 
   case 47:
 
-    { (yyval.TSTATETMENT) = new WarAnts::Asm::Statetment(WarAnts::Asm::AsmCommand::SHL , (yyvsp[(2) - (4)].TEXPR), (yyvsp[(4) - (4)].TEXPR), yy_code.get()); ;}
+    { (yyval.TSTATETMENT) = new WarAnts::Asm::Statement(WarAnts::Asm::AsmCommand::SHL , (yyvsp[(2) - (4)].TEXPR), (yyvsp[(4) - (4)].TEXPR), yy_code.get()); ;}
     break;
 
   case 48:
 
-    { (yyval.TSTATETMENT) = new WarAnts::Asm::Statetment(WarAnts::Asm::AsmCommand::SHR , (yyvsp[(2) - (4)].TEXPR), (yyvsp[(4) - (4)].TEXPR), yy_code.get()); ;}
+    { (yyval.TSTATETMENT) = new WarAnts::Asm::Statement(WarAnts::Asm::AsmCommand::SHR , (yyvsp[(2) - (4)].TEXPR), (yyvsp[(4) - (4)].TEXPR), yy_code.get()); ;}
     break;
 
   case 49:
 
-    { (yyval.TSTATETMENT) = new WarAnts::Asm::Statetment(WarAnts::Asm::AsmCommand::ROL , (yyvsp[(2) - (4)].TEXPR), (yyvsp[(4) - (4)].TEXPR), yy_code.get()); ;}
+    { (yyval.TSTATETMENT) = new WarAnts::Asm::Statement(WarAnts::Asm::AsmCommand::ROL , (yyvsp[(2) - (4)].TEXPR), (yyvsp[(4) - (4)].TEXPR), yy_code.get()); ;}
     break;
 
   case 50:
 
-    { (yyval.TSTATETMENT) = new WarAnts::Asm::Statetment(WarAnts::Asm::AsmCommand::ROR , (yyvsp[(2) - (4)].TEXPR), (yyvsp[(4) - (4)].TEXPR), yy_code.get()); ;}
+    { (yyval.TSTATETMENT) = new WarAnts::Asm::Statement(WarAnts::Asm::AsmCommand::ROR , (yyvsp[(2) - (4)].TEXPR), (yyvsp[(4) - (4)].TEXPR), yy_code.get()); ;}
     break;
 
   case 51:
 
-    { (yyval.TSTATETMENT) = new WarAnts::Asm::Statetment(WarAnts::Asm::AsmCommand::EQ  , (yyvsp[(2) - (4)].TEXPR), (yyvsp[(4) - (4)].TEXPR), yy_code.get()); ;}
+    { (yyval.TSTATETMENT) = new WarAnts::Asm::Statement(WarAnts::Asm::AsmCommand::EQ  , (yyvsp[(2) - (4)].TEXPR), (yyvsp[(4) - (4)].TEXPR), yy_code.get()); ;}
     break;
 
   case 52:
 
-    { (yyval.TSTATETMENT) = new WarAnts::Asm::Statetment(WarAnts::Asm::AsmCommand::NEQ , (yyvsp[(2) - (4)].TEXPR), (yyvsp[(4) - (4)].TEXPR), yy_code.get()); ;}
+    { (yyval.TSTATETMENT) = new WarAnts::Asm::Statement(WarAnts::Asm::AsmCommand::NEQ , (yyvsp[(2) - (4)].TEXPR), (yyvsp[(4) - (4)].TEXPR), yy_code.get()); ;}
     break;
 
   case 53:
 
-    { (yyval.TSTATETMENT) = new WarAnts::Asm::Statetment(WarAnts::Asm::AsmCommand::GT  , (yyvsp[(2) - (4)].TEXPR), (yyvsp[(4) - (4)].TEXPR), yy_code.get()); ;}
+    { (yyval.TSTATETMENT) = new WarAnts::Asm::Statement(WarAnts::Asm::AsmCommand::GT  , (yyvsp[(2) - (4)].TEXPR), (yyvsp[(4) - (4)].TEXPR), yy_code.get()); ;}
     break;
 
   case 54:
 
-    { (yyval.TSTATETMENT) = new WarAnts::Asm::Statetment(WarAnts::Asm::AsmCommand::GE  , (yyvsp[(2) - (4)].TEXPR), (yyvsp[(4) - (4)].TEXPR), yy_code.get()); ;}
+    { (yyval.TSTATETMENT) = new WarAnts::Asm::Statement(WarAnts::Asm::AsmCommand::GE  , (yyvsp[(2) - (4)].TEXPR), (yyvsp[(4) - (4)].TEXPR), yy_code.get()); ;}
     break;
 
   case 55:
 
-    { (yyval.TSTATETMENT) = new WarAnts::Asm::Statetment(WarAnts::Asm::AsmCommand::LT  , (yyvsp[(2) - (4)].TEXPR), (yyvsp[(4) - (4)].TEXPR), yy_code.get()); ;}
+    { (yyval.TSTATETMENT) = new WarAnts::Asm::Statement(WarAnts::Asm::AsmCommand::LT  , (yyvsp[(2) - (4)].TEXPR), (yyvsp[(4) - (4)].TEXPR), yy_code.get()); ;}
     break;
 
   case 56:
 
-    { (yyval.TSTATETMENT) = new WarAnts::Asm::Statetment(WarAnts::Asm::AsmCommand::LE  , (yyvsp[(2) - (4)].TEXPR), (yyvsp[(4) - (4)].TEXPR), yy_code.get()); ;}
+    { (yyval.TSTATETMENT) = new WarAnts::Asm::Statement(WarAnts::Asm::AsmCommand::LE  , (yyvsp[(2) - (4)].TEXPR), (yyvsp[(4) - (4)].TEXPR), yy_code.get()); ;}
     break;
 
   case 57:
 
-    { (yyval.TSTATETMENT) = new WarAnts::Asm::Statetment(WarAnts::Asm::AsmCommand::TEST, (yyvsp[(2) - (4)].TEXPR), (yyvsp[(4) - (4)].TEXPR), yy_code.get()); ;}
+    { (yyval.TSTATETMENT) = new WarAnts::Asm::Statement(WarAnts::Asm::AsmCommand::TEST, (yyvsp[(2) - (4)].TEXPR), (yyvsp[(4) - (4)].TEXPR), yy_code.get()); ;}
     break;
 
   case 58:
 
-    { (yyval.TSTATETMENT) = new WarAnts::Asm::Statetment(WarAnts::Asm::AsmCommand::JMP , (yyvsp[(2) - (2)].TSTRING)->get(), yy_code.get()); ;}
+    { (yyval.TSTATETMENT) = new WarAnts::Asm::Statement(WarAnts::Asm::AsmCommand::JMP , (yyvsp[(2) - (2)].TSTRING)->get(), yy_code.get()); ;}
     break;
 
   case 59:
 
-    { (yyval.TSTATETMENT) = new WarAnts::Asm::Statetment(WarAnts::Asm::AsmCommand::JZ  , (yyvsp[(2) - (2)].TSTRING)->get(), yy_code.get()); ;}
+    { (yyval.TSTATETMENT) = new WarAnts::Asm::Statement(WarAnts::Asm::AsmCommand::JZ  , (yyvsp[(2) - (2)].TSTRING)->get(), yy_code.get()); ;}
     break;
 
   case 60:
 
-    { (yyval.TSTATETMENT) = new WarAnts::Asm::Statetment(WarAnts::Asm::AsmCommand::JNZ , (yyvsp[(2) - (2)].TSTRING)->get(), yy_code.get()); ;}
+    { (yyval.TSTATETMENT) = new WarAnts::Asm::Statement(WarAnts::Asm::AsmCommand::JNZ , (yyvsp[(2) - (2)].TSTRING)->get(), yy_code.get()); ;}
     break;
 
   case 61:
 
-    { (yyval.TSTATETMENT) = new WarAnts::Asm::Statetment(WarAnts::Asm::AsmCommand::JO  , (yyvsp[(2) - (2)].TSTRING)->get(), yy_code.get()); ;}
+    { (yyval.TSTATETMENT) = new WarAnts::Asm::Statement(WarAnts::Asm::AsmCommand::JO  , (yyvsp[(2) - (2)].TSTRING)->get(), yy_code.get()); ;}
     break;
 
   case 62:
 
-    { (yyval.TSTATETMENT) = new WarAnts::Asm::Statetment(WarAnts::Asm::AsmCommand::JNO , (yyvsp[(2) - (2)].TSTRING)->get(), yy_code.get()); ;}
+    { (yyval.TSTATETMENT) = new WarAnts::Asm::Statement(WarAnts::Asm::AsmCommand::JNO , (yyvsp[(2) - (2)].TSTRING)->get(), yy_code.get()); ;}
     break;
 
   case 63:
 
-    { (yyval.TSTATETMENT) = new WarAnts::Asm::Statetment(WarAnts::Asm::AsmCommand::JCZ , (yyvsp[(2) - (2)].TSTRING)->get(), yy_code.get()); ;}
+    { (yyval.TSTATETMENT) = new WarAnts::Asm::Statement(WarAnts::Asm::AsmCommand::JCZ , (yyvsp[(2) - (2)].TSTRING)->get(), yy_code.get()); ;}
     break;
 
   case 64:
 
-    { (yyval.TSTATETMENT) = new WarAnts::Asm::Statetment(WarAnts::Asm::AsmCommand::JCNZ, (yyvsp[(2) - (2)].TSTRING)->get(), yy_code.get()); ;}
+    { (yyval.TSTATETMENT) = new WarAnts::Asm::Statement(WarAnts::Asm::AsmCommand::JCNZ, (yyvsp[(2) - (2)].TSTRING)->get(), yy_code.get()); ;}
     break;
 
   case 65:
 
-    { (yyval.TSTATETMENT) = new WarAnts::Asm::Statetment(WarAnts::Asm::AsmCommand::LOOP, (yyvsp[(2) - (2)].TSTRING)->get(), yy_code.get()); ;}
+    { (yyval.TSTATETMENT) = new WarAnts::Asm::Statement(WarAnts::Asm::AsmCommand::LOOP, (yyvsp[(2) - (2)].TSTRING)->get(), yy_code.get()); ;}
     break;
 
   case 66:
 
-    { (yyval.TSTATETMENT) = new WarAnts::Asm::Statetment(WarAnts::Asm::AsmCommand::MOV , (yyvsp[(2) - (4)].TEXPR), (yyvsp[(4) - (4)].TEXPR), yy_code.get()); ;}
+    { (yyval.TSTATETMENT) = new WarAnts::Asm::Statement(WarAnts::Asm::AsmCommand::MOV , (yyvsp[(2) - (4)].TEXPR), (yyvsp[(4) - (4)].TEXPR), yy_code.get()); ;}
     break;
 
   case 67:
 
-    { (yyval.TSTATETMENT) = new WarAnts::Asm::Statetment(WarAnts::Asm::AsmCommand::CALL, (yyvsp[(2) - (2)].TSTRING)->get(), yy_code.get()); ;}
+    { (yyval.TSTATETMENT) = new WarAnts::Asm::Statement(WarAnts::Asm::AsmCommand::CALL, (yyvsp[(2) - (2)].TSTRING)->get(), yy_code.get()); ;}
     break;
 
   case 68:
 
-    { (yyval.TSTATETMENT) = new WarAnts::Asm::Statetment(WarAnts::Asm::AsmCommand::LEN , (yyvsp[(2) - (4)].TEXPR), (yyvsp[(4) - (4)].TEXPR), yy_code.get()); ;}
+    { (yyval.TSTATETMENT) = new WarAnts::Asm::Statement(WarAnts::Asm::AsmCommand::LEN , (yyvsp[(2) - (4)].TEXPR), (yyvsp[(4) - (4)].TEXPR), yy_code.get()); ;}
     break;
 
   case 69:
 
-    { (yyval.TSTATETMENT) = new WarAnts::Asm::Statetment(WarAnts::Asm::AsmCommand::EXIT, yy_code.get()); ;}
+    { (yyval.TSTATETMENT) = new WarAnts::Asm::Statement(WarAnts::Asm::AsmCommand::EXIT, yy_code.get()); ;}
     break;
 
   case 70:
 
-    { (yyval.TSTATETMENT) = new WarAnts::Asm::Statetment(WarAnts::Asm::AsmCommand::LDTR, (yyvsp[(2) - (2)].TEXPR), yy_code.get()); ;}
+    { (yyval.TSTATETMENT) = new WarAnts::Asm::Statement(WarAnts::Asm::AsmCommand::LDTR, (yyvsp[(2) - (2)].TEXPR), yy_code.get()); ;}
     break;
 
   case 71:
 
-    { (yyval.TSTATETMENT) = new WarAnts::Asm::Statetment(WarAnts::Asm::AsmCommand::LDFD, (yyvsp[(2) - (2)].TEXPR), yy_code.get()); ;}
+    { (yyval.TSTATETMENT) = new WarAnts::Asm::Statement(WarAnts::Asm::AsmCommand::LDFD, (yyvsp[(2) - (2)].TEXPR), yy_code.get()); ;}
     break;
 
   case 72:
 
-    { (yyval.TSTATETMENT) = new WarAnts::Asm::Statetment(WarAnts::Asm::AsmCommand::LDEN, (yyvsp[(2) - (2)].TEXPR), yy_code.get()); ;}
+    { (yyval.TSTATETMENT) = new WarAnts::Asm::Statement(WarAnts::Asm::AsmCommand::LDEN, (yyvsp[(2) - (2)].TEXPR), yy_code.get()); ;}
     break;
 
   case 73:
 
-    { (yyval.TSTATETMENT) = new WarAnts::Asm::Statetment(WarAnts::Asm::AsmCommand::LDFR, (yyvsp[(2) - (2)].TEXPR), yy_code.get()); ;}
+    { (yyval.TSTATETMENT) = new WarAnts::Asm::Statement(WarAnts::Asm::AsmCommand::LDFR, (yyvsp[(2) - (2)].TEXPR), yy_code.get()); ;}
     break;
 
   case 74:
 
-    { (yyval.TSTATETMENT) = new WarAnts::Asm::Statetment(WarAnts::Asm::AsmCommand::CIDL , (yyvsp[(2) - (2)].TEXPR),     yy_code.get()); ;}
+    { (yyval.TSTATETMENT) = new WarAnts::Asm::Statement(WarAnts::Asm::AsmCommand::CIDL , (yyvsp[(2) - (2)].TEXPR),     yy_code.get()); ;}
     break;
 
   case 75:
 
-    { (yyval.TSTATETMENT) = new WarAnts::Asm::Statetment(WarAnts::Asm::AsmCommand::CMOV , (yyvsp[(2) - (4)].TEXPR), (yyvsp[(4) - (4)].TEXPR), yy_code.get()); ;}
+    { (yyval.TSTATETMENT) = new WarAnts::Asm::Statement(WarAnts::Asm::AsmCommand::CMOV , (yyvsp[(2) - (4)].TEXPR), (yyvsp[(4) - (4)].TEXPR), yy_code.get()); ;}
     break;
 
   case 76:
 
-    { (yyval.TSTATETMENT) = new WarAnts::Asm::Statetment(WarAnts::Asm::AsmCommand::CATT , (yyvsp[(2) - (4)].TEXPR), (yyvsp[(4) - (4)].TEXPR), yy_code.get()); ;}
+    { (yyval.TSTATETMENT) = new WarAnts::Asm::Statement(WarAnts::Asm::AsmCommand::CATT , (yyvsp[(2) - (4)].TEXPR), (yyvsp[(4) - (4)].TEXPR), yy_code.get()); ;}
     break;
 
   case 77:
 
-    { (yyval.TSTATETMENT) = new WarAnts::Asm::Statetment(WarAnts::Asm::AsmCommand::CTKF , (yyvsp[(2) - (4)].TEXPR), (yyvsp[(4) - (4)].TEXPR), yy_code.get()); ;}
+    { (yyval.TSTATETMENT) = new WarAnts::Asm::Statement(WarAnts::Asm::AsmCommand::CTKF , (yyvsp[(2) - (4)].TEXPR), (yyvsp[(4) - (4)].TEXPR), yy_code.get()); ;}
     break;
 
   case 78:
 
-    { (yyval.TSTATETMENT) = new WarAnts::Asm::Statetment(WarAnts::Asm::AsmCommand::CGVF , (yyvsp[(2) - (4)].TEXPR), (yyvsp[(4) - (4)].TEXPR), yy_code.get()); ;}
+    { (yyval.TSTATETMENT) = new WarAnts::Asm::Statement(WarAnts::Asm::AsmCommand::CGVF , (yyvsp[(2) - (4)].TEXPR), (yyvsp[(4) - (4)].TEXPR), yy_code.get()); ;}
     break;
 
   case 79:
 
-    { (yyval.TSTATETMENT) = new WarAnts::Asm::Statetment(WarAnts::Asm::AsmCommand::CEAT , (yyvsp[(2) - (2)].TEXPR),     yy_code.get()); ;}
+    { (yyval.TSTATETMENT) = new WarAnts::Asm::Statement(WarAnts::Asm::AsmCommand::CEAT , (yyvsp[(2) - (2)].TEXPR),     yy_code.get()); ;}
     break;
 
   case 80:
 
-    { (yyval.TSTATETMENT) = new WarAnts::Asm::Statetment(WarAnts::Asm::AsmCommand::CPS  ,         yy_code.get()); ;}
+    { (yyval.TSTATETMENT) = new WarAnts::Asm::Statement(WarAnts::Asm::AsmCommand::CPS  ,         yy_code.get()); ;}
     break;
 
   case 81:
 
-    { (yyval.TSTATETMENT) = new WarAnts::Asm::Statetment(WarAnts::Asm::AsmCommand::CPW  ,         yy_code.get()); ;}
+    { (yyval.TSTATETMENT) = new WarAnts::Asm::Statement(WarAnts::Asm::AsmCommand::CPW  ,         yy_code.get()); ;}
     break;
 
   case 82:
 
-    { (yyval.TSTATETMENT) = new WarAnts::Asm::Statetment(WarAnts::Asm::AsmCommand::NOP  ,         yy_code.get()); ;}
+    { (yyval.TSTATETMENT) = new WarAnts::Asm::Statement(WarAnts::Asm::AsmCommand::NOP  ,         yy_code.get()); ;}
     break;
 
   case 83:

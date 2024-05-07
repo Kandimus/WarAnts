@@ -1,5 +1,6 @@
 #pragma once
 
+#include <fstream>
 #include <string>
 #include "StringNode.h"
 
@@ -9,7 +10,7 @@ namespace Asm
 {
 
 class Code;
-class Statetment;
+class Statement;
 class StringNode;
 
 class Function : public BaseNode
@@ -17,7 +18,7 @@ class Function : public BaseNode
     NOCOPY_STRUCT(Function)
 
 public:
-    Function(const StringNode* name, Statetment* stat, BaseNode* parent)
+    Function(const StringNode* name, Statement* stat, BaseNode* parent)
         : BaseNode(parent)
     {
         m_stat = stat;
@@ -40,22 +41,16 @@ public:
         return this;
     }
 
-    Function* next() const
-    {
-        return m_next;
-    }
-
-    const std::string& name() const
-    {
-        return m_name;
-    }
+    Function* next() const { return m_next; }
+    const std::string& name() const { return m_name; }
 
     bool extrudeExpression(Code* code);
     bool compile(Code* code);
+    void print(std::ofstream& file);
 
 public:
     std::string m_name = "";
-    Statetment* m_stat = nullptr;
+    Statement* m_stat = nullptr;
 
     Function* m_next = nullptr;
 

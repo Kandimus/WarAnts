@@ -1,5 +1,6 @@
 #pragma once
 
+#include <fstream>
 #include <string>
 #include "baseNode.h"
 
@@ -11,7 +12,7 @@ namespace Asm
 class Code;
 class Expression;
 
-enum class StatetmentType
+enum class StatementType
 {
     Label,
     Command,
@@ -86,66 +87,66 @@ enum class AsmCommand
     NOP
 };
 
-class Statetment : public BaseNode
+class Statement : public BaseNode
 {
-    NOCOPY_STRUCT(Statetment)
+    NOCOPY_STRUCT(Statement)
 
 public:
     // label
-    Statetment(const std::string& label, BaseNode* parent)
+    Statement(const std::string& label, BaseNode* parent)
         : BaseNode(parent)
     {
         m_dst = nullptr;
         m_src = nullptr;
         m_cmd = AsmCommand::NOP;
-        m_type = StatetmentType::Label;
+        m_type = StatementType::Label;
         m_label = label;
         m_next = nullptr;
     }
     // normal
-    Statetment(AsmCommand cmd, Expression* dst, Expression* src, BaseNode* parent)
+    Statement(AsmCommand cmd, Expression* dst, Expression* src, BaseNode* parent)
         : BaseNode(parent)
     {
         m_dst = dst;
         m_src = src;
-        m_type = StatetmentType::Command;
+        m_type = StatementType::Command;
         m_cmd = cmd;
         m_next = nullptr;
     }
     // single
-    Statetment(AsmCommand cmd, Expression* dst, BaseNode* parent)
+    Statement(AsmCommand cmd, Expression* dst, BaseNode* parent)
         : BaseNode(parent)
     {
         m_dst = dst;
         m_src = nullptr;
-        m_type = StatetmentType::Command;
+        m_type = StatementType::Command;
         m_cmd = cmd;
         m_next = nullptr;
     }
     // without params
-    Statetment(AsmCommand cmd, BaseNode* parent)
+    Statement(AsmCommand cmd, BaseNode* parent)
         : BaseNode(parent)
     {
         m_dst = nullptr;
         m_src = nullptr;
-        m_type = StatetmentType::Command;
+        m_type = StatementType::Command;
         m_cmd = cmd;
         m_next = nullptr;
     }
     // call, jumps
-    Statetment(AsmCommand cmd, const std::string& label, BaseNode* parent)
+    Statement(AsmCommand cmd, const std::string& label, BaseNode* parent)
         : BaseNode(parent)
     {
         m_dst = nullptr;
         m_src = nullptr;
         m_cmd = cmd;
-        m_type = StatetmentType::Command;
+        m_type = StatementType::Command;
         m_jump = label;
         m_next = nullptr;
     }
-    virtual ~Statetment() = default;
+    virtual ~Statement() = default;
 
-    Statetment* add(Statetment* next)
+    Statement* add(Statement* next)
     {
         if (m_next)
         {
@@ -158,28 +159,22 @@ public:
         return this;
     }
 
-    StatetmentType type() const
-    {
-        return m_type;
-    }
+    StatementType type() const { return m_type; }
+    Statement* next() const { return m_next;}
 
-    Statetment* next() const
-    {
-        return m_next;
-    }
-
-    Statetment* extrudeExpression(Code* code);
+    Statement* extrudeExpression(Code* code);
     bool compile(Code* code);
+    void print(std::ofstream& file) const;
 
 public:
-    StatetmentType m_type;
+    StatementType m_type;
     AsmCommand  m_cmd;
     Expression* m_dst = nullptr;
     Expression* m_src = nullptr;
     std::string m_label = "";
     std::string m_jump = "";
 
-    Statetment* m_next = nullptr;
+    Statement* m_next = nullptr;
 };
 
 }; // namespace Asm

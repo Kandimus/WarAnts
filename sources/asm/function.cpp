@@ -1,6 +1,6 @@
 #include "function.h"
 #include "code.h"
-#include "Statetment.h"
+#include "Statement.h"
 
 namespace WarAnts
 {
@@ -9,16 +9,28 @@ namespace Asm
 
 bool Function::extrudeExpression(Code* code)
 {
-    Statetment* stat = m_stat;
-    Statetment* prev = nullptr;
+    Statement* stat = m_stat;
+    Statement* prev = nullptr;
 
     while (stat)
     {
-        if (!stat->extrudeExpression(code))
+        auto newStat = stat->extrudeExpression(code);
+
+        if (newStat)
         {
-            return false;
+            if (prev)
+            {
+                prev->m_next = newStat;
+                newStat->add(stat);
+            }
+            else
+            {
+                m_stat = newStat;
+                m_stat->add(stat);
+            }
         }
 
+        prev = stat;
         stat = stat->next();
     }
 
@@ -27,7 +39,7 @@ bool Function::extrudeExpression(Code* code)
 
 bool Function::compile(Code* code)
 {
-    Statetment* stat = m_stat;
+    Statement* stat = m_stat;
 
     m_offset = code->offset();
 
@@ -42,6 +54,21 @@ bool Function::compile(Code* code)
     }
 
     return true;
+}
+
+void Function::print(std::ofstream& file)
+{
+    file << "." << m_name << std::endl;
+
+    Statement* stat = m_stat;
+
+    while (stat)
+    {
+        stat->print(file);
+        stat = stat->next();
+    }
+
+    file << std::endl;
 }
 
 }; // namespace Asm

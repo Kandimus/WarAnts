@@ -1,4 +1,5 @@
 #include <stdarg.h>
+#include <fstream>
 
 #include "code.h"
 
@@ -95,7 +96,7 @@ bool Code::extrudeExpression()
 
     while (func)
     {
-        if (!func->extrudeExpression())
+        if (!func->extrudeExpression(this))
         {
             return false;
         }
@@ -137,6 +138,20 @@ bool Code::compile()
     }
 
     return true;
+}
+
+void Code::print(const std::string& filename)
+{
+    std::ofstream file(filename);
+
+    file << "// pragma" << std::endl;
+
+    auto func = m_function;
+    while (func)
+    {
+        func->print(file);
+        func = func->next();
+    }
 }
 
 }; // namespace Asm

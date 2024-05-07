@@ -39,7 +39,7 @@
     <ClCompile Include="Compiler.cpp" />
     <ClCompile Include="expression.cpp" />
     <ClCompile Include="function.cpp" />
-    <ClCompile Include="statetment.cpp" />
+    <ClCompile Include="statement.cpp" />
     <ClCompile Include="_antasm.y.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -50,7 +50,7 @@
     <ClInclude Include="Expression.h" />
     <ClInclude Include="function.h" />
     <ClInclude Include="pragma.h" />
-    <ClInclude Include="Statetment.h" />
+    <ClInclude Include="statement.h" />
     <ClInclude Include="stringNode.h" />
     <ClInclude Include="unistd.h" />
     <ClInclude Include="_antasm.l.h" />
