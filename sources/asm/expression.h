@@ -1,12 +1,15 @@
 ﻿#pragma once
 
 #include <string>
+#include <vector>
 #include "baseNode.h"
 
 namespace WarAnts
 {
 namespace Asm
 {
+
+class Code;
 
 enum class ExpressionType
 {
@@ -25,15 +28,25 @@ enum class OperandType
 
 enum class RegisterType
 {
-    R0,
+    R0 = 0,
     R1,
     R2,
-    R3,
     RC,
+    P0X,
+    P0Y,
+    P1X,
+    P1Y,
+    P2X,
+    P2Y,
+    CHAR,
+    SHORT,
+    RESERVED,
     RF,
-    RA, // специальный регистр для вычисления адреса
-    IF,
-    IR,
+    RD,
+    RS,
+    P0,
+    P1,
+    P2,
 };
 
 union ExpressionValue
@@ -82,6 +95,14 @@ public:
     }
     virtual ~Expression() = default;
 
+    ExpressionType type() const
+    {
+        return m_type;
+    }
+
+    int8_t compile(bool isDst, int16_t& val, Code* code) const;
+
+protected:
     ExpressionType m_type;
     ExpressionValue m_value;
 

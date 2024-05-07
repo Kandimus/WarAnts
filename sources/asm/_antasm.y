@@ -47,7 +47,7 @@ int  yylex();
 %token LROUND RROUND LSQUARE RSQUARE COMMA NEW_LINE COLON DOT SIGN PERSENT
 %token INT_NUMBER HEX_NUMBER ID CHARACTER_STRING
 %token NAME VERSION CLASS DEFINE CORE
-%token R0 R1 R2 R3 RC RF IF IR
+%token R0 R1 R2 RC RF P0 P1 P2 COORD_X COORD_Y
 %token PLUS MINUS STAR
 %token ADD AND DEC DIV INC MOD MUL NEG NOT OR SUB XOR MIN MAX
 %token BSF BSR BT BTR BTS BTC SHL SHR ROL ROR
@@ -57,7 +57,6 @@ int  yylex();
 %token LDTR LDFD LDEN LDFR
 %token CIDL CMOV CATT CTKF CGVF CEAT CPS CPW
 %token NOP
-%token FAKE
 
 %type <TPRAGMATYPE> pragma
 %type <TPRAGMA> list_of_pragmas pragma_definition
@@ -218,7 +217,7 @@ asm_command
 //------------------------------------------------------
 
 address
-    : expr_0                                            { $$ = $1; }
+    : expr_3                                            { $$ = $1; }
     | LSQUARE expr_0 RSQUARE                            { $$ = new WarAnts::Asm::Expression($2, yy_code.get()); }
     ;
 
@@ -254,11 +253,17 @@ expr_3
     : R0                                                { $$ = new WarAnts::Asm::Expression(WarAnts::Asm::RegisterType::R0, yy_code.get()); }
     | R1                                                { $$ = new WarAnts::Asm::Expression(WarAnts::Asm::RegisterType::R1, yy_code.get()); }
     | R2                                                { $$ = new WarAnts::Asm::Expression(WarAnts::Asm::RegisterType::R2, yy_code.get()); }
-    | R3                                                { $$ = new WarAnts::Asm::Expression(WarAnts::Asm::RegisterType::R3, yy_code.get()); }
     | RC                                                { $$ = new WarAnts::Asm::Expression(WarAnts::Asm::RegisterType::RC, yy_code.get()); }
     | RF                                                { $$ = new WarAnts::Asm::Expression(WarAnts::Asm::RegisterType::RF, yy_code.get()); }
-    | IF                                                { $$ = new WarAnts::Asm::Expression(WarAnts::Asm::RegisterType::IF, yy_code.get()); }
-    | IR                                                { $$ = new WarAnts::Asm::Expression(WarAnts::Asm::RegisterType::IR, yy_code.get()); }
+    | P0                                                { $$ = new WarAnts::Asm::Expression(WarAnts::Asm::RegisterType::P0, yy_code.get()); }
+    | P1                                                { $$ = new WarAnts::Asm::Expression(WarAnts::Asm::RegisterType::P1, yy_code.get()); }
+    | P2                                                { $$ = new WarAnts::Asm::Expression(WarAnts::Asm::RegisterType::P2, yy_code.get()); }
+    | P0 COLON COORD_X                                  { $$ = new WarAnts::Asm::Expression(WarAnts::Asm::RegisterType::P0X, yy_code.get()); }
+    | P0 COLON COORD_Y                                  { $$ = new WarAnts::Asm::Expression(WarAnts::Asm::RegisterType::P0Y, yy_code.get()); }
+    | P1 COLON COORD_X                                  { $$ = new WarAnts::Asm::Expression(WarAnts::Asm::RegisterType::P1X, yy_code.get()); }
+    | P1 COLON COORD_Y                                  { $$ = new WarAnts::Asm::Expression(WarAnts::Asm::RegisterType::P1Y, yy_code.get()); }
+    | P2 COLON COORD_X                                  { $$ = new WarAnts::Asm::Expression(WarAnts::Asm::RegisterType::P2X, yy_code.get()); }
+    | P2 COLON COORD_Y                                  { $$ = new WarAnts::Asm::Expression(WarAnts::Asm::RegisterType::P2Y, yy_code.get()); }
     | number                                            { $$ = new WarAnts::Asm::Expression($1, yy_code.get()); }
     | label                                             { $$ = new WarAnts::Asm::Expression(getDefine($1->get()), yy_code.get()); }
     ;

@@ -8,6 +8,7 @@ namespace WarAnts
 namespace Asm
 {
 
+class Code;
 class Statetment;
 class StringNode;
 
@@ -49,11 +50,16 @@ public:
         return m_name;
     }
 
+    bool extrudeExpression(Code* code);
+    bool compile(Code* code);
+
 public:
     std::string m_name = "";
     Statetment* m_stat = nullptr;
 
     Function* m_next = nullptr;
+
+    uint32_t m_offset = 0;
 };
 
 }; // namespace Asm

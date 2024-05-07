@@ -37,6 +37,9 @@
   <ItemGroup>
     <ClCompile Include="code.cpp" />
     <ClCompile Include="Compiler.cpp" />
+    <ClCompile Include="expression.cpp" />
+    <ClCompile Include="function.cpp" />
+    <ClCompile Include="statetment.cpp" />
     <ClCompile Include="_antasm.y.cpp" />
   </ItemGroup>
   <ItemGroup>

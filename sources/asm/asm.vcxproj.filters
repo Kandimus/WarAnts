@@ -56,6 +56,15 @@
     <ClCompile Include="code.cpp">
       <Filter>Sources</Filter>
     </ClCompile>
+    <ClCompile Include="function.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="statetment.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="expression.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="_antasm.l">

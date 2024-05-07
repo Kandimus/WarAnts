@@ -8,13 +8,13 @@ namespace WarAnts
 namespace Asm
 {
 
+class Code;
 class Expression;
 
 enum class StatetmentType
 {
     Label,
     Command,
-    Full,
 };
 
 enum class AsmCommand
@@ -158,6 +158,20 @@ public:
         return this;
     }
 
+    StatetmentType type() const
+    {
+        return m_type;
+    }
+
+    Statetment* next() const
+    {
+        return m_next;
+    }
+
+    Statetment* extrudeExpression(Code* code);
+    bool compile(Code* code);
+
+public:
     StatetmentType m_type;
     AsmCommand  m_cmd;
     Expression* m_dst = nullptr;

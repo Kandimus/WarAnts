@@ -89,19 +89,54 @@ bool Code::checkFunctionName()
     return foundQueen && foundSolder && foundWorker;
 }
 
-bool Code::moveLabelToStatetment()
+bool Code::extrudeExpression()
 {
     Function* func = m_function;
 
     while (func)
     {
-        if (!func->moveLabelToStatetment(this))
+        if (!func->extrudeExpression())
         {
             return false;
         }
 
         func = func->next();
     }
+
+    return true;
+}
+
+Function* Code::getFunction(const std::string& name) const
+{
+    Function* func = m_function;
+
+    while (func)
+    {
+        if (func->name() == name)
+        {
+            return func;
+        }
+
+        func = func->next();
+    }
+
+    return nullptr;
+}
+
+bool Code::compile()
+{
+    auto func = m_function;
+
+    while (func)
+    {
+        if (!func->compile(this))
+        {
+            return false;
+        }
+        func = func->next();
+    }
+
+    return true;
 }
 
 }; // namespace Asm

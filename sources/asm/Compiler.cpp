@@ -29,7 +29,7 @@ bool compileFile(const std::string& filename, std::vector<std::string>& error, s
         error.push_back(su::String_format2("Error: Can not open file: '%s'", filename.c_str()));
         return false;
     }
- 
+
     buffer << file.rdbuf();
     file.close();
     text = buffer.str();
@@ -49,12 +49,12 @@ bool compileFile(const std::string& filename, std::vector<std::string>& error, s
         return false;
     }
 
-    // Step 2. removing labels as single statetment.
-    if (!code->moveLabelToStatetment())
+    if (code->compile())
     {
         error = code->m_errors; //TODO стырить у Никиты класс для выполнения при завешении
         return false;
     }
+
     return true;
 }
 

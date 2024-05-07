@@ -48,14 +48,16 @@ hex_num   {hexdigit}+"H"
 "class"                     { return CLASS; }
 "define"                    { return DEFINE; }
 
+"p0"                        { return P0; }
+"p1"                        { return P1; }
+"p2"                        { return P2; }
 "r0"                        { return R0; }
 "r1"                        { return R1; }
 "r2"                        { return R2; }
-"r3"                        { return R3; }
 "rc"                        { return RC; }
 "rf"                        { return RF; }
-"if"                        { return IF; }
-"ir"                        { return IR; }
+"x"                         { return COORD_X;}
+"y"                         { return COORD_Y;}
 
 "+"                         { return PLUS; }
 "-"                         { return MINUS; }
