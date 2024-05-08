@@ -16,6 +16,11 @@ bool Function::extrudeExpression(Code* code)
     {
         auto newStat = stat->extrudeExpression(code);
 
+        if (code->hasError())
+        {
+            return false;
+        }
+
         if (newStat)
         {
             if (prev)

@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <vector>
 #include "asm_defines.h"
@@ -28,7 +28,10 @@ public:
     {
         for (auto node : m_child)
         {
-            delete node;
+            if (node)
+            {
+                delete node;
+            }
         }
         m_child.clear();
     }
@@ -41,6 +44,30 @@ public:
         }
 
         m_child.push_back(node);
+    }
+
+    void removeChild(BaseNode* node)
+    {
+        for (size_t ii = 0; ii < m_child.size(); ++ii)
+        {
+            if (m_child[ii] == node)
+            {
+                //TODO можно заменить на обнуление
+                m_child.erase(m_child.begin() + ii);
+                return;
+            }
+        }
+    }
+
+    void removeFromParent()
+    {
+        if (!m_parent)
+        {
+            return;
+        }
+
+        m_parent->removeChild(this);
+        m_parent = nullptr;
     }
 
     BaseNode* parent() const { return m_parent; }

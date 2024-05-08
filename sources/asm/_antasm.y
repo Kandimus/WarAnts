@@ -196,18 +196,18 @@ asm_command
     | EXIT                                              { $$ = new WarAnts::Asm::Statement(WarAnts::Asm::AsmCommand::EXIT, yy_code.get()); }
 
     // Load data to memory
-    | LDTR address                                      { $$ = new WarAnts::Asm::Statement(WarAnts::Asm::AsmCommand::LDTR, $2, yy_code.get()); }
-    | LDFD address                                      { $$ = new WarAnts::Asm::Statement(WarAnts::Asm::AsmCommand::LDFD, $2, yy_code.get()); }
-    | LDEN address                                      { $$ = new WarAnts::Asm::Statement(WarAnts::Asm::AsmCommand::LDEN, $2, yy_code.get()); }
-    | LDFR address                                      { $$ = new WarAnts::Asm::Statement(WarAnts::Asm::AsmCommand::LDFR, $2, yy_code.get()); }
+    | LDTR address                                      { $$ = new WarAnts::Asm::Statement(WarAnts::Asm::AsmCommand::LDTR, nullptr, $2, yy_code.get()); }
+    | LDFD address                                      { $$ = new WarAnts::Asm::Statement(WarAnts::Asm::AsmCommand::LDFD, nullptr, $2, yy_code.get()); }
+    | LDEN address                                      { $$ = new WarAnts::Asm::Statement(WarAnts::Asm::AsmCommand::LDEN, nullptr, $2, yy_code.get()); }
+    | LDFR address                                      { $$ = new WarAnts::Asm::Statement(WarAnts::Asm::AsmCommand::LDFR, nullptr, $2, yy_code.get()); }
 
     // Commands
-    | CIDL address                                      { $$ = new WarAnts::Asm::Statement(WarAnts::Asm::AsmCommand::CIDL , $2,     yy_code.get()); }
-    | CMOV address COMMA address                        { $$ = new WarAnts::Asm::Statement(WarAnts::Asm::AsmCommand::CMOV , $2, $4, yy_code.get()); }
-    | CATT address COMMA address                        { $$ = new WarAnts::Asm::Statement(WarAnts::Asm::AsmCommand::CATT , $2, $4, yy_code.get()); }
-    | CTKF  address COMMA address                       { $$ = new WarAnts::Asm::Statement(WarAnts::Asm::AsmCommand::CTKF , $2, $4, yy_code.get()); }
-    | CGVF  address COMMA address                       { $$ = new WarAnts::Asm::Statement(WarAnts::Asm::AsmCommand::CGVF , $2, $4, yy_code.get()); }
-    | CEAT address                                      { $$ = new WarAnts::Asm::Statement(WarAnts::Asm::AsmCommand::CEAT , $2,     yy_code.get()); }
+    | CIDL address                                      { $$ = new WarAnts::Asm::Statement(WarAnts::Asm::AsmCommand::CIDL , nullptr, $2, yy_code.get()); }
+    | CMOV address COMMA address                        { $$ = new WarAnts::Asm::Statement(WarAnts::Asm::AsmCommand::CMOV , $2,      $4, yy_code.get()); }
+    | CATT address COMMA address                        { $$ = new WarAnts::Asm::Statement(WarAnts::Asm::AsmCommand::CATT , $2,      $4, yy_code.get()); }
+    | CTKF address COMMA address                        { $$ = new WarAnts::Asm::Statement(WarAnts::Asm::AsmCommand::CTKF , $2,      $4, yy_code.get()); }
+    | CGVF address COMMA address                        { $$ = new WarAnts::Asm::Statement(WarAnts::Asm::AsmCommand::CGVF , $2,      $4, yy_code.get()); }
+    | CEAT address                                      { $$ = new WarAnts::Asm::Statement(WarAnts::Asm::AsmCommand::CEAT , nullptr, $2, yy_code.get()); }
     | CPS                                               { $$ = new WarAnts::Asm::Statement(WarAnts::Asm::AsmCommand::CPS  ,         yy_code.get()); }
     | CPW                                               { $$ = new WarAnts::Asm::Statement(WarAnts::Asm::AsmCommand::CPW  ,         yy_code.get()); }
 

@@ -96,14 +96,15 @@ public:
     }
     virtual ~Expression() = default;
 
-    ExpressionType type() const
-    {
-        return m_type;
-    }
+    ExpressionType type() const { return m_type; }
+    RegisterType reg() const { return m_value.reg; }
 
     Statement* extrudeExpression(bool isDst, Code* code);
     int8_t compile(bool isDst, int16_t& val, Code* code) const;
     std::string toString() const;
+
+protected:
+    bool isPositionRegister() const;
 
 protected:
     ExpressionType m_type;

@@ -12,7 +12,12 @@ namespace Asm
 
 Statement* Expression::extrudeExpression(bool isDst, Code* code)
 {
-    if (m_type == ExpressionType::Number)
+    if (m_type == ExpressionType::Number || m_type == ExpressionType::Register)
+    {
+        return nullptr;
+    }
+
+    /*if (m_type == ExpressionType::Number)
     {
         if (isDst)
         {
@@ -30,13 +35,18 @@ Statement* Expression::extrudeExpression(bool isDst, Code* code)
         }
 
         return nullptr;
-    }
+    }*/
 
     RegisterType reg = isDst ? RegisterType::RD : RegisterType::RS;
 
     if (m_type == ExpressionType::Address)
     {
         Statement* statLeft = m_left->extrudeExpression(isDst, code);
+
+        if (code->hasError())
+        {
+            return nullptr;
+        }
 
         if (!statLeft)
         {
@@ -48,81 +58,104 @@ Statement* Expression::extrudeExpression(bool isDst, Code* code)
         return statLeft;
     }
 
-    if (m_type == ExpressionType::Operand)
+    if (m_type != ExpressionType::Operand)
     {
-        Statement* newStat = nullptr;
-        Statement* statInit = nullptr;
-        Statement* statOper = nullptr;
-        Statement* statLeft = m_left ? m_left->extrudeExpression(isDst, code) : nullptr;
-        Statement* statRight = m_right ? m_right->extrudeExpression(isDst, code) : nullptr;
-        
-        if (!statLeft && !statRight)
-        {
-            statInit = new Statement(AsmCommand::MOV, new Expression(reg, parent()), m_left, parent());
-        }
-        else
-        {
-            if (statLeft)
-            {
-                statInit = statLeft;
-                statInit->add(statRight);
-            }
-            else
-            {
-                statInit = statRight;
-            }
-        }
-
-        switch (m_value.op)
-        {
-            case OperandType::Plus:
-                statOper = new Statement(AsmCommand::ADD, new Expression(reg, parent()), m_right, parent());
-                break;
-
-            case OperandType::Minus:
-                statOper = new Statement(AsmCommand::SUB, new Expression(reg, parent()), m_right, parent());
-                break;
-
-            case OperandType::Star:
-                statOper = new Statement(AsmCommand::MUL, new Expression(reg, parent()), m_right, parent());
-                break;
-
-            default:
-                code->error(lineno(), "Undefined operator.");
-                SU_BREAKPOINT();
-                return nullptr;
-        }
-
-        if (statInit)
-        {
-            statInit->add(statOper);
-        }
-        else
-        {
-            statInit = statOper;
-        }
-
-        if (m_left)
-        {
-            m_left->removeFromParent();
-            delete m_left;
-            m_left = nullptr;
-        }
-
-        if (m_right)
-        {
-            m_right->removeFromParent();
-            delete m_right;
-            m_right = nullptr;
-        }
-
-        m_type == ExpressionType::Register;
-        m_value.reg = reg;
-
-        return statInit;
+        SU_BREAKPOINT();
+        return nullptr;
     }
 
-    return nullptr;
+    Statement* statInit = nullptr;
+    Statement* statOper = nullptr;
+    Statement* statLeft = m_left->extrudeExpression(isDst, code);
+    Statement* statRight = m_right->extrudeExpression(isDst, code);
+    Expression* expr = m_right;
+
+    if (code->hasError())
+    {
+        return nullptr;
+    }
+
+    if (m_left->isPositionRegister())
+    {
+        code->error(lineno(), "Position registers can not be using in expressions.");
+        return nullptr;
+    }
+
+    if (m_right->isPositionRegister())
+    {
+        code->error(lineno(), "Position registers can not be using in expressions.");
+        return nullptr;
+    }
+
+    if (!statLeft && !statRight)
+    {
+        statInit = new Statement(AsmCommand::MOV, new Expression(reg, parent()), m_left, parent());
+        m_left = nullptr;
+        m_right = nullptr;
+    }
+    else
+    {
+        if (statLeft)
+        {
+            m_right = nullptr;
+            statInit = statLeft;
+            statInit->add(statRight);
+        }
+        else
+        {
+            expr = m_left;
+            m_left = nullptr;
+            statInit = statRight;
+        }
+    }
+
+    switch (m_value.op)
+    {
+        case OperandType::Plus:
+            statOper = new Statement(AsmCommand::ADD, new Expression(reg, parent()), expr, parent());
+            break;
+
+        case OperandType::Minus:
+            statOper = new Statement(AsmCommand::SUB, new Expression(reg, parent()), expr, parent());
+            break;
+
+        case OperandType::Star:
+            statOper = new Statement(AsmCommand::MUL, new Expression(reg, parent()), expr, parent());
+            break;
+
+        default:
+            code->error(lineno(), "Undefined operator.");
+            SU_BREAKPOINT();
+            return nullptr;
+    }
+
+    if (statInit)
+    {
+        statInit->add(statOper);
+    }
+    else
+    {
+        statInit = statOper;
+    }
+
+    if (m_left)
+    {
+        m_left->removeFromParent();
+        delete m_left;
+        m_left = nullptr;
+    }
+
+    if (m_right)
+    {
+        m_right->removeFromParent();
+        delete m_right;
+        m_right = nullptr;
+    }
+
+    m_type = ExpressionType::Register;
+    m_value.reg = reg;
+
+    return statInit;
 }
 
 int8_t Expression::compile(bool isDst, int16_t& val, Code* code) const
@@ -194,6 +227,16 @@ std::string Expression::toString() const
         default: return "<Undefined operator>";
     }
     return "<Undefined expression>";
+}
+
+bool Expression::isPositionRegister() const
+{
+    if (type() != ExpressionType::Register)
+    {
+        return false;
+    }
+
+    return reg() == RegisterType::P0 || reg() == RegisterType::P1 || reg() == RegisterType::P2;
 }
 
 }; // namespace Asm

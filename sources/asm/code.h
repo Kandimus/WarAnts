@@ -22,6 +22,7 @@ public:
 
     void error(const char* format, ...);
     void error(uint32_t lineno, const char* format, ...);
+    bool hasError() const { return m_errors.size() > 0; }
 
     bool checkFunctionName();
     bool extrudeExpression();
