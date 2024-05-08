@@ -5,6 +5,7 @@
 #include <vector>
 
 #include "stringex.h"
+#include "scopeexit.h"
 
 #include "code.h"
 #include "function.h"
@@ -35,35 +36,41 @@ bool compileFile(const std::string& filename, std::vector<std::string>& error, s
     text = buffer.str();
 
     auto code = yy_compile(text.c_str());
-    error = code->m_errors;
+    SU_ON_SCOPE_EXIT( error = code->m_errors; );
 
     if (error.size())
     {
         return false;
     }
 
-    // Step 1. Uniques function names
+    // Step 1. Uniques function names and uniques label name in one function
     if (!code->checkFunctionName())
     {
-        error = code->m_errors; //TODO стырить у Никиты класс для выполнения при завешении
         return false;
     }
     code->print(filename + ".step1.txt");
 
+    // Step 2. Optimize statement tree and experssions
 
-    // Step 2. Move calculation of address in expression to separate statements
+    // Step 3. Move calculation of address in expression to separate statements
     if (!code->extrudeExpression())
     {
-        error = code->m_errors; //TODO стырить у Никиты класс для выполнения при завешении
         return false;
     }
-    code->print(filename + ".step2.txt");
+    code->print(filename + ".step3.txt");
 
-    //if (code->compile())
-    //{
-    //    error = code->m_errors; //TODO стырить у Никиты класс для выполнения при завешении
-    //    return false;
-    //}
+    // Step 4. Optimize statements
+
+    // Step 5. Compile statement to bcode
+    if (!code->compile())
+    {
+        return false;
+    }
+    code->print(filename + ".step5.txt");
+
+    // Step 6. Calculation jumps and calls
+
+    // Step 7. Forming resulting array
 
     return true;
 }

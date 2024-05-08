@@ -124,8 +124,6 @@ hex_num   {hexdigit}+"H"
 "cps"                       { return CPS; }
 "spw"                       { return CPW; }
 
-"nop"                       { return NOP;}
-
 "//"                        { skipSignleLineComment(); }
 "/*"                        { skipMultiLineComment(); }
 

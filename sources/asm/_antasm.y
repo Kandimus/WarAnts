@@ -143,20 +143,20 @@ asm_command
     : label COLON                                       { $$ = new WarAnts::Asm::Statement($1->get(), yy_code.get()); }
 
     // Arithmetic
-    | ADD  address COMMA address                        { $$ = new WarAnts::Asm::Statement(WarAnts::Asm::AsmCommand::ADD , $2, $4, yy_code.get()); }
-    | AND  address COMMA address                        { $$ = new WarAnts::Asm::Statement(WarAnts::Asm::AsmCommand::AND , $2, $4, yy_code.get()); }
-    | DEC  address                                      { $$ = new WarAnts::Asm::Statement(WarAnts::Asm::AsmCommand::DEC , $2,     yy_code.get()); }
-    | DIV  address COMMA address                        { $$ = new WarAnts::Asm::Statement(WarAnts::Asm::AsmCommand::DIV , $2, $4, yy_code.get()); }
-    | INC  address                                      { $$ = new WarAnts::Asm::Statement(WarAnts::Asm::AsmCommand::INC , $2,     yy_code.get()); }
-    | MOD  address COMMA address                        { $$ = new WarAnts::Asm::Statement(WarAnts::Asm::AsmCommand::MOD , $2, $4, yy_code.get()); }
-    | MUL  address COMMA address                        { $$ = new WarAnts::Asm::Statement(WarAnts::Asm::AsmCommand::MUL , $2, $4, yy_code.get()); }
-    | NEG  address                                      { $$ = new WarAnts::Asm::Statement(WarAnts::Asm::AsmCommand::NEG , $2,     yy_code.get()); }
-    | NOT  address                                      { $$ = new WarAnts::Asm::Statement(WarAnts::Asm::AsmCommand::NOT , $2,     yy_code.get()); }
-    | OR   address COMMA address                        { $$ = new WarAnts::Asm::Statement(WarAnts::Asm::AsmCommand::OR  , $2, $4, yy_code.get()); }
-    | SUB  address COMMA address                        { $$ = new WarAnts::Asm::Statement(WarAnts::Asm::AsmCommand::SUB , $2, $4, yy_code.get()); }
-    | XOR  address COMMA address                        { $$ = new WarAnts::Asm::Statement(WarAnts::Asm::AsmCommand::XOR , $2, $4, yy_code.get()); }
-    | MIN  address COMMA address                        { $$ = new WarAnts::Asm::Statement(WarAnts::Asm::AsmCommand::MIN , $2, $4, yy_code.get()); }
-    | MAX  address COMMA address                        { $$ = new WarAnts::Asm::Statement(WarAnts::Asm::AsmCommand::MAX , $2, $4, yy_code.get()); }
+    | ADD  address COMMA address                        { $$ = new WarAnts::Asm::Statement(WarAnts::Asm::AsmCommand::ADD , $2,      $4, yy_code.get()); }
+    | AND  address COMMA address                        { $$ = new WarAnts::Asm::Statement(WarAnts::Asm::AsmCommand::AND , $2,      $4, yy_code.get()); }
+    | DEC  address                                      { $$ = new WarAnts::Asm::Statement(WarAnts::Asm::AsmCommand::DEC , $2, nullptr, yy_code.get()); }
+    | DIV  address COMMA address                        { $$ = new WarAnts::Asm::Statement(WarAnts::Asm::AsmCommand::DIV , $2,      $4, yy_code.get()); }
+    | INC  address                                      { $$ = new WarAnts::Asm::Statement(WarAnts::Asm::AsmCommand::INC , $2, nullptr, yy_code.get()); }
+    | MOD  address COMMA address                        { $$ = new WarAnts::Asm::Statement(WarAnts::Asm::AsmCommand::MOD , $2,      $4, yy_code.get()); }
+    | MUL  address COMMA address                        { $$ = new WarAnts::Asm::Statement(WarAnts::Asm::AsmCommand::MUL , $2,      $4, yy_code.get()); }
+    | NEG  address                                      { $$ = new WarAnts::Asm::Statement(WarAnts::Asm::AsmCommand::NEG , $2, nullptr, yy_code.get()); }
+    | NOT  address                                      { $$ = new WarAnts::Asm::Statement(WarAnts::Asm::AsmCommand::NOT , $2, nullptr, yy_code.get()); }
+    | OR   address COMMA address                        { $$ = new WarAnts::Asm::Statement(WarAnts::Asm::AsmCommand::OR  , $2,      $4, yy_code.get()); }
+    | SUB  address COMMA address                        { $$ = new WarAnts::Asm::Statement(WarAnts::Asm::AsmCommand::SUB , $2,      $4, yy_code.get()); }
+    | XOR  address COMMA address                        { $$ = new WarAnts::Asm::Statement(WarAnts::Asm::AsmCommand::XOR , $2,      $4, yy_code.get()); }
+    | MIN  address COMMA address                        { $$ = new WarAnts::Asm::Statement(WarAnts::Asm::AsmCommand::MIN , $2,      $4, yy_code.get()); }
+    | MAX  address COMMA address                        { $$ = new WarAnts::Asm::Statement(WarAnts::Asm::AsmCommand::MAX , $2,      $4, yy_code.get()); }
 
     // Bit manipulation
     | BSF  address COMMA address                        { $$ = new WarAnts::Asm::Statement(WarAnts::Asm::AsmCommand::BSF , $2, $4, yy_code.get()); }
@@ -190,10 +190,10 @@ asm_command
     | LOOP label                                        { $$ = new WarAnts::Asm::Statement(WarAnts::Asm::AsmCommand::LOOP, $2->get(), yy_code.get()); }
 
     // Other
-    | MOV  address COMMA address                        { $$ = new WarAnts::Asm::Statement(WarAnts::Asm::AsmCommand::MOV , $2, $4, yy_code.get()); }
-    | CALL label                                        { $$ = new WarAnts::Asm::Statement(WarAnts::Asm::AsmCommand::CALL, $2->get(), yy_code.get()); }
-    | LEN  address COMMA address                        { $$ = new WarAnts::Asm::Statement(WarAnts::Asm::AsmCommand::LEN , $2, $4, yy_code.get()); }
-    | EXIT                                              { $$ = new WarAnts::Asm::Statement(WarAnts::Asm::AsmCommand::EXIT, yy_code.get()); }
+    | MOV  address COMMA address                        { $$ = new WarAnts::Asm::Statement(WarAnts::Asm::AsmCommand::MOV , $2,        $4, yy_code.get()); }
+    | CALL label                                        { $$ = new WarAnts::Asm::Statement(WarAnts::Asm::AsmCommand::CALL, $2->get(),     yy_code.get()); }
+    | LEN  address COMMA address                        { $$ = new WarAnts::Asm::Statement(WarAnts::Asm::AsmCommand::LEN , $2,        $4, yy_code.get()); }
+    | EXIT                                              { $$ = new WarAnts::Asm::Statement(WarAnts::Asm::AsmCommand::EXIT,                yy_code.get()); }
 
     // Load data to memory
     | LDTR address                                      { $$ = new WarAnts::Asm::Statement(WarAnts::Asm::AsmCommand::LDTR, nullptr, $2, yy_code.get()); }
@@ -208,10 +208,8 @@ asm_command
     | CTKF address COMMA address                        { $$ = new WarAnts::Asm::Statement(WarAnts::Asm::AsmCommand::CTKF , $2,      $4, yy_code.get()); }
     | CGVF address COMMA address                        { $$ = new WarAnts::Asm::Statement(WarAnts::Asm::AsmCommand::CGVF , $2,      $4, yy_code.get()); }
     | CEAT address                                      { $$ = new WarAnts::Asm::Statement(WarAnts::Asm::AsmCommand::CEAT , nullptr, $2, yy_code.get()); }
-    | CPS                                               { $$ = new WarAnts::Asm::Statement(WarAnts::Asm::AsmCommand::CPS  ,         yy_code.get()); }
-    | CPW                                               { $$ = new WarAnts::Asm::Statement(WarAnts::Asm::AsmCommand::CPW  ,         yy_code.get()); }
-
-    | NOP                                               { $$ = new WarAnts::Asm::Statement(WarAnts::Asm::AsmCommand::NOP  ,         yy_code.get()); }
+    | CPS                                               { $$ = new WarAnts::Asm::Statement(WarAnts::Asm::AsmCommand::CPS  ,              yy_code.get()); }
+    | CPW                                               { $$ = new WarAnts::Asm::Statement(WarAnts::Asm::AsmCommand::CPW  ,              yy_code.get()); }
     ;
 
 //------------------------------------------------------

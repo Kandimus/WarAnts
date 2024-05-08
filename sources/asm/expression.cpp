@@ -17,26 +17,6 @@ Statement* Expression::extrudeExpression(bool isDst, Code* code)
         return nullptr;
     }
 
-    /*if (m_type == ExpressionType::Number)
-    {
-        if (isDst)
-        {
-            code->error(lineno(), "Numbers can not be using as destination.");
-        }
-
-        return nullptr;
-    }
-
-    if (m_type == ExpressionType::Register)
-    {
-        if (isDst && m_value.reg == RegisterType::RF)
-        {
-            code->error(lineno(), "Register `RF` can not be using as destination.");
-        }
-
-        return nullptr;
-    }*/
-
     RegisterType reg = isDst ? RegisterType::RD : RegisterType::RS;
 
     if (m_type == ExpressionType::Address)
@@ -64,28 +44,28 @@ Statement* Expression::extrudeExpression(bool isDst, Code* code)
         return nullptr;
     }
 
-    Statement* statInit = nullptr;
-    Statement* statOper = nullptr;
     Statement* statLeft = m_left->extrudeExpression(isDst, code);
     Statement* statRight = m_right->extrudeExpression(isDst, code);
-    Expression* expr = m_right;
 
     if (code->hasError())
     {
         return nullptr;
     }
 
-    if (m_left->isPositionRegister())
+    if (m_left->isPosition())
     {
         code->error(lineno(), "Position registers can not be using in expressions.");
         return nullptr;
     }
 
-    if (m_right->isPositionRegister())
+    if (m_right->isPosition())
     {
         code->error(lineno(), "Position registers can not be using in expressions.");
         return nullptr;
     }
+
+    Statement* statInit = nullptr;
+    Expression* expr = m_right;
 
     if (!statLeft && !statRight)
     {
@@ -109,6 +89,7 @@ Statement* Expression::extrudeExpression(bool isDst, Code* code)
         }
     }
 
+    Statement* statOper = nullptr;
     switch (m_value.op)
     {
         case OperandType::Plus:
@@ -138,19 +119,8 @@ Statement* Expression::extrudeExpression(bool isDst, Code* code)
         statInit = statOper;
     }
 
-    if (m_left)
-    {
-        m_left->removeFromParent();
-        delete m_left;
-        m_left = nullptr;
-    }
-
-    if (m_right)
-    {
-        m_right->removeFromParent();
-        delete m_right;
-        m_right = nullptr;
-    }
+    deleteSubExpr(&m_left);
+    deleteSubExpr(&m_right);
 
     m_type = ExpressionType::Register;
     m_value.reg = reg;
@@ -163,7 +133,7 @@ int8_t Expression::compile(bool isDst, int16_t& val, Code* code) const
     if (m_type == ExpressionType::Number)
     {
         val = m_value.num;
-        return int8_t(m_value.num >= -128 && m_value.num <= 127 ? RegisterType::CHAR : RegisterType::SHORT);
+        return (int8_t)(m_value.num >= -128 && m_value.num <= 127 ? RegisterType::CHAR : RegisterType::SHORT);
     }
 
     if (m_type == ExpressionType::Register)
@@ -173,10 +143,7 @@ int8_t Expression::compile(bool isDst, int16_t& val, Code* code) const
 
     if (m_type == ExpressionType::Address)
     {
-        int16_t val = 0;
-        auto reg = m_left->compile(isDst, val, code);
-
-        return reg | 0x80;
+        return m_left->compile(isDst, val, code) | 0x80;
     }
 
     SU_BREAKPOINT();
@@ -229,14 +196,29 @@ std::string Expression::toString() const
     return "<Undefined expression>";
 }
 
-bool Expression::isPositionRegister() const
+bool Expression::isPosition() const
 {
     if (type() != ExpressionType::Register)
     {
         return false;
     }
 
-    return reg() == RegisterType::P0 || reg() == RegisterType::P1 || reg() == RegisterType::P2;
+    return isPositionRegister(reg());
+}
+
+void Expression::deleteSubExpr(Expression** expr)
+{
+    if (!expr)
+    {
+        return;
+    }
+
+    if (*expr)
+    {
+        (*expr)->removeFromParent();
+        delete *expr;
+        *expr = nullptr;
+    }
 }
 
 }; // namespace Asm

@@ -2,6 +2,7 @@
 
 #include <fstream>
 #include <string>
+
 #include "baseNode.h"
 
 namespace WarAnts
@@ -18,74 +19,6 @@ enum class StatementType
     Command,
 };
 
-enum class AsmCommand
-{
-    UNDEF = 0,
-
-    ADD,
-    AND,
-    DEC,
-    DIV,
-    INC,
-    MOD,
-    MUL,
-    NEG,
-    NOT,
-    OR,
-    SUB,
-    XOR,
-    MIN,
-    MAX,
-
-    BSF,
-    BSR,
-    BT,
-    BTR,
-    BTS,
-    BTC,
-    SHL,
-    SHR,
-    ROL,
-    ROR,
-
-    EQ,
-    NEQ,
-    GT,
-    GE,
-    LT,
-    LE,
-    TEST,
-
-    JMP,
-    JZ,
-    JNZ,
-    JO,
-    JNO,
-    JCZ,
-    JCNZ,
-    LOOP,
-
-    MOV,
-    CALL,
-    LEN,
-    EXIT,
-
-    LDTR,
-    LDFD,
-    LDEN,
-    LDFR,
-
-    CIDL,
-    CMOV,
-    CATT,
-    CTKF,
-    CGVF,
-    CEAT,
-    CPS,
-    CPW,
-
-    NOP
-};
 
 class Statement : public BaseNode
 {
@@ -109,16 +42,6 @@ public:
     {
         m_dst = dst;
         m_src = src;
-        m_type = StatementType::Command;
-        m_cmd = cmd;
-        m_next = nullptr;
-    }
-    // single
-    Statement(AsmCommand cmd, Expression* dst, BaseNode* parent)
-        : BaseNode(parent)
-    {
-        m_dst = dst;
-        m_src = nullptr;
         m_type = StatementType::Command;
         m_cmd = cmd;
         m_next = nullptr;
@@ -166,6 +89,16 @@ public:
     bool compile(Code* code);
     void print(std::ofstream& file) const;
 
+protected:
+    RegisterType compileExpr(Expression* expr, bool isDst, Code* code);
+    void compileDstSrc(BCodeCommand cmd, RegisterType& dst, RegisterType& src, Code* code);
+    void compileDst(BCodeCommand cmd, RegisterType& dst, Code* code);
+    void compileSrc(BCodeCommand cmd, RegisterType& src, Code* code);
+    void compileCommon(BCodeCommand cmd, Code* code);
+    void compileCommonDst(BCodeCommand cmd, Code* code);
+    void compileCommonSrc(BCodeCommand cmd, Code* code);
+    void compileNoPosition(BCodeCommand cmd, Code* code);
+
 public:
     StatementType m_type;
     AsmCommand  m_cmd;
@@ -173,6 +106,8 @@ public:
     Expression* m_src = nullptr;
     std::string m_label = "";
     std::string m_jump = "";
+
+    std::vector<int8_t> m_bcode;
 
     Statement* m_next = nullptr;
 };

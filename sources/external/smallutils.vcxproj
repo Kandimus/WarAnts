@@ -40,6 +40,7 @@
     <ClInclude Include="smallUtils\filesystem.h" />
     <ClInclude Include="smallUtils\i_stream.h" />
     <ClInclude Include="smallUtils\log.h" />
+    <ClInclude Include="smallUtils\scopeexit.h" />
     <ClInclude Include="smallUtils\stream_std.h" />
     <ClInclude Include="smallUtils\stringex.h" />
     <ClInclude Include="smallUtils\threadpool.h" />

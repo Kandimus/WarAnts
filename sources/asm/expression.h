@@ -12,51 +12,6 @@ namespace Asm
 class Code;
 class Statement;
 
-enum class ExpressionType
-{
-    Register,
-    Number,
-    Operand,
-    Address,
-};
-
-enum class OperandType
-{
-    Plus,
-    Minus,
-    Star,
-};
-
-enum class RegisterType
-{
-    R0 = 0,
-    R1,
-    R2,
-    RC,
-    P0X,
-    P0Y,
-    P1X,
-    P1Y,
-    P2X,
-    P2Y,
-    CHAR,
-    SHORT,
-    RESERVED,
-    RF,
-    RD,
-    RS,
-    P0,
-    P1,
-    P2,
-};
-
-union ExpressionValue
-{
-    RegisterType reg;
-    int16_t num;
-    OperandType op;
-};
-
 class Expression : public BaseNode
 {
     NOCOPY_STRUCT(Expression)
@@ -104,15 +59,28 @@ public:
     std::string toString() const;
 
 protected:
-    bool isPositionRegister() const;
+    bool isPosition() const;
+    void deleteSubExpr(Expression** expr);
 
 protected:
+    union ExpressionValue
+    {
+        RegisterType reg;
+        int16_t num;
+        OperandType op;
+    };
+
     ExpressionType m_type;
     ExpressionValue m_value;
 
     Expression* m_left = nullptr;
     Expression* m_right = nullptr;
 };
+
+inline bool isPositionRegister(const RegisterType& reg)
+{
+    return reg == RegisterType::P0 || reg == RegisterType::P1 || reg == RegisterType::P2;
+}
 
 }; // namespace Asm
 }; // namespace WarAnts

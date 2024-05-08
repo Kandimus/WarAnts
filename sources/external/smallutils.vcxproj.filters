@@ -39,6 +39,9 @@
     <ClInclude Include="smallUtils\translatorManager.h">
       <Filter>Headers</Filter>
     </ClInclude>
+    <ClInclude Include="smallUtils\scopeexit.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="smallUtils\log.cpp">

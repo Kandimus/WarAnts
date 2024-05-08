@@ -46,8 +46,6 @@ bool Function::compile(Code* code)
 {
     Statement* stat = m_stat;
 
-    m_offset = code->offset();
-
     while (stat)
     {
         if (!stat->compile(code))
