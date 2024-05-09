@@ -145,6 +145,40 @@ bool Code::compile()
     return true;
 }
 
+bool Code::calculationJumpsAndCalls()
+{
+    bool recalc = true;
+
+    while (recalc)
+    {
+        if (!assignOffsets())
+        {
+            return false;
+        }
+
+        if (!resolveLabels(recalc))
+        {
+            return false;
+        }
+    }
+
+    return true;
+}
+
+bool Code::assignOffsets()
+{
+    return true;
+}
+
+bool Code::resolveLabels(bool& recalc)
+{
+    recalc = false;
+
+
+
+    return true;
+}
+
 void Code::print(const std::string& filename)
 {
     std::ofstream file(filename);

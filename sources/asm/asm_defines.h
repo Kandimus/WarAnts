@@ -52,6 +52,16 @@ enum class RegisterType
     INVALIDE = 255
 };
 
+/*
+
++--
+| 0...
++--
+
+
+*/
+
+
 enum class AsmCommand
 {
     UNDEF = 0,
@@ -98,9 +108,9 @@ enum class AsmCommand
     JCZ,
     JCNZ,
     LOOP,
+    CALL,
 
     MOV,
-    CALL,
     LEN,
     DIST,
     EXIT,
@@ -120,6 +130,34 @@ enum class AsmCommand
     CPW,
 
     NOP
+};
+
+/*
+
++---+-----+-----------------+
+| 0 | 0 0 | X  X  X   X   X |
++---+-----+-----------------+
+| 0 | 0 1 | X  X  X   X   X |
++---+-----+-------------+---+
+| 0 | 1 0 | X  X  X   X | Y |  X - number of jump command, Y - 0 - char, 1 - short
++---+-----+---------+---+---+
+| 0 | 1 1 | X  X  X | Y   Y |  X - number of value command, Y - 00 - using next char as register, 01 - char, 10 - short, 11 - undefined
++---+-----+---------+-------+
+
+*/
+
+enum class BCodeJump : int8_t
+{
+    CHAR = 0x00,
+    SHORT = 0x01
+};
+
+enum class BCodeValue : int8_t
+{
+    REGISTER = 0x00,
+    CHAR = 0x01,
+    SHORT = 0x10,
+    UNDEFINED = 0x11
 };
 
 enum class BCodeCommand : int8_t
@@ -160,45 +198,43 @@ enum class BCodeCommand : int8_t
     LE,
     TEST,
 
-    JMPl,
-    JMPs,
-    JZl,
-    JZs,
-    JNZl,
-    JNZs,
-    JOl,
-    JOs,
-    JNOl,
-    JNOs,
-    JCZl,
-    JCZs,
-    JCNZl,
-    JCNZs,
-    LOOPl,
-    LOOPs,
-
     MOV,
-    CALLl,
-    CALLs,
     LEN,
     DIST,
     EXIT,
 
-    LDTR,
-    LDFD,
-    LDEN,
-    LDFR,
-
-    CIDL,
     CMOV,
     CATT,
     CTKF,
     CGVF,
-    CEAT,
     CPS,
     CPW,
 
-    __END
+    JMP = 0x40,
+    JMPl = 0x41,
+    JZ = 0x42,
+    JZl = 0x43,
+    JNZ = 0x44,
+    JNZl = 0x45,
+    JO = 0x46,
+    JOl = 0x47,
+    JNO = 0x48,
+    JNOl = 0x49,
+    JCZ = 0x4a,
+    JCZl = 0x4b,
+    JCNZ = 0x4c,
+    JCNZl = 0x4d,
+    LOOP = 0x4e,
+    LOOPl = 0x4f,
+    CALL = 0x50,
+    CALLl = 0x51,
+
+    LDTR = 0x60,
+    LDFD = 0x64,
+    LDEN = 0x68,
+    LDFR = 0x6c,
+    CIDL = 0x70,
+    CEAT = 0x74,
 };
 
 }; // namespace Asm

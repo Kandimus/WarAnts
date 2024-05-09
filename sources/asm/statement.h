@@ -64,7 +64,7 @@ public:
         m_src = nullptr;
         m_cmd = cmd;
         m_type = StatementType::Command;
-        m_jump = label;
+        m_label = label;
         m_next = nullptr;
     }
     virtual ~Statement() = default;
@@ -86,6 +86,8 @@ public:
     const std::string& label() const { return m_label; }
     Statement* next() const { return m_next;}
 
+    bool isJump() const;
+
     Statement* extrudeExpression(Code* code);
     bool compile(Code* code);
     void print(std::ofstream& file) const;
@@ -96,12 +98,17 @@ protected:
     void compileDst(BCodeCommand cmd, RegisterType& dst, Code* code);
     void compileSrc(BCodeCommand cmd, RegisterType& src, Code* code);
 
+    void compileNoArgs(BCodeCommand cmd, Code* code);
     void compileCommon(BCodeCommand cmd, Code* code);
-    void compileCommonDst(BCodeCommand cmd, Code* code);
-    void compileCommonSrc(BCodeCommand cmd, Code* code);
+    void compileDstCommon(BCodeCommand cmd, Code* code);
+    void compileSrcCommon(BCodeCommand cmd, Code* code);
     void compileNoPosition(BCodeCommand cmd, Code* code);
     void compileDstNoPosition(BCodeCommand cmd, Code* code);
+    void compileSrcNoPosition(BCodeCommand cmd, Code* code);
     void compileStrong(BCodeCommand cmd, Code* code);
+    void compileJump(BCodeCommand cmdl, Code* code);
+    void compilePosition(BCodeCommand cmd, Code* code);
+    void compileDstPosition(BCodeCommand cmd, Code* code);
 
 public:
     StatementType m_type;
@@ -109,7 +116,6 @@ public:
     Expression* m_dst = nullptr;
     Expression* m_src = nullptr;
     std::string m_label = "";
-    std::string m_jump = "";
 
     std::vector<int8_t> m_bcode;
 

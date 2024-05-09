@@ -27,6 +27,9 @@ public:
     bool checkFunctionsAndNames();
     bool extrudeExpression();
     bool compile();
+    bool calculationJumpsAndCalls();
+    bool assignOffsets();
+    bool resolveLabels(bool& recalc);
     void print(const std::string& filename);
 
     Function* getFunction(const std::string& name) const;

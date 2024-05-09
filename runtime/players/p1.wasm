@@ -24,7 +24,7 @@ go_to_food:
     GT [7], 0
     JNZ eat_from_cargo
     LDFD 0
-    CTKF [48], [49]
+    CTKF [48]
     JMP finish
 
 eat_from_cargo:

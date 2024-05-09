@@ -33,6 +33,28 @@ bool Function::checkLabelNames(Code* code)
             }
 
         }
+        else if (stat->isJump())
+        {
+            auto checkStat = m_stat;
+            bool found = false;
+
+            while (checkStat)
+            {
+                if (checkStat->type() == StatementType::Label && checkStat->label() == stat->label())
+                {
+                    found = true;
+                    break;
+                }
+
+                checkStat = checkStat->next();
+            }
+
+            if (!found)
+            {
+                code->error(stat->lineno(), "Can not found label name '%s'.", stat->label().c_str());
+                return false;
+            }
+        }
 
         stat = stat->next();
     }

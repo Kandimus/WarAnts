@@ -12,6 +12,20 @@ namespace WarAnts
 namespace Asm
 {
 
+bool Statement::isJump() const
+{
+    return type() == StatementType::Command &&
+        (m_cmd == AsmCommand::JMP ||
+         m_cmd == AsmCommand::JZ ||
+         m_cmd == AsmCommand::JNZ ||
+         m_cmd == AsmCommand::JO ||
+         m_cmd == AsmCommand::JNO ||
+         m_cmd == AsmCommand::JCZ ||
+         m_cmd == AsmCommand::JCNZ ||
+         m_cmd == AsmCommand::LOOP ||
+         m_cmd == AsmCommand::CALL);
+}
+
 Statement* Statement::extrudeExpression(Code* code)
 {
     Statement* out = nullptr;
@@ -74,12 +88,12 @@ bool Statement::compile(Code* code)
     {
         case AsmCommand::ADD:  compileCommon(BCodeCommand::ADD, code); break;
         case AsmCommand::AND:  compileNoPosition(BCodeCommand::AND, code); break;
-        case AsmCommand::DEC:  compileCommonDst(BCodeCommand::DEC, code); break;
+        case AsmCommand::DEC:  compileDstCommon(BCodeCommand::DEC, code); break;
         case AsmCommand::DIV:  compileCommon(BCodeCommand::DIV, code); break;
-        case AsmCommand::INC:  compileCommonDst(BCodeCommand::INC, code); break;
+        case AsmCommand::INC:  compileDstCommon(BCodeCommand::INC, code); break;
         case AsmCommand::MOD:  compileNoPosition(BCodeCommand::MOD, code); break;
         case AsmCommand::MUL:  compileCommon(BCodeCommand::MUL, code); break;
-        case AsmCommand::NEG:  compileCommonDst(BCodeCommand::NEG, code); break;
+        case AsmCommand::NEG:  compileDstCommon(BCodeCommand::NEG, code); break;
         case AsmCommand::NOT:  compileDstNoPosition(BCodeCommand::NOT, code); break;
         case AsmCommand::OR:   compileNoPosition(BCodeCommand::OR, code); break;
         case AsmCommand::SUB:  compileCommon(BCodeCommand::SUB, code); break;
@@ -106,14 +120,40 @@ bool Statement::compile(Code* code)
         case AsmCommand::LE:   compileNoPosition(BCodeCommand::LE  , code); break;
         case AsmCommand::TEST: compileNoPosition(BCodeCommand::TEST, code); break;
 
-        // Jumps
+        case AsmCommand::JMP:  compileJump(BCodeCommand::JMPl, code); break;
+        case AsmCommand::JZ:   compileJump(BCodeCommand::JZl, code); break;
+        case AsmCommand::JNZ:  compileJump(BCodeCommand::JNZl, code); break;
+        case AsmCommand::JO:   compileJump(BCodeCommand::JOl, code); break;
+        case AsmCommand::JNO:  compileJump(BCodeCommand::JNOl, code); break;
+        case AsmCommand::JCZ:  compileJump(BCodeCommand::JCZl, code); break;
+        case AsmCommand::JCNZ: compileJump(BCodeCommand::JCNZl, code); break;
+        case AsmCommand::LOOP: compileJump(BCodeCommand::LOOPl, code); break;
+        case AsmCommand::CALL: compileJump(BCodeCommand::CALLl, code); break;
 
         case AsmCommand::MOV:  compileCommon(BCodeCommand::MOV, code); break;
+        case AsmCommand::LEN:  compilePosition(BCodeCommand::LEN, code); break;
+        case AsmCommand::DIST: compileDstPosition(BCodeCommand::DIST, code); break;
+        case AsmCommand::EXIT: compileNoArgs(BCodeCommand::EXIT, code); break;
+
+        case AsmCommand::LDTR: compileSrcNoPosition(BCodeCommand::LDTR, code); break;
+        case AsmCommand::LDFD: compileSrcNoPosition(BCodeCommand::LDFD, code); break;
+        case AsmCommand::LDEN: compileSrcNoPosition(BCodeCommand::LDEN, code); break;
+        case AsmCommand::LDFR: compileSrcNoPosition(BCodeCommand::LDFR, code); break;
+
+        case AsmCommand::CIDL: compileSrcNoPosition(BCodeCommand::CIDL, code); break;
+        case AsmCommand::CMOV: compileDstPosition(BCodeCommand::CMOV, code); break;
+        case AsmCommand::CATT: compileDstPosition(BCodeCommand::CATT, code); break;
+        case AsmCommand::CTKF: compileDstPosition(BCodeCommand::CTKF, code); break;
+        case AsmCommand::CGVF: compileDstPosition(BCodeCommand::CGVF, code); break;
+        case AsmCommand::CEAT: compileSrcNoPosition(BCodeCommand::CEAT, code); break;
+        case AsmCommand::CPS:  compileNoArgs(BCodeCommand::CPS, code); break;
+        case AsmCommand::CPW:  compileNoArgs(BCodeCommand::CPW, code); break;
+
+        case AsmCommand::NOP:  compileNoArgs(BCodeCommand::NOP, code); break;
 
         default:
-            //SU_BREAKPOINT();
-            //return false;
-            return true;
+            SU_BREAKPOINT();
+            return false;
     }
 
     return !code->hasError();
@@ -184,34 +224,34 @@ void Statement::print(std::ofstream& file) const
         case AsmCommand::LE:   print2Expr(file, "LE  ", m_dst, m_src); break;
         case AsmCommand::TEST: print2Expr(file, "TEST", m_dst, m_src); break;
 
-        case AsmCommand::JMP:  printLabel(file, "JMP ", m_jump); break;
-        case AsmCommand::JZ:   printLabel(file, "JZ  ", m_jump); break;
-        case AsmCommand::JNZ:  printLabel(file, "JNZ ", m_jump); break;
-        case AsmCommand::JO:   printLabel(file, "JO  ", m_jump); break;
-        case AsmCommand::JNO:  printLabel(file, "JNO ", m_jump); break;
-        case AsmCommand::JCZ:  printLabel(file, "JCZ ", m_jump); break;
-        case AsmCommand::JCNZ: printLabel(file, "JCNZ", m_jump); break;
-        case AsmCommand::LOOP: printLabel(file, "LOOP", m_jump); break;
+        case AsmCommand::JMP:  printLabel(file, "JMP ", m_label); break;
+        case AsmCommand::JZ:   printLabel(file, "JZ  ", m_label); break;
+        case AsmCommand::JNZ:  printLabel(file, "JNZ ", m_label); break;
+        case AsmCommand::JO:   printLabel(file, "JO  ", m_label); break;
+        case AsmCommand::JNO:  printLabel(file, "JNO ", m_label); break;
+        case AsmCommand::JCZ:  printLabel(file, "JCZ ", m_label); break;
+        case AsmCommand::JCNZ: printLabel(file, "JCNZ", m_label); break;
+        case AsmCommand::LOOP: printLabel(file, "LOOP", m_label); break;
+        case AsmCommand::CALL: printLabel(file, "CALL", m_label); break;
 
         case AsmCommand::MOV:  print2Expr(file, "MOV ", m_dst, m_src); break;
-        case AsmCommand::CALL: printLabel(file, "CALL", m_jump); break;
-        case AsmCommand::LEN:  print1Expr(file, "LEN ", m_dst); break;
-        case AsmCommand::DIST: print2Expr(file, "DIST", m_dst, m_src); break;
+        case AsmCommand::LEN:  print2Expr(file, "LEN ", m_dst, m_src); break;
+        case AsmCommand::DIST: print1Expr(file, "DIST", m_dst); break;
         case AsmCommand::EXIT: print0Expr(file, "EXIT"); break;
 
         case AsmCommand::LDTR: print1Expr(file, "LDTR", m_src); break;
         case AsmCommand::LDFD: print1Expr(file, "LDFD", m_src); break;
         case AsmCommand::LDEN: print1Expr(file, "LDEN", m_src); break;
-//            LDFR,
+        case AsmCommand::LDFR: print1Expr(file, "LDFR", m_src); break;
 
         case AsmCommand::CIDL: print1Expr(file, "CIDL", m_src); break;
         case AsmCommand::CMOV: print1Expr(file, "CMOV", m_dst); break;
         case AsmCommand::CATT: print1Expr(file, "CATT", m_dst); break;
-//            CTKF,
-//            CGVF,
+        case AsmCommand::CTKF: print1Expr(file, "CTKF", m_dst); break;
+        case AsmCommand::CGVF: print1Expr(file, "CGVF", m_dst); break;
         case AsmCommand::CEAT: print1Expr(file, "CEAT", m_src); break;
-//            CPS,
-//            CPW,
+        case AsmCommand::CPS:  print0Expr(file, "CPS"); break;
+        case AsmCommand::CPW:  print0Expr(file, "CPW"); break;
 
         case AsmCommand::NOP:  print0Expr(file, "NOP"); break;
         default:
@@ -227,7 +267,7 @@ void Statement::print(std::ofstream& file) const
         {
             int32_t val = item;
             val &= 0xff;
-            file << std::hex << su::String_format2(" %02x", val) << std::dec;
+            file << su::String_format2(" %02x", val) << std::dec;
         }
     }
 
@@ -285,6 +325,11 @@ void Statement::compileSrc(BCodeCommand cmd, RegisterType& src, Code* code)
     src = compileExpr(m_src, false, code);
 }
 
+void Statement::compileNoArgs(BCodeCommand cmd, Code* code)
+{
+    m_bcode.push_back((int8_t)cmd);
+}
+
 void Statement::compileCommon(BCodeCommand cmd, Code* code)
 {
     RegisterType dst;
@@ -292,13 +337,13 @@ void Statement::compileCommon(BCodeCommand cmd, Code* code)
     compileDstSrc(cmd, dst, src, code);
 }
 
-void Statement::compileCommonDst(BCodeCommand cmd, Code* code)
+void Statement::compileDstCommon(BCodeCommand cmd, Code* code)
 {
     RegisterType dst;
     compileDst(cmd, dst, code);
 }
 
-void Statement::compileCommonSrc(BCodeCommand cmd, Code* code)
+void Statement::compileSrcCommon(BCodeCommand cmd, Code* code)
 {
     RegisterType src;
     compileSrc(cmd, src, code);
@@ -329,6 +374,18 @@ void Statement::compileDstNoPosition(BCodeCommand cmd, Code* code)
     }
 }
 
+void Statement::compileSrcNoPosition(BCodeCommand cmd, Code* code)
+{
+    RegisterType src;
+    compileSrc(cmd, src, code);
+
+    if (isPositionRegister(src))
+    {
+        code->error(lineno(), "Position register cannot be used in this statement.");
+        return;
+    }
+}
+
 void Statement::compileStrong(BCodeCommand cmd, Code* code)
 {
     RegisterType dst;
@@ -343,6 +400,41 @@ void Statement::compileStrong(BCodeCommand cmd, Code* code)
     }
 
     code->error(lineno(), "Only equalies types of registers must be used in this statement.");
+}
+
+void Statement::compileJump(BCodeCommand cmdl, Code* code)
+{
+    m_bcode.push_back((int8_t)cmdl | (int8_t)BCodeJump::SHORT);
+    m_bcode.push_back(0);
+    m_bcode.push_back(0);
+}
+
+void Statement::compilePosition(BCodeCommand cmd, Code* code)
+{
+    RegisterType dst;
+    RegisterType src;
+    compileDstSrc(cmd, dst, src, code);
+
+    if ((isPositionRegister(dst) || m_dst->type() == ExpressionType::Address) &&
+        (isPositionRegister(src) || m_src->type() == ExpressionType::Address))
+    {
+        return;
+    }
+
+    code->error(lineno(), "Only position registers must be used in this statement.");
+}
+
+void Statement::compileDstPosition(BCodeCommand cmd, Code* code)
+{
+    RegisterType dst;
+    compileDst(cmd, dst, code);
+
+    if (isPositionRegister(dst) || m_dst->type() == ExpressionType::Address)
+    {
+        return;
+    }
+
+    code->error(lineno(), "Only position registers must be used in this statement.");
 }
 
 }; // namespace Asm

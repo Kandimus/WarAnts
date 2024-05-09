@@ -61,16 +61,23 @@ bool compileFile(const std::string& filename, std::vector<std::string>& error, s
 
     // Step 4. Optimize statements
 
-    // Step 5. Compile statement to bcode
+    // Step 5. Add EXIT on end of function
+
+    // Step 6. Compile statement to bcode
     if (!code->compile())
     {
         return false;
     }
-    code->print(filename + ".step5.txt");
+    code->print(filename + ".step6.txt");
 
-    // Step 6. Calculation jumps and calls
+    // Step 7. Calculation jumps and calls
+    if (!code->calculationJumpsAndCalls())
+    {
+        return false;
+    }
+    code->print(filename + ".step7.txt");
 
-    // Step 7. Forming resulting array
+    // Step 8. Forming resulting array
 
     return true;
 }

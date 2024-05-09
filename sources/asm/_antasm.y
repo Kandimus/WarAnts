@@ -52,8 +52,8 @@ int  yylex();
 %token ADD AND DEC DIV INC MOD MUL NEG NOT OR SUB XOR MIN MAX
 %token BSF BSR BT BTR BTS BTC SHL SHR ROL ROR
 %token EQ NEQ GT GE LT LE TEST
-%token JMP JZ JNZ JO JNO JCZ JCNZ LOOP
-%token MOV CALL LEN DIST EXIT
+%token JMP JZ JNZ JO JNO JCZ JCNZ LOOP CALL
+%token MOV LEN DIST EXIT
 %token LDTR LDFD LDEN LDFR
 %token CIDL CMOV CATT CTKF CGVF CEAT CPS CPW
 
@@ -188,13 +188,13 @@ asm_command
     | JCZ  label                                        { $$ = new WarAnts::Asm::Statement(WarAnts::Asm::AsmCommand::JCZ , $2->get(), yy_code.get()); }
     | JCNZ label                                        { $$ = new WarAnts::Asm::Statement(WarAnts::Asm::AsmCommand::JCNZ, $2->get(), yy_code.get()); }
     | LOOP label                                        { $$ = new WarAnts::Asm::Statement(WarAnts::Asm::AsmCommand::LOOP, $2->get(), yy_code.get()); }
+    | CALL label                                        { $$ = new WarAnts::Asm::Statement(WarAnts::Asm::AsmCommand::CALL, $2->get(), yy_code.get()); }
 
     // Other
-    | MOV  address COMMA address                        { $$ = new WarAnts::Asm::Statement(WarAnts::Asm::AsmCommand::MOV , $2,        $4, yy_code.get()); }
-    | CALL label                                        { $$ = new WarAnts::Asm::Statement(WarAnts::Asm::AsmCommand::CALL, $2->get(),     yy_code.get()); }
-    | LEN  address                                      { $$ = new WarAnts::Asm::Statement(WarAnts::Asm::AsmCommand::LEN , $2,   nullptr, yy_code.get()); }
-    | DIST address COMMA address                        { $$ = new WarAnts::Asm::Statement(WarAnts::Asm::AsmCommand::DIST, $2,        $4, yy_code.get()); }
-    | EXIT                                              { $$ = new WarAnts::Asm::Statement(WarAnts::Asm::AsmCommand::EXIT,                yy_code.get()); }
+    | MOV  address COMMA address                        { $$ = new WarAnts::Asm::Statement(WarAnts::Asm::AsmCommand::MOV , $2,      $4, yy_code.get()); }
+    | LEN  address COMMA address                        { $$ = new WarAnts::Asm::Statement(WarAnts::Asm::AsmCommand::LEN , $2,      $4, yy_code.get()); }
+    | DIST address                                      { $$ = new WarAnts::Asm::Statement(WarAnts::Asm::AsmCommand::DIST, $2, nullptr, yy_code.get()); }
+    | EXIT                                              { $$ = new WarAnts::Asm::Statement(WarAnts::Asm::AsmCommand::EXIT,              yy_code.get()); }
 
     // Load data to memory
     | LDTR address                                      { $$ = new WarAnts::Asm::Statement(WarAnts::Asm::AsmCommand::LDTR, nullptr, $2, yy_code.get()); }
@@ -206,8 +206,8 @@ asm_command
     | CIDL address                                      { $$ = new WarAnts::Asm::Statement(WarAnts::Asm::AsmCommand::CIDL , nullptr, $2, yy_code.get()); }
     | CMOV address                                      { $$ = new WarAnts::Asm::Statement(WarAnts::Asm::AsmCommand::CMOV , $2, nullptr, yy_code.get()); }
     | CATT address                                      { $$ = new WarAnts::Asm::Statement(WarAnts::Asm::AsmCommand::CATT , $2, nullptr, yy_code.get()); }
-    | CTKF address COMMA address                        { $$ = new WarAnts::Asm::Statement(WarAnts::Asm::AsmCommand::CTKF , $2,      $4, yy_code.get()); }
-    | CGVF address COMMA address                        { $$ = new WarAnts::Asm::Statement(WarAnts::Asm::AsmCommand::CGVF , $2,      $4, yy_code.get()); }
+    | CTKF address                                      { $$ = new WarAnts::Asm::Statement(WarAnts::Asm::AsmCommand::CTKF , $2, nullptr, yy_code.get()); }
+    | CGVF address                                      { $$ = new WarAnts::Asm::Statement(WarAnts::Asm::AsmCommand::CGVF , $2, nullptr, yy_code.get()); }
     | CEAT address                                      { $$ = new WarAnts::Asm::Statement(WarAnts::Asm::AsmCommand::CEAT , nullptr, $2, yy_code.get()); }
     | CPS                                               { $$ = new WarAnts::Asm::Statement(WarAnts::Asm::AsmCommand::CPS  ,              yy_code.get()); }
     | CPW                                               { $$ = new WarAnts::Asm::Statement(WarAnts::Asm::AsmCommand::CPW  ,              yy_code.get()); }
