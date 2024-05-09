@@ -102,6 +102,7 @@ enum class AsmCommand
     MOV,
     CALL,
     LEN,
+    DIST,
     EXIT,
 
     LDTR,
@@ -180,6 +181,7 @@ enum class BCodeCommand : int8_t
     CALLl,
     CALLs,
     LEN,
+    DIST,
     EXIT,
 
     LDTR,

@@ -44,6 +44,7 @@ public:
     Function* next() const { return m_next; }
     const std::string& name() const { return m_name; }
 
+    bool checkLabelNames(Code* code);
     bool extrudeExpression(Code* code);
     bool compile(Code* code);
     void print(std::ofstream& file);

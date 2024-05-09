@@ -24,7 +24,7 @@ public:
     void error(uint32_t lineno, const char* format, ...);
     bool hasError() const { return m_errors.size() > 0; }
 
-    bool checkFunctionName();
+    bool checkFunctionsAndNames();
     bool extrudeExpression();
     bool compile();
     void print(const std::string& filename);

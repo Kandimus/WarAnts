@@ -43,7 +43,7 @@ void Code::error(uint32_t lineno, const char* format, ...)
     m_errors.push_back(std::to_string(lineno) + ": " + result);
 }
 
-bool Code::checkFunctionName()
+bool Code::checkFunctionsAndNames()
 {
     Function* func = m_function;
     bool foundQueen = false;
@@ -67,6 +67,11 @@ bool Code::checkFunctionName()
                 return false;
             }
             checkFunc = checkFunc->next();
+        }
+
+        if (!func->checkLabelNames(this))
+        {
+            return false;
         }
 
         func = func->next();

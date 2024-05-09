@@ -108,6 +108,7 @@ hex_num   {hexdigit}+"H"
 "mov"                       { return MOV; }
 "call"                      { return CALL; }
 "len"                       { return LEN; }
+"dist"                      { return DIST; }
 "exit"                      { return EXIT; }
 
 "ldtr"                      { return LDTR; }

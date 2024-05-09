@@ -52,18 +52,6 @@ Statement* Expression::extrudeExpression(bool isDst, Code* code)
         return nullptr;
     }
 
-    if (m_left->isPosition())
-    {
-        code->error(lineno(), "Position registers can not be using in expressions.");
-        return nullptr;
-    }
-
-    if (m_right->isPosition())
-    {
-        code->error(lineno(), "Position registers can not be using in expressions.");
-        return nullptr;
-    }
-
     Statement* statInit = nullptr;
     Expression* expr = m_right;
 

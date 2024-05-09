@@ -53,10 +53,9 @@ int  yylex();
 %token BSF BSR BT BTR BTS BTC SHL SHR ROL ROR
 %token EQ NEQ GT GE LT LE TEST
 %token JMP JZ JNZ JO JNO JCZ JCNZ LOOP
-%token MOV CALL LEN EXIT
+%token MOV CALL LEN DIST EXIT
 %token LDTR LDFD LDEN LDFR
 %token CIDL CMOV CATT CTKF CGVF CEAT CPS CPW
-%token NOP
 
 %type <TPRAGMATYPE> pragma
 %type <TPRAGMA> list_of_pragmas pragma_definition
@@ -132,6 +131,7 @@ asm_function_name
 
 list_of_commands
     : list_of_commands asm_command_line                 { $$ = $1->add($2); }
+    | list_of_commands newline                          { $$ = $1; }
     | asm_command_line                                  { $$ = $1; }
     ;
 
@@ -192,7 +192,8 @@ asm_command
     // Other
     | MOV  address COMMA address                        { $$ = new WarAnts::Asm::Statement(WarAnts::Asm::AsmCommand::MOV , $2,        $4, yy_code.get()); }
     | CALL label                                        { $$ = new WarAnts::Asm::Statement(WarAnts::Asm::AsmCommand::CALL, $2->get(),     yy_code.get()); }
-    | LEN  address COMMA address                        { $$ = new WarAnts::Asm::Statement(WarAnts::Asm::AsmCommand::LEN , $2,        $4, yy_code.get()); }
+    | LEN  address                                      { $$ = new WarAnts::Asm::Statement(WarAnts::Asm::AsmCommand::LEN , $2,   nullptr, yy_code.get()); }
+    | DIST address COMMA address                        { $$ = new WarAnts::Asm::Statement(WarAnts::Asm::AsmCommand::DIST, $2,        $4, yy_code.get()); }
     | EXIT                                              { $$ = new WarAnts::Asm::Statement(WarAnts::Asm::AsmCommand::EXIT,                yy_code.get()); }
 
     // Load data to memory
@@ -203,8 +204,8 @@ asm_command
 
     // Commands
     | CIDL address                                      { $$ = new WarAnts::Asm::Statement(WarAnts::Asm::AsmCommand::CIDL , nullptr, $2, yy_code.get()); }
-    | CMOV address COMMA address                        { $$ = new WarAnts::Asm::Statement(WarAnts::Asm::AsmCommand::CMOV , $2,      $4, yy_code.get()); }
-    | CATT address COMMA address                        { $$ = new WarAnts::Asm::Statement(WarAnts::Asm::AsmCommand::CATT , $2,      $4, yy_code.get()); }
+    | CMOV address                                      { $$ = new WarAnts::Asm::Statement(WarAnts::Asm::AsmCommand::CMOV , $2, nullptr, yy_code.get()); }
+    | CATT address                                      { $$ = new WarAnts::Asm::Statement(WarAnts::Asm::AsmCommand::CATT , $2, nullptr, yy_code.get()); }
     | CTKF address COMMA address                        { $$ = new WarAnts::Asm::Statement(WarAnts::Asm::AsmCommand::CTKF , $2,      $4, yy_code.get()); }
     | CGVF address COMMA address                        { $$ = new WarAnts::Asm::Statement(WarAnts::Asm::AsmCommand::CGVF , $2,      $4, yy_code.get()); }
     | CEAT address                                      { $$ = new WarAnts::Asm::Statement(WarAnts::Asm::AsmCommand::CEAT , nullptr, $2, yy_code.get()); }
@@ -216,6 +217,9 @@ asm_command
 
 address
     : expr_3                                            { $$ = $1; }
+    | P0                                                { $$ = new WarAnts::Asm::Expression(WarAnts::Asm::RegisterType::P0, yy_code.get()); }
+    | P1                                                { $$ = new WarAnts::Asm::Expression(WarAnts::Asm::RegisterType::P1, yy_code.get()); }
+    | P2                                                { $$ = new WarAnts::Asm::Expression(WarAnts::Asm::RegisterType::P2, yy_code.get()); }
     | LSQUARE expr_0 RSQUARE                            { $$ = new WarAnts::Asm::Expression($2, yy_code.get()); }
     ;
 
@@ -253,9 +257,6 @@ expr_3
     | R2                                                { $$ = new WarAnts::Asm::Expression(WarAnts::Asm::RegisterType::R2, yy_code.get()); }
     | RC                                                { $$ = new WarAnts::Asm::Expression(WarAnts::Asm::RegisterType::RC, yy_code.get()); }
     | RF                                                { $$ = new WarAnts::Asm::Expression(WarAnts::Asm::RegisterType::RF, yy_code.get()); }
-    | P0                                                { $$ = new WarAnts::Asm::Expression(WarAnts::Asm::RegisterType::P0, yy_code.get()); }
-    | P1                                                { $$ = new WarAnts::Asm::Expression(WarAnts::Asm::RegisterType::P1, yy_code.get()); }
-    | P2                                                { $$ = new WarAnts::Asm::Expression(WarAnts::Asm::RegisterType::P2, yy_code.get()); }
     | P0 COLON COORD_X                                  { $$ = new WarAnts::Asm::Expression(WarAnts::Asm::RegisterType::P0X, yy_code.get()); }
     | P0 COLON COORD_Y                                  { $$ = new WarAnts::Asm::Expression(WarAnts::Asm::RegisterType::P0Y, yy_code.get()); }
     | P1 COLON COORD_X                                  { $$ = new WarAnts::Asm::Expression(WarAnts::Asm::RegisterType::P1X, yy_code.get()); }

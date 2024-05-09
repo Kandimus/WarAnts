@@ -83,6 +83,7 @@ public:
     }
 
     StatementType type() const { return m_type; }
+    const std::string& label() const { return m_label; }
     Statement* next() const { return m_next;}
 
     Statement* extrudeExpression(Code* code);
@@ -94,10 +95,13 @@ protected:
     void compileDstSrc(BCodeCommand cmd, RegisterType& dst, RegisterType& src, Code* code);
     void compileDst(BCodeCommand cmd, RegisterType& dst, Code* code);
     void compileSrc(BCodeCommand cmd, RegisterType& src, Code* code);
+
     void compileCommon(BCodeCommand cmd, Code* code);
     void compileCommonDst(BCodeCommand cmd, Code* code);
     void compileCommonSrc(BCodeCommand cmd, Code* code);
     void compileNoPosition(BCodeCommand cmd, Code* code);
+    void compileDstNoPosition(BCodeCommand cmd, Code* code);
+    void compileStrong(BCodeCommand cmd, Code* code);
 
 public:
     StatementType m_type;

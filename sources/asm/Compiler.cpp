@@ -44,7 +44,7 @@ bool compileFile(const std::string& filename, std::vector<std::string>& error, s
     }
 
     // Step 1. Uniques function names and uniques label name in one function
-    if (!code->checkFunctionName())
+    if (!code->checkFunctionsAndNames())
     {
         return false;
     }

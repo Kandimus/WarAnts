@@ -8,9 +8,15 @@
     MOV  [R0 + 4], 33
 //    MOV  RF, [1 * 2 + 3]
 //	AND R0, P0
+    MAX P1, P0
     MOV [R0 + 5], [R1 + P0:X * 2 + 10]
-    LE  [2], 50
+    // Если мы голодны (сытость <= 50.0)
+    // то идем к ближайшей точке с едой
+    // или кушаем из карго
+    LE  [2], 500
     JNZ go_to_food
+
+    // Если рядом противник, то атакуем его
     GE  [6], 2
     JNZ attack_enemy
     JMP finish
@@ -18,7 +24,6 @@ go_to_food:
     GT [7], 0
     JNZ eat_from_cargo
     LDFD 0
-//    CMOV RC, [food_count]
     CTKF [48], [49]
     JMP finish
 
@@ -28,9 +33,8 @@ eat_from_cargo:
 
 attack_enemy:
     LDEN 0
-    CATT [33], [34]
+    CATT [33]
     JMP finish
-
 finish:
     EXIT
 
