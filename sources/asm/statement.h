@@ -87,9 +87,16 @@ public:
     Statement* next() const { return m_next;}
 
     bool isJump() const;
+    int16_t jumpValue() const;
+    bool checkUnusedJump() const;
+
+    Statement* statLabel() const { return m_statLabel; }
+    void setStatLabel(Statement* label) { m_statLabel = label; }
 
     Statement* extrudeExpression(Code* code);
     bool compile(Code* code);
+    bool assignOffsets(Code* code);
+    bool resolveLabels(bool& recalc, Code* code);
     void print(std::ofstream& file) const;
 
 protected:
@@ -116,6 +123,7 @@ public:
     Expression* m_dst = nullptr;
     Expression* m_src = nullptr;
     std::string m_label = "";
+    Statement* m_statLabel = nullptr;
 
     std::vector<int8_t> m_bcode;
 

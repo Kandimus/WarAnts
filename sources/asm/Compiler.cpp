@@ -62,6 +62,11 @@ bool compileFile(const std::string& filename, std::vector<std::string>& error, s
     // Step 4. Optimize statements
 
     // Step 5. Add EXIT on end of function
+    if (!code->checkExitStatement())
+    {
+        return false;
+    }
+    code->print(filename + ".step5.txt");
 
     // Step 6. Compile statement to bcode
     if (!code->compile())
@@ -70,14 +75,17 @@ bool compileFile(const std::string& filename, std::vector<std::string>& error, s
     }
     code->print(filename + ".step6.txt");
 
-    // Step 7. Calculation jumps and calls
+    // Step 7. Optimize Value statements
+
+    // Step 8. Calculation jumps and calls
+    //         Remove "fake" jumps (fake jump is a jump to the next statement)
     if (!code->calculationJumpsAndCalls())
     {
         return false;
     }
-    code->print(filename + ".step7.txt");
+    code->print(filename + ".step8.txt");
 
-    // Step 8. Forming resulting array
+    // Step 9. Forming resulting array
 
     return true;
 }

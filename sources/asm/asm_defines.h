@@ -146,6 +146,14 @@ enum class AsmCommand
 
 */
 
+enum class BCodeType : int8_t
+{
+    COMMON = 0x00,
+    POSITION = 0x20,
+    JUMP = 0x40,
+    VALUE = 0x60
+};
+
 enum class BCodeJump : int8_t
 {
     CHAR = 0x00,

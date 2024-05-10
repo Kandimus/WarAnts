@@ -47,6 +47,8 @@ public:
     bool checkLabelNames(Code* code);
     bool extrudeExpression(Code* code);
     bool compile(Code* code);
+    bool assignOffsets(Code* code);
+    bool resolveLabels(bool& recalc, Code* code);
     void print(std::ofstream& file);
 
 public:

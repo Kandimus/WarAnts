@@ -24,8 +24,11 @@ public:
     void error(uint32_t lineno, const char* format, ...);
     bool hasError() const { return m_errors.size() > 0; }
 
+    uint16_t updateOffset(uint16_t addOffset);
+
     bool checkFunctionsAndNames();
     bool extrudeExpression();
+    bool checkExitStatement();
     bool compile();
     bool calculationJumpsAndCalls();
     bool assignOffsets();

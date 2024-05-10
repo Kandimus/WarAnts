@@ -43,6 +43,13 @@ void Code::error(uint32_t lineno, const char* format, ...)
     m_errors.push_back(std::to_string(lineno) + ": " + result);
 }
 
+uint16_t Code::updateOffset(uint16_t addOffset)
+{
+    int16_t out = m_offset;
+    m_offset += addOffset;
+    return out;
+}
+
 bool Code::checkFunctionsAndNames()
 {
     Function* func = m_function;
@@ -129,6 +136,22 @@ Function* Code::getFunction(const std::string& name) const
     return nullptr;
 }
 
+bool Code::checkExitStatement()
+{
+    auto func = m_function;
+
+    while (func)
+    {
+        if (!func->checkExitStatement(this))
+        {
+            return false;
+        }
+        func = func->next();
+    }
+
+    return true;
+}
+
 bool Code::compile()
 {
     auto func = m_function;
@@ -167,13 +190,36 @@ bool Code::calculationJumpsAndCalls()
 
 bool Code::assignOffsets()
 {
+    auto func = m_function;
+
+    while (func)
+    {
+        if (!func->assignOffsets(this))
+        {
+            return false;
+        }
+
+        func = func->next();
+    }
+
     return true;
 }
 
 bool Code::resolveLabels(bool& recalc)
 {
+    auto func = m_function;
+
     recalc = false;
 
+    while (func)
+    {
+        if (!func->resolveLabels(recalc, this))
+        {
+            return false;
+        }
+
+        func = func->next();
+    }
 
 
     return true;

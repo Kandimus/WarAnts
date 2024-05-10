@@ -7,6 +7,26 @@
 #include "code.h"
 #include "expression.h"
 
+static void print2Expr(std::ofstream& file, const std::string& name, WarAnts::Asm::Expression* dst, WarAnts::Asm::Expression* src)
+{
+    file << name << " " << dst->toString() << ", " << src->toString();
+}
+
+static void print1Expr(std::ofstream& file, const std::string& name, WarAnts::Asm::Expression* dst)
+{
+    file << name << " " << dst->toString();
+}
+
+static void print0Expr(std::ofstream& file, const std::string& name)
+{
+    file << name;
+}
+
+static void printLabel(std::ofstream& file, const std::string& name, const std::string& label)
+{
+    file << name << " " << label;
+}
+
 namespace WarAnts
 {
 namespace Asm
@@ -24,6 +44,33 @@ bool Statement::isJump() const
          m_cmd == AsmCommand::JCNZ ||
          m_cmd == AsmCommand::LOOP ||
          m_cmd == AsmCommand::CALL);
+}
+
+int16_t Statement::jumpValue() const
+{
+    if (!isJump())
+    {
+        return 0;
+    }
+
+    return (m_bcode[0] & (int32_t)BCodeJump::SHORT)
+     ? m_bcode[1] + m_bcode[2] * 256
+     : m_bcode[1];
+}
+
+bool Statement::checkUnusedJump() const
+{
+    if (!isJump())
+    {
+        return false;
+    }
+
+    if ((m_bcode[0] & (int8_t)BCodeJump::SHORT) == 0)
+    {
+        return m_bcode[1] == 2;
+    }
+
+    return false;
 }
 
 Statement* Statement::extrudeExpression(Code* code)
@@ -159,24 +206,60 @@ bool Statement::compile(Code* code)
     return !code->hasError();
 }
 
-static void print2Expr(std::ofstream& file, const std::string& name, Expression* dst, Expression* src)
+bool Statement::assignOffsets(Code* code)
 {
-    file << name << " " << dst->toString() << ", " << src->toString();
+    if (m_bcode.size() > 32767)
+    {
+        return false;
+    }
+
+    m_offset = code->updateOffset((int16_t)m_bcode.size());
+    return true;
 }
 
-static void print1Expr(std::ofstream& file, const std::string& name, Expression* dst)
+bool Statement::resolveLabels(bool& recalc, Code* code)
 {
-    file << name << " " << dst->toString();
-}
+    if (!isJump())
+    {
+        return true;
+    }
 
-static void print0Expr(std::ofstream& file, const std::string& name)
-{
-    file << name;
-}
+    if (!m_statLabel)
+    {
+        SU_BREAKPOINT();
+        return false;
+    }
 
-static void printLabel(std::ofstream& file, const std::string& name, const std::string& label)
-{
-    file << name << " " << label;
+    int32_t curDelta = m_statLabel->offset() - m_offset;
+    int16_t oldDelta = jumpValue();
+    if (curDelta < -32768 || curDelta > 32767)
+    {
+        SU_BREAKPOINT();
+        code->error(lineno(), "Fatal error: The jump value great at int16");
+        return false;
+    }
+
+    bool isFar = curDelta  < -128 || curDelta > 127;
+    bool isChanged = curDelta != oldDelta;
+    size_t newSize = 2 + (size_t)isFar;
+    recalc |= newSize != m_bcode.size() || isChanged;
+    if (newSize > m_bcode.size())
+    {
+        m_bcode[0] |= (int8_t)BCodeJump::SHORT;
+        m_bcode.push_back(0);
+    }
+    else if (newSize < m_bcode.size())
+    {
+        m_bcode[0] &= ~((int8_t)BCodeJump::SHORT);
+        m_bcode.pop_back();
+    }
+
+    m_bcode[1] = curDelta & 0xff;
+    if (isFar)
+    {
+        m_bcode[2] = (curDelta & 0xff00) >> 8;
+    }
+    return true;
 }
 
 void Statement::print(std::ofstream& file) const

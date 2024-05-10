@@ -35,24 +35,30 @@ bool Function::checkLabelNames(Code* code)
         }
         else if (stat->isJump())
         {
-            auto checkStat = m_stat;
-            bool found = false;
-
-            while (checkStat)
+            if (stat->isCall())
             {
-                if (checkStat->type() == StatementType::Label && checkStat->label() == stat->label())
+
+            }
+            else
+            {
+                auto checkStat = m_stat;
+
+                while (checkStat)
                 {
-                    found = true;
-                    break;
+                    if (checkStat->type() == StatementType::Label && checkStat->label() == stat->label())
+                    {
+                        stat->setStatLabel(checkStat);
+                        break;
+                    }
+
+                    checkStat = checkStat->next();
                 }
 
-                checkStat = checkStat->next();
-            }
-
-            if (!found)
-            {
-                code->error(stat->lineno(), "Can not found label name '%s'.", stat->label().c_str());
-                return false;
+                if (!stat->statLabel())
+                {
+                    code->error(stat->lineno(), "Can not found label name '%s'.", stat->label().c_str());
+                    return false;
+                }
             }
         }
 
@@ -96,6 +102,28 @@ bool Function::extrudeExpression(Code* code)
     return true;
 }
 
+bool Function::checkExitStatement(Code* code)
+{
+    Statement* stat = m_stat;
+
+    while (stat)
+    {
+        if (stat->next())
+        {
+            break;
+        }
+
+        stat = stat->next();
+    }
+
+    if (!stat->isExit())
+    {
+        stat->m_next = new Statement(AsmCommand::EXIT, parent());
+    }
+
+    return true;
+}
+
 bool Function::compile(Code* code)
 {
     Statement* stat = m_stat;
@@ -110,6 +138,55 @@ bool Function::compile(Code* code)
         stat = stat->next();
     }
 
+    return true;
+}
+
+bool Function::assignOffsets(Code* code)
+{
+    auto stat = m_stat;
+
+    while (stat)
+    {
+        if (!stat->assignOffsets(code))
+        {
+            return false;
+        }
+        stat = stat->next();
+    }
+    return true;
+}
+
+bool Function::resolveLabels(bool& recalc, Code* code)
+{
+    Statement* stat = m_stat;
+    Statement* prev = nullptr;
+
+    while (stat)
+    {
+        if (!stat->resolveLabels(recalc, code))
+        {
+            return false;
+        }
+
+        // delete jump to next statement
+        if (stat->checkUnusedJump())
+        {
+            if (prev)
+            {
+                prev->m_next = stat->next();
+            }
+            else
+            {
+                m_stat = prev = stat->next();
+            }
+            delete stat;
+            stat = prev;
+            recalc = true;
+        }
+
+        prev = stat;
+        stat = stat->next();
+    }
     return true;
 }
 
