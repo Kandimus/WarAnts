@@ -37,7 +37,14 @@ bool Function::checkLabelNames(Code* code)
         {
             if (stat->isCall())
             {
+                auto func = code->getFunction(stat->label());
 
+                if (!func)
+                {
+                    code->error(stat->lineno(), "Can not found function '%s'.", stat->label().c_str());
+                    return false;
+                }
+                stat->setLabelPtr(func);
             }
             else
             {
@@ -47,14 +54,14 @@ bool Function::checkLabelNames(Code* code)
                 {
                     if (checkStat->type() == StatementType::Label && checkStat->label() == stat->label())
                     {
-                        stat->setStatLabel(checkStat);
+                        stat->setLabelPtr(checkStat);
                         break;
                     }
 
                     checkStat = checkStat->next();
                 }
 
-                if (!stat->statLabel())
+                if (!stat->labelPtr())
                 {
                     code->error(stat->lineno(), "Can not found label name '%s'.", stat->label().c_str());
                     return false;
@@ -108,7 +115,7 @@ bool Function::checkExitStatement(Code* code)
 
     while (stat)
     {
-        if (stat->next())
+        if (stat->next() == nullptr)
         {
             break;
         }
@@ -145,6 +152,8 @@ bool Function::assignOffsets(Code* code)
 {
     auto stat = m_stat;
 
+    m_offset = code->updateOffset(0);
+
     while (stat)
     {
         if (!stat->assignOffsets(code))
@@ -179,7 +188,10 @@ bool Function::resolveLabels(bool& recalc, Code* code)
             {
                 m_stat = prev = stat->next();
             }
+
+            stat->removeFromParent();
             delete stat;
+
             stat = prev;
             recalc = true;
         }
@@ -190,9 +202,24 @@ bool Function::resolveLabels(bool& recalc, Code* code)
     return true;
 }
 
+bool Function::save(Code* code)
+{
+    Statement* stat = m_stat;
+
+    while (stat)
+    {
+        if (!stat->save(code))
+        {
+            return false;
+        }
+        stat = stat->next();
+    }
+    return true;
+}
+
 void Function::print(std::ofstream& file)
 {
-    file << "." << m_name << std::endl;
+    file << "." << m_name << "// " << su::String_format2("[%i]", offset()) << std::endl;
 
     Statement* stat = m_stat;
 

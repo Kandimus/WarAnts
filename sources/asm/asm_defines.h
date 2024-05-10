@@ -11,6 +11,15 @@ namespace WarAnts
 namespace Asm
 {
 
+enum class PragmaType
+{
+    Class,
+    Name,
+    Version,
+    Core,
+};
+
+
 enum class ExpressionType
 {
     Register,

@@ -1,5 +1,6 @@
-#include <stdarg.h>
+#include <chrono>
 #include <fstream>
+#include <stdarg.h>
 
 #include "code.h"
 
@@ -53,17 +54,27 @@ uint16_t Code::updateOffset(uint16_t addOffset)
 bool Code::checkFunctionsAndNames()
 {
     Function* func = m_function;
-    bool foundQueen = false;
-    bool foundSolder = false;
-    bool foundWorker = false;
+    
+    m_funcQueen = nullptr;
+    m_funcSolder = nullptr;
+    m_funcWorker = nullptr;
 
     while (func)
     {
         Function* checkFunc = func->next();
 
-        foundQueen |= func->name() == FuncNameQueen;
-        foundSolder |= func->name() == FuncNameSolder;
-        foundWorker |= func->name() == FuncNameWorker;
+        if (func->name() == FuncNameQueen)
+        {
+            m_funcQueen = func;
+        }
+        else if (func->name() == FuncNameSolder)
+        {
+            m_funcSolder = func;
+        }
+        else if (func->name() == FuncNameWorker)
+        {
+            m_funcWorker = func;
+        }
 
         while (checkFunc)
         {
@@ -84,22 +95,22 @@ bool Code::checkFunctionsAndNames()
         func = func->next();
     }
 
-    if (!foundQueen)
+    if (!m_funcQueen)
     {
         error("Function '%s' not found", FuncNameQueen.c_str());
     }
 
-    if (!foundSolder)
+    if (!m_funcQueen)
     {
         error("Function '%s' not found", FuncNameSolder.c_str());
     }
 
-    if (!foundWorker)
+    if (!m_funcQueen)
     {
         error("Function '%s' not found", FuncNameWorker.c_str());
     }
 
-    return foundQueen && foundSolder && foundWorker;
+    return !!m_funcQueen && !!m_funcSolder && !!m_funcWorker;
 }
 
 bool Code::extrudeExpression()
@@ -134,6 +145,23 @@ Function* Code::getFunction(const std::string& name) const
     }
 
     return nullptr;
+}
+
+std::string Code::getPragma(PragmaType type) const
+{
+    auto pragma = m_pragma;
+
+    while (pragma)
+    {
+        if (pragma->type() == type)
+        {
+            return pragma->value();
+        }
+
+        pragma = pragma->next();
+    }
+
+    return "";
 }
 
 bool Code::checkExitStatement()
@@ -192,6 +220,8 @@ bool Code::assignOffsets()
 {
     auto func = m_function;
 
+    m_offset = 0;
+
     while (func)
     {
         if (!func->assignOffsets(this))
@@ -221,6 +251,22 @@ bool Code::resolveLabels(bool& recalc)
         func = func->next();
     }
 
+    return true;
+}
+
+bool Code::save(const std::string& filename)
+{
+    auto func = m_function;
+
+    while (func)
+    {
+        if (!func->save(this))
+        {
+            return false;
+        }
+
+        func = func->next();
+    }
 
     return true;
 }
@@ -229,6 +275,12 @@ void Code::print(const std::string& filename)
 {
     std::ofstream file(filename);
 
+    if (!file.is_open())
+    {
+        fprintf(stderr, "Critical error: Cannot open file '%s'\n", filename.c_str());
+        return;
+    }
+
     file << "// pragma" << std::endl;
 
     auto func = m_function;
@@ -236,6 +288,63 @@ void Code::print(const std::string& filename)
     {
         func->print(file);
         func = func->next();
+    }
+    file.close();
+}
+
+void Code::printData(const std::string& filename)
+{
+    std::ofstream file(filename);
+
+    if (!file.is_open())
+    {
+        fprintf(stderr, "Critical error: Cannot open file '%s'\n", filename.c_str());
+        return;
+    }
+
+    std::time_t curTime = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
+    char buff[1024] = {0};
+    ctime_s(buff, 1024, &curTime);
+    std::string curStrTime = buff;
+    curStrTime = curStrTime.substr(0, curStrTime.size() - 1);
+
+    file << "info:" << std::endl;
+    file << "    core    " << getPragma(PragmaType::Core) << std::endl;
+    file << "    name    " << getPragma(PragmaType::Name) << std::endl;
+    file << "    class   " << getPragma(PragmaType::Class) << std::endl;
+    file << "    version " << getPragma(PragmaType::Version) << std::endl;
+    file << "    data    " << curStrTime << std::endl;
+    file << "    size    " << m_data.size() << " bytes" << std::endl;
+    
+    file << std::endl;
+
+
+    file << "offsets:" << std::endl;
+    file << "    .queen  " << su::String_format2("%04x", m_funcQueen->offset()) << std::endl;
+    file << "    .solder " << su::String_format2("%04x", m_funcSolder->offset()) << std::endl;
+    file << "    .worker " << su::String_format2("%04x", m_funcWorker->offset()) << std::endl;
+    file << std::endl;
+
+    file << "       00 01 02 03 04 05 06 07 08 09 0A 0B 0C 0D 0E 0F" << std::endl;
+    file << "     +------------------------------------------------" << std::endl;
+
+    size_t count = 0;
+    for (auto val8 : m_data)
+    {
+        if ((count & 0x0f) == 0)
+        {
+            file << su::String_format2("%04x |", count & 0xfff0);
+        }
+
+        int32_t val32 = val8;
+        val32 &= 0xff;
+        file << su::String_format2(" %02x", val32);
+
+        if ((count & 0x0f) == 0x0f)
+        {
+            file << std::endl;
+        }
+        ++count;
     }
 }
 

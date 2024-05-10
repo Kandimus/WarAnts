@@ -191,10 +191,10 @@ asm_command
     | CALL label                                        { $$ = new WarAnts::Asm::Statement(WarAnts::Asm::AsmCommand::CALL, $2->get(), yy_code.get()); }
 
     // Other
-    | MOV  address COMMA address                        { $$ = new WarAnts::Asm::Statement(WarAnts::Asm::AsmCommand::MOV , $2,      $4, yy_code.get()); }
-    | LEN  address COMMA address                        { $$ = new WarAnts::Asm::Statement(WarAnts::Asm::AsmCommand::LEN , $2,      $4, yy_code.get()); }
-    | DIST address                                      { $$ = new WarAnts::Asm::Statement(WarAnts::Asm::AsmCommand::DIST, $2, nullptr, yy_code.get()); }
-    | EXIT                                              { $$ = new WarAnts::Asm::Statement(WarAnts::Asm::AsmCommand::EXIT,              yy_code.get()); }
+    | MOV  address COMMA address                        { $$ = new WarAnts::Asm::Statement(WarAnts::Asm::AsmCommand::MOV , $2, $4, yy_code.get()); }
+    | LEN  address COMMA address                        { $$ = new WarAnts::Asm::Statement(WarAnts::Asm::AsmCommand::LEN , $2, $4, yy_code.get()); }
+    | DIST address COMMA address                        { $$ = new WarAnts::Asm::Statement(WarAnts::Asm::AsmCommand::DIST, $2, $4, yy_code.get()); }
+    | EXIT                                              { $$ = new WarAnts::Asm::Statement(WarAnts::Asm::AsmCommand::EXIT,         yy_code.get()); }
 
     // Load data to memory
     | LDTR address                                      { $$ = new WarAnts::Asm::Statement(WarAnts::Asm::AsmCommand::LDTR, nullptr, $2, yy_code.get()); }

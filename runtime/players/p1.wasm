@@ -3,7 +3,31 @@
 % class "black"
 
 # define food_count 07H
+#define enemy_count 06H
+#define enemy_pos   21H
 
+// return R0 as index nearly enemy
+.GetNearlyEnemy
+    // R0 - current len to enemy
+    // R1 - min len to enemy
+    // R2 - index nearly enemy
+    MOV RC, [enemy_count]
+	DEC RC
+    MOV R1, 7FFFH // max len
+
+beg_loop:
+    LDEN RC
+	DIST R0, [enemy_pos]
+    GT   R0, R1
+	JNZ  end_loop
+    MOV  R1, R0
+    MOV  R2, RC
+end_loop:
+    LOOP beg_loop
+    MOV  R0, R2
+
+//------------------------------
+// Main algorithm of WORKER ant
 .worker
     MOV  [R0 + 4], 33
 //    MOV  RF, [1 * 2 + 3]
@@ -16,8 +40,8 @@
     LE  [2], 500
     JNZ go_to_food
 
-    // Если рядом противник, то атакуем его
-    GE  [6], 2
+    // Если рядом минимум 2 противника, то атакуем ближайшего
+    GE  [enemy_count], 2
     JNZ attack_enemy
     JMP finish
 go_to_food:
@@ -32,8 +56,9 @@ eat_from_cargo:
     JMP  finish
 
 attack_enemy:
-    LDEN 0
-    CATT [33]
+    CALL GetNearlyEnemy
+    LDEN R0
+    CATT [enemy_pos]
     JMP finish
 finish:
     EXIT
@@ -44,3 +69,4 @@ finish:
 
 .queen
     CIDL 2
+

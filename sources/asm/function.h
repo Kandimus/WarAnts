@@ -47,8 +47,10 @@ public:
     bool checkLabelNames(Code* code);
     bool extrudeExpression(Code* code);
     bool compile(Code* code);
+    bool checkExitStatement(Code* code);
     bool assignOffsets(Code* code);
     bool resolveLabels(bool& recalc, Code* code);
+    bool save(Code* code);
     void print(std::ofstream& file);
 
 public:
@@ -56,8 +58,6 @@ public:
     Statement* m_stat = nullptr;
 
     Function* m_next = nullptr;
-
-    uint32_t m_offset = 0;
 };
 
 }; // namespace Asm

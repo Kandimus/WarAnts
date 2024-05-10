@@ -46,6 +46,11 @@ bool Statement::isJump() const
          m_cmd == AsmCommand::CALL);
 }
 
+bool Statement::isCall() const
+{
+    return isJump() && m_cmd == AsmCommand::CALL;
+}
+
 int16_t Statement::jumpValue() const
 {
     if (!isJump())
@@ -71,6 +76,11 @@ bool Statement::checkUnusedJump() const
     }
 
     return false;
+}
+
+bool Statement::isExit() const
+{
+    return type() == StatementType::Command && m_cmd == AsmCommand::EXIT;
 }
 
 Statement* Statement::extrudeExpression(Code* code)
@@ -179,7 +189,7 @@ bool Statement::compile(Code* code)
 
         case AsmCommand::MOV:  compileCommon(BCodeCommand::MOV, code); break;
         case AsmCommand::LEN:  compilePosition(BCodeCommand::LEN, code); break;
-        case AsmCommand::DIST: compileDstPosition(BCodeCommand::DIST, code); break;
+        case AsmCommand::DIST: compileDstNoPositionSrcPosition(BCodeCommand::DIST, code); break;
         case AsmCommand::EXIT: compileNoArgs(BCodeCommand::EXIT, code); break;
 
         case AsmCommand::LDTR: compileSrcNoPosition(BCodeCommand::LDTR, code); break;
@@ -208,11 +218,6 @@ bool Statement::compile(Code* code)
 
 bool Statement::assignOffsets(Code* code)
 {
-    if (m_bcode.size() > 32767)
-    {
-        return false;
-    }
-
     m_offset = code->updateOffset((int16_t)m_bcode.size());
     return true;
 }
@@ -224,13 +229,13 @@ bool Statement::resolveLabels(bool& recalc, Code* code)
         return true;
     }
 
-    if (!m_statLabel)
+    if (!m_labelPtr)
     {
         SU_BREAKPOINT();
         return false;
     }
 
-    int32_t curDelta = m_statLabel->offset() - m_offset;
+    int32_t curDelta = int32_t(m_labelPtr->offset() - m_offset);
     int16_t oldDelta = jumpValue();
     if (curDelta < -32768 || curDelta > 32767)
     {
@@ -258,6 +263,25 @@ bool Statement::resolveLabels(bool& recalc, Code* code)
     if (isFar)
     {
         m_bcode[2] = (curDelta & 0xff00) >> 8;
+    }
+    return true;
+}
+
+bool Statement::save(Code* code)
+{
+    if (type() == StatementType::Label)
+    {
+        return true;
+    }
+
+    if (m_bcode.empty())
+    {
+        return false;
+    }
+
+    for (auto val : m_bcode)
+    {
+        code->addCode(val);
     }
     return true;
 }
@@ -319,7 +343,7 @@ void Statement::print(std::ofstream& file) const
 
         case AsmCommand::MOV:  print2Expr(file, "MOV ", m_dst, m_src); break;
         case AsmCommand::LEN:  print2Expr(file, "LEN ", m_dst, m_src); break;
-        case AsmCommand::DIST: print1Expr(file, "DIST", m_dst); break;
+        case AsmCommand::DIST: print2Expr(file, "DIST", m_dst, m_src); break;
         case AsmCommand::EXIT: print0Expr(file, "EXIT"); break;
 
         case AsmCommand::LDTR: print1Expr(file, "LDTR", m_src); break;
@@ -344,13 +368,13 @@ void Statement::print(std::ofstream& file) const
 
     if (m_bcode.size())
     {
-        file << "\t\t//";
-
+        file << "\t\t//" << su::String_format2("[%i]", offset());
+        
         for (auto item : m_bcode)
         {
             int32_t val = item;
             val &= 0xff;
-            file << su::String_format2(" %02x", val) << std::dec;
+            file << su::String_format2(" %02x", val);
         }
     }
 
@@ -518,6 +542,23 @@ void Statement::compileDstPosition(BCodeCommand cmd, Code* code)
     }
 
     code->error(lineno(), "Only position registers must be used in this statement.");
+}
+
+void Statement::compileDstNoPositionSrcPosition(BCodeCommand cmd, Code* code)
+{
+    RegisterType dst;
+    RegisterType src;
+    compileDstSrc(cmd, dst, src, code);
+
+    if (isPositionRegister(dst))
+    {
+        code->error(lineno(), "Position register cannot be used as destination.");
+    }
+
+    if (!isPositionRegister(src) && m_src->type() != ExpressionType::Address)
+    {
+        code->error(lineno(), "Only position registers must be used as source.");
+    }
 }
 
 }; // namespace Asm

@@ -34,6 +34,7 @@ bool compileFile(const std::string& filename, std::vector<std::string>& error, s
     buffer << file.rdbuf();
     file.close();
     text = buffer.str();
+    text += "\n";
 
     auto code = yy_compile(text.c_str());
     SU_ON_SCOPE_EXIT( error = code->m_errors; );
@@ -75,7 +76,8 @@ bool compileFile(const std::string& filename, std::vector<std::string>& error, s
     }
     code->print(filename + ".step6.txt");
 
-    // Step 7. Optimize Value statements
+    // Step 7. Optimize BCode statements
+    //         Value statements
 
     // Step 8. Calculation jumps and calls
     //         Remove "fake" jumps (fake jump is a jump to the next statement)
@@ -86,6 +88,11 @@ bool compileFile(const std::string& filename, std::vector<std::string>& error, s
     code->print(filename + ".step8.txt");
 
     // Step 9. Forming resulting array
+    if (!code->save(filename + ".wac"))
+    {
+        return false;
+    }
+    code->printData(filename + ".step9.txt");
 
     return true;
 }

@@ -87,16 +87,20 @@ public:
     Statement* next() const { return m_next;}
 
     bool isJump() const;
+    bool isCall() const;
     int16_t jumpValue() const;
     bool checkUnusedJump() const;
 
-    Statement* statLabel() const { return m_statLabel; }
-    void setStatLabel(Statement* label) { m_statLabel = label; }
+    bool isExit() const;
+
+    BaseNode* labelPtr() const { return m_labelPtr; }
+    void setLabelPtr(BaseNode* label) { m_labelPtr = label; }
 
     Statement* extrudeExpression(Code* code);
     bool compile(Code* code);
     bool assignOffsets(Code* code);
     bool resolveLabels(bool& recalc, Code* code);
+    bool save(Code* code);
     void print(std::ofstream& file) const;
 
 protected:
@@ -116,6 +120,7 @@ protected:
     void compileJump(BCodeCommand cmdl, Code* code);
     void compilePosition(BCodeCommand cmd, Code* code);
     void compileDstPosition(BCodeCommand cmd, Code* code);
+    void compileDstNoPositionSrcPosition(BCodeCommand cmd, Code* code);
 
 public:
     StatementType m_type;
@@ -123,7 +128,7 @@ public:
     Expression* m_dst = nullptr;
     Expression* m_src = nullptr;
     std::string m_label = "";
-    Statement* m_statLabel = nullptr;
+    BaseNode* m_labelPtr = nullptr;
 
     std::vector<int8_t> m_bcode;
 

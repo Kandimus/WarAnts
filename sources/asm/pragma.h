@@ -9,14 +9,6 @@ namespace WarAnts
 namespace Asm
 {
 
-enum class PragmaType
-{
-    Class,
-    Name,
-    Version,
-    Core,
-};
-
 class Pragma : public BaseNode
 {
     NOCOPY_STRUCT(Pragma)
@@ -43,7 +35,12 @@ public:
         }
         return this;
     }
+    Pragma* next() const { return m_next; }
 
+    PragmaType type() const { return m_type; }
+    const std::string& value() const { return m_value; }
+
+protected:
     PragmaType m_type;
     std::string m_value = "";
 
