@@ -1,6 +1,7 @@
+%core "0100"
 % name "Black stupid ants"
 % version "1"
-% class "black"
+%class "black"
 
 # define food_count 07H
 #define enemy_count 06H
@@ -12,7 +13,7 @@
     // R1 - min len to enemy
     // R2 - index nearly enemy
     MOV RC, [enemy_count]
-	DEC RC
+    DEC RC
     MOV R1, 7FFFH // max len
 
 beg_loop:
@@ -25,6 +26,10 @@ beg_loop:
 end_loop:
     LOOP beg_loop
     MOV  R0, R2
+
+.unused_func
+    MOV RC, [enemy_count]
+    DEC RC
 
 //------------------------------
 // Main algorithm of WORKER ant
@@ -70,3 +75,4 @@ finish:
 .queen
     CIDL 2
 
+//https://rutube.ru/play/embed/90a56f51c418afaddde572b95b2543f6

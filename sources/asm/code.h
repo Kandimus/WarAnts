@@ -23,17 +23,20 @@ public:
     void error(const char* format, ...);
     void error(uint32_t lineno, const char* format, ...);
     bool hasError() const { return m_errors.size() > 0; }
+    void warning(uint32_t lineno, const char* format, ...);
 
     uint16_t updateOffset(uint16_t addOffset);
 
     bool checkFunctionsAndNames();
+    bool removeUnusedFunctions();
     bool extrudeExpression();
     bool checkExitStatement();
     bool compile();
+    bool optimizeValueStatement();
     bool calculationJumpsAndCalls();
     bool assignOffsets();
     bool resolveLabels(bool& recalc);
-    bool save(const std::string& filename);
+    bool save(std::vector<int8_t>& data);
     void print(const std::string& filename);
     void printData(const std::string& filename);
 
@@ -49,6 +52,7 @@ public:
     const std::string FuncNameQueen = "queen";
     const std::string FuncNameSolder = "solder";
     const std::string FuncNameWorker = "worker";
+    static const uint16_t CoreVersion;
 
     Function* m_funcQueen = nullptr;
     Function* m_funcSolder = nullptr;
@@ -59,6 +63,7 @@ public:
 
     std::vector<int8_t> m_data;
     std::vector<std::string> m_errors;
+    std::vector<std::string> m_warnings;
     std::unordered_map<std::string, int16_t> m_defines;
 };
 

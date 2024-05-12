@@ -7,7 +7,7 @@
       "satiety": 15,
       "ept": 1,
       "cargo": 20,
-      "memory":  100
+      "memory":  16
     },
     "solder": {
       "health": 20,
@@ -15,7 +15,7 @@
       "visibility": 5,
       "satiety": 10,
       "ept": 1,
-      "memory": 100
+      "memory": 8
     },
     "queen": {
       "health": 50,
@@ -23,9 +23,9 @@
       "visibility": 10,
       "satiety": 40,
       "ept": 1,
-      "wpt": 1,
-      "spt": 1,
-      "memory": 100
+      "solder": 1,
+      "worker": 1,
+      "memory": 32
     }
   }
 }

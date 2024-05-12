@@ -44,9 +44,13 @@ public:
     Function* next() const { return m_next; }
     const std::string& name() const { return m_name; }
 
+    bool used() const { return m_used; }
+    void setUsed(bool used) { m_used = used; }
+
     bool checkLabelNames(Code* code);
     bool extrudeExpression(Code* code);
     bool compile(Code* code);
+    bool optimizeValueStatement(Code* code);
     bool checkExitStatement(Code* code);
     bool assignOffsets(Code* code);
     bool resolveLabels(bool& recalc, Code* code);
@@ -56,6 +60,7 @@ public:
 public:
     std::string m_name = "";
     Statement* m_stat = nullptr;
+    bool m_used = false;
 
     Function* m_next = nullptr;
 };

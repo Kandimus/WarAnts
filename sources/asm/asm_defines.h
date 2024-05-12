@@ -11,6 +11,12 @@ namespace WarAnts
 namespace Asm
 {
 
+union Int16And8
+{
+    int16_t i16;
+    int8_t i8[2];
+};
+
 enum class PragmaType
 {
     Class,

@@ -18,7 +18,7 @@ public:
         : BaseNode(parent)
     {
         m_type = type;
-        m_value = value;
+        m_value = value.substr(1, value.size() - 2);
         m_next = nullptr;
     }
     virtual ~Pragma() = default;

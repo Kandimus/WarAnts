@@ -114,12 +114,12 @@ protected:
     int16_t m_maxHealth = 0;
     int16_t m_health = 0;
     int16_t m_attack = 0;
-    int16_t m_visibility = 0;
+    int16_t m_visibility = 25;
     int16_t m_maxCargo = 0;
     int16_t m_cargo = 0;
     int8_t m_eatPerTurn = 1;
-    int8_t m_workerPerTurn = 0;
-    int8_t m_solderPerTurn = 0;
+    int8_t m_turnToWorker = 0;
+    int8_t m_turnToSolder = 0;
     int8_t m_memory = 4;
 
     AntCommand m_command;

@@ -83,6 +83,12 @@ bool Statement::isExit() const
     return type() == StatementType::Command && m_cmd == AsmCommand::EXIT;
 }
 
+bool Statement::isValueCommand() const
+{
+    int8_t tv = (int8_t)BCodeType::VALUE;
+    return m_bcode.size() && ((m_bcode[0] & tv) == tv);
+}
+
 Statement* Statement::extrudeExpression(Code* code)
 {
     Statement* out = nullptr;
@@ -214,6 +220,30 @@ bool Statement::compile(Code* code)
     }
 
     return !code->hasError();
+}
+
+bool Statement::optimizeValueStatement(Code* code)
+{
+    if (!isValueCommand())
+    {
+        return true;
+    }
+
+    if (m_bcode[1] == (int8_t)RegisterType::CHAR)
+    {
+        m_bcode[0] |= (int8_t)BCodeValue::CHAR;
+        m_bcode[1] = m_bcode[2];
+        m_bcode.pop_back();
+    }
+    else if (m_bcode[1] == (int8_t)RegisterType::SHORT)
+    {
+        m_bcode[0] |= (int8_t)BCodeValue::SHORT;
+        m_bcode[1] = m_bcode[2];
+        m_bcode[2] = m_bcode[3];
+        m_bcode.pop_back();
+    }
+
+    return true;
 }
 
 bool Statement::assignOffsets(Code* code)
@@ -383,13 +413,8 @@ void Statement::print(std::ofstream& file) const
 
 RegisterType Statement::compileExpr(Expression* expr, bool isDst, Code* code)
 {
-    union
-    {
-        int16_t s;
-        int8_t c[2];
-    } val;
-
-    int8_t reg = expr->compile(true, val.s, code);
+    Int16And8 val;
+    int8_t reg = expr->compile(true, val.i16, code);
     
     if (code->hasError())
     {
@@ -401,13 +426,13 @@ RegisterType Statement::compileExpr(Expression* expr, bool isDst, Code* code)
 
     if (clearReg == RegisterType::CHAR)
     {
-        m_bcode.push_back(val.c[0]);
+        m_bcode.push_back(val.i8[0]);
     }
 
     if (clearReg == RegisterType::SHORT)
     {
-        m_bcode.push_back(val.c[0]);
-        m_bcode.push_back(val.c[1]);
+        m_bcode.push_back(val.i8[0]);
+        m_bcode.push_back(val.i8[1]);
     }
 
     return clearReg;

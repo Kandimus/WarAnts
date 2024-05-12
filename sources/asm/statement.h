@@ -93,11 +93,14 @@ public:
 
     bool isExit() const;
 
+    bool isValueCommand() const;
+
     BaseNode* labelPtr() const { return m_labelPtr; }
     void setLabelPtr(BaseNode* label) { m_labelPtr = label; }
 
     Statement* extrudeExpression(Code* code);
     bool compile(Code* code);
+    bool optimizeValueStatement(Code* code);
     bool assignOffsets(Code* code);
     bool resolveLabels(bool& recalc, Code* code);
     bool save(Code* code);

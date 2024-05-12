@@ -1,6 +1,8 @@
-#include <chrono>
+﻿#include <chrono>
 #include <fstream>
 #include <stdarg.h>
+
+#include "stream_std.h"
 
 #include "code.h"
 
@@ -41,7 +43,23 @@ void Code::error(uint32_t lineno, const char* format, ...)
     std::string result = buff;
     delete[] buff;
 
-    m_errors.push_back(std::to_string(lineno) + ": " + result);
+    m_errors.push_back(std::to_string(lineno) + ": Error:" + result);
+}
+
+void Code::warning(uint32_t lineno, const char* format, ...)
+{
+    va_list arg;
+    char* buff = new char[4096];
+    memset(buff, 0, 4096);
+
+    va_start(arg, format);
+    vsnprintf_s(buff, 4096, 4096, format, arg);
+    va_end(arg);
+
+    std::string result = buff;
+    delete[] buff;
+
+    m_warnings.push_back(std::to_string(lineno) + ": Warning:" + result);
 }
 
 uint16_t Code::updateOffset(uint16_t addOffset)
@@ -66,14 +84,17 @@ bool Code::checkFunctionsAndNames()
         if (func->name() == FuncNameQueen)
         {
             m_funcQueen = func;
+            m_funcQueen->setUsed(true);
         }
         else if (func->name() == FuncNameSolder)
         {
             m_funcSolder = func;
+            m_funcSolder->setUsed(true);
         }
         else if (func->name() == FuncNameWorker)
         {
             m_funcWorker = func;
+            m_funcWorker->setUsed(true);
         }
 
         while (checkFunc)
@@ -111,6 +132,35 @@ bool Code::checkFunctionsAndNames()
     }
 
     return !!m_funcQueen && !!m_funcSolder && !!m_funcWorker;
+}
+
+bool Code::removeUnusedFunctions()
+{
+    Function* func = m_function;
+    Function* prev = nullptr;
+
+    while (func)
+    {
+        if (!func->used())
+        {
+            warning(func->lineno(), "The function '%s' has been removed because it unused.", func->name().c_str());
+
+            if (prev)
+            {
+                prev->m_next = func->next();
+            }
+            else
+            {
+                m_function = func->next();
+            }
+            // функцию удалит общий сборщик мусора
+        }
+
+        prev = func;
+        func = func->next() ;
+    }
+
+    return true;
 }
 
 bool Code::extrudeExpression()
@@ -196,6 +246,22 @@ bool Code::compile()
     return true;
 }
 
+bool Code::optimizeValueStatement()
+{
+    auto func = m_function;
+
+    while (func)
+    {
+        if (!func->optimizeValueStatement(this))
+        {
+            return false;
+        }
+        func = func->next();
+    }
+
+    return true;
+}
+
 bool Code::calculationJumpsAndCalls()
 {
     bool recalc = true;
@@ -254,10 +320,21 @@ bool Code::resolveLabels(bool& recalc)
     return true;
 }
 
-bool Code::save(const std::string& filename)
+/*
++------------------------------------------------
+| BCode buffer format
++---+--------------------------------------------
+| 2 | Queen function offset
+| 2 | Solder function offset
+| 2 | Worker function offset
+| 2 | size of code
+| n | n bytes of code
++---+--------------------------------------------
+*/
+
+bool Code::save(std::vector<int8_t>& data)
 {
     auto func = m_function;
-
     while (func)
     {
         if (!func->save(this))
@@ -267,6 +344,28 @@ bool Code::save(const std::string& filename)
 
         func = func->next();
     }
+
+    data.clear();
+
+    Int16And8 value;
+
+    value.i16 = m_funcQueen->offset();
+    data.push_back(value.i8[0]);
+    data.push_back(value.i8[1]);
+
+    value.i16 = m_funcSolder->offset();
+    data.push_back(value.i8[0]);
+    data.push_back(value.i8[1]);
+
+    value.i16 = m_funcWorker->offset();
+    data.push_back(value.i8[0]);
+    data.push_back(value.i8[1]);
+
+    value.i16 = (int16_t)m_data.size();
+    data.push_back(value.i8[0]);
+    data.push_back(value.i8[1]);
+
+    data.insert(data.end(), m_data.begin(), m_data.end());
 
     return true;
 }
@@ -315,9 +414,7 @@ void Code::printData(const std::string& filename)
     file << "    version " << getPragma(PragmaType::Version) << std::endl;
     file << "    data    " << curStrTime << std::endl;
     file << "    size    " << m_data.size() << " bytes" << std::endl;
-    
     file << std::endl;
-
 
     file << "offsets:" << std::endl;
     file << "    .queen  " << su::String_format2("%04x", m_funcQueen->offset()) << std::endl;
@@ -346,6 +443,8 @@ void Code::printData(const std::string& filename)
         }
         ++count;
     }
+    file << std::endl;
+    file.close();
 }
 
 }; // namespace Asm

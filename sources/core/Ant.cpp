@@ -19,13 +19,13 @@ Ant::Ant(const nlohmann::json& json, AntType type)
     m_type = type;
     m_maxHealth = json.contains("health") ? static_cast<int16_t>(json["health"]) : 1;
     m_attack = json["attack"];
-    m_visibility = json["visibility"];
+    m_visibility = json.contains("visibility") ? static_cast<int16_t>(json["visibility"]) : m_visibility;
     m_maxSatiety = json["satiety"];
-    m_eatPerTurn = json.contains("ept") ? static_cast<int16_t>(json["ept"]) : 0;
-    m_maxCargo = json.contains("cargo") ? static_cast<int16_t>(json["cargo"]) : 0;
+    m_eatPerTurn = json.contains("ept") ? static_cast<int16_t>(json["ept"]) : m_eatPerTurn;
+    m_maxCargo = json.contains("cargo") ? static_cast<int16_t>(json["cargo"]) : m_maxCargo;
     m_memory = json["memory"];
-    m_workerPerTurn = json.contains("wpt") ? static_cast<int16_t>(json["wpt"]) : 0;
-    m_solderPerTurn = json.contains("spt") ? static_cast<int16_t>(json["spt"]) : 0;
+    m_turnToSolder = json.contains("solder") ? static_cast<int16_t>(json["solder"]) : m_turnToSolder;
+    m_turnToWorker = json.contains("worker") ? static_cast<int16_t>(json["worker"]) : m_turnToWorker;
 
     reset();
 }

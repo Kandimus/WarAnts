@@ -44,6 +44,7 @@ bool Function::checkLabelNames(Code* code)
                     code->error(stat->lineno(), "Can not found function '%s'.", stat->label().c_str());
                     return false;
                 }
+                func->setUsed(true);
                 stat->setLabelPtr(func);
             }
             else
@@ -103,6 +104,23 @@ bool Function::extrudeExpression(Code* code)
         }
 
         prev = stat;
+        stat = stat->next();
+    }
+
+    return true;
+}
+
+bool Function::optimizeValueStatement(Code* code)
+{
+    Statement* stat = m_stat;
+
+    while (stat)
+    {
+        if (!stat->optimizeValueStatement(code))
+        {
+            return false;
+        }
+
         stat = stat->next();
     }
 
@@ -219,7 +237,7 @@ bool Function::save(Code* code)
 
 void Function::print(std::ofstream& file)
 {
-    file << "." << m_name << "// " << su::String_format2("[%i]", offset()) << std::endl;
+    file << "." << m_name << " // " << su::String_format2("[%i]", offset()) << std::endl;
 
     Statement* stat = m_stat;
 
