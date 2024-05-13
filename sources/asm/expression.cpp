@@ -17,7 +17,7 @@ Statement* Expression::extrudeExpression(bool isDst, Code* code)
         return nullptr;
     }
 
-    RegisterType reg = isDst ? RegisterType::RD : RegisterType::RS;
+    Register::Type reg = isDst ? Register::RD : Register::RS;
 
     if (m_type == ExpressionType::Address)
     {
@@ -121,7 +121,7 @@ int8_t Expression::compile(bool isDst, int16_t& val, Code* code) const
     if (m_type == ExpressionType::Number)
     {
         val = m_value.num;
-        return (int8_t)(m_value.num >= -128 && m_value.num <= 127 ? RegisterType::CHAR : RegisterType::SHORT);
+        return m_value.num >= -128 && m_value.num <= 127 ? Register::CHAR : Register::SHORT;
     }
 
     if (m_type == ExpressionType::Register)
@@ -131,7 +131,7 @@ int8_t Expression::compile(bool isDst, int16_t& val, Code* code) const
 
     if (m_type == ExpressionType::Address)
     {
-        return m_left->compile(isDst, val, code) | 0x80;
+        return m_left->compile(isDst, val, code) | Register::ADDRESS;
     }
 
     SU_BREAKPOINT();
@@ -149,22 +149,22 @@ std::string Expression::toString() const
     {
         switch (m_value.reg)
         {
-            case RegisterType::R0: return "R0";
-            case RegisterType::R1: return "R1";
-            case RegisterType::R2: return "R2";
-            case RegisterType::RC: return "RC";
-            case RegisterType::P0X: return "P0:X";
-            case RegisterType::P0Y: return "P0:Y";
-            case RegisterType::P1X: return "P1:X";
-            case RegisterType::P1Y: return "P1:Y";
-            case RegisterType::P2X: return "P2:X";
-            case RegisterType::P2Y: return "P2:Y";
-            case RegisterType::RF: return "RF";
-            case RegisterType::RD: return "RD";
-            case RegisterType::RS: return "RS";
-            case RegisterType::P0: return "P0";
-            case RegisterType::P1: return "P1";
-            case RegisterType::P2: return "P2";
+            case Register::R0: return "R0";
+            case Register::R1: return "R1";
+            case Register::R2: return "R2";
+            case Register::RC: return "RC";
+            case Register::P0X: return "P0:X";
+            case Register::P0Y: return "P0:Y";
+            case Register::P1X: return "P1:X";
+            case Register::P1Y: return "P1:Y";
+            case Register::P2X: return "P2:X";
+            case Register::P2Y: return "P2:Y";
+            case Register::RF: return "RF";
+            case Register::RD: return "RD";
+            case Register::RS: return "RS";
+            case Register::P0: return "P0";
+            case Register::P1: return "P1";
+            case Register::P2: return "P2";
             default: return "UNDEFINE REG " + std::to_string((uint32_t)m_value.reg);
         }
     }

@@ -23,7 +23,7 @@ Ant::Ant(const nlohmann::json& json, AntType type)
     m_maxSatiety = json["satiety"];
     m_eatPerTurn = json.contains("ept") ? static_cast<int16_t>(json["ept"]) : m_eatPerTurn;
     m_maxCargo = json.contains("cargo") ? static_cast<int16_t>(json["cargo"]) : m_maxCargo;
-    m_memory = json["memory"];
+    m_sizeOfMemory = json.contains("memory") ? static_cast<int16_t>(json["memory"]) : m_sizeOfMemory;
     m_turnToSolder = json.contains("solder") ? static_cast<int16_t>(json["solder"]) : m_turnToSolder;
     m_turnToWorker = json.contains("worker") ? static_cast<int16_t>(json["worker"]) : m_turnToWorker;
 

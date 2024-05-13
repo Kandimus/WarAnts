@@ -51,6 +51,7 @@
     <ClInclude Include="MapMath.h" />
     <ClInclude Include="Player.h" />
     <ClInclude Include="Position.h" />
+    <ClInclude Include="VirtualMachine.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Ant.cpp" />
@@ -64,6 +65,7 @@
     <ClCompile Include="Map.cpp" />
     <ClCompile Include="MapMath.cpp" />
     <ClCompile Include="Player.cpp" />
+    <ClCompile Include="VirtualMachine.cpp" />
   </ItemGroup>
   <ItemDefinitionGroup>
     <ClCompile>

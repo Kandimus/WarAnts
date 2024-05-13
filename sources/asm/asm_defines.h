@@ -16,6 +16,15 @@ enum Version : uint16_t
     Core = 0x0100,
 };
 
+enum FunctionOffset : uint16_t
+{
+    Queen = 0,
+    Solder = 2,
+    Worker = 4,
+    Size = 6,
+    Data = 8
+};
+
 union Int16And8
 {
     int16_t i16;
@@ -46,7 +55,9 @@ enum class OperandType
     Star,
 };
 
-enum class RegisterType
+namespace Register
+{
+enum Type : uint8_t
 {
     R0 = 0,
     R1,
@@ -68,9 +79,11 @@ enum class RegisterType
     P1,
     P2,
 
-    ADDRESS = 128,
-    INVALIDE = 255
+    MASK = 0x1f,
+    ADDRESS = 0x80,
+    INVALIDE = 0xff
 };
+}
 
 /*
 

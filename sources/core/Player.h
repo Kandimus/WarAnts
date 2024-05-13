@@ -54,6 +54,8 @@ public:
     const AntCount& maxCounts() const { return m_maxCount; }
     const AntCount& maxLifeCount() const { return m_maxLifeCount; }
 
+    const std::vector<int8_t>& bcode() const { return m_bcode; }
+
 protected:
 
 protected:

@@ -217,9 +217,9 @@ asm_command
 
 address
     : expr_3                                            { $$ = $1; }
-    | P0                                                { $$ = new WarAnts::Asm::Expression(WarAnts::Asm::RegisterType::P0, yy_code.get()); }
-    | P1                                                { $$ = new WarAnts::Asm::Expression(WarAnts::Asm::RegisterType::P1, yy_code.get()); }
-    | P2                                                { $$ = new WarAnts::Asm::Expression(WarAnts::Asm::RegisterType::P2, yy_code.get()); }
+    | P0                                                { $$ = new WarAnts::Asm::Expression(WarAnts::Asm::Register::P0, yy_code.get()); }
+    | P1                                                { $$ = new WarAnts::Asm::Expression(WarAnts::Asm::Register::P1, yy_code.get()); }
+    | P2                                                { $$ = new WarAnts::Asm::Expression(WarAnts::Asm::Register::P2, yy_code.get()); }
     | LSQUARE expr_0 RSQUARE                            { $$ = new WarAnts::Asm::Expression($2, yy_code.get()); }
     ;
 
@@ -252,17 +252,17 @@ expr_2
     ;
 
 expr_3
-    : R0                                                { $$ = new WarAnts::Asm::Expression(WarAnts::Asm::RegisterType::R0, yy_code.get()); }
-    | R1                                                { $$ = new WarAnts::Asm::Expression(WarAnts::Asm::RegisterType::R1, yy_code.get()); }
-    | R2                                                { $$ = new WarAnts::Asm::Expression(WarAnts::Asm::RegisterType::R2, yy_code.get()); }
-    | RC                                                { $$ = new WarAnts::Asm::Expression(WarAnts::Asm::RegisterType::RC, yy_code.get()); }
-    | RF                                                { $$ = new WarAnts::Asm::Expression(WarAnts::Asm::RegisterType::RF, yy_code.get()); }
-    | P0 COLON COORD_X                                  { $$ = new WarAnts::Asm::Expression(WarAnts::Asm::RegisterType::P0X, yy_code.get()); }
-    | P0 COLON COORD_Y                                  { $$ = new WarAnts::Asm::Expression(WarAnts::Asm::RegisterType::P0Y, yy_code.get()); }
-    | P1 COLON COORD_X                                  { $$ = new WarAnts::Asm::Expression(WarAnts::Asm::RegisterType::P1X, yy_code.get()); }
-    | P1 COLON COORD_Y                                  { $$ = new WarAnts::Asm::Expression(WarAnts::Asm::RegisterType::P1Y, yy_code.get()); }
-    | P2 COLON COORD_X                                  { $$ = new WarAnts::Asm::Expression(WarAnts::Asm::RegisterType::P2X, yy_code.get()); }
-    | P2 COLON COORD_Y                                  { $$ = new WarAnts::Asm::Expression(WarAnts::Asm::RegisterType::P2Y, yy_code.get()); }
+    : R0                                                { $$ = new WarAnts::Asm::Expression(WarAnts::Asm::Register::R0, yy_code.get()); }
+    | R1                                                { $$ = new WarAnts::Asm::Expression(WarAnts::Asm::Register::R1, yy_code.get()); }
+    | R2                                                { $$ = new WarAnts::Asm::Expression(WarAnts::Asm::Register::R2, yy_code.get()); }
+    | RC                                                { $$ = new WarAnts::Asm::Expression(WarAnts::Asm::Register::RC, yy_code.get()); }
+    | RF                                                { $$ = new WarAnts::Asm::Expression(WarAnts::Asm::Register::RF, yy_code.get()); }
+    | P0 COLON COORD_X                                  { $$ = new WarAnts::Asm::Expression(WarAnts::Asm::Register::P0X, yy_code.get()); }
+    | P0 COLON COORD_Y                                  { $$ = new WarAnts::Asm::Expression(WarAnts::Asm::Register::P0Y, yy_code.get()); }
+    | P1 COLON COORD_X                                  { $$ = new WarAnts::Asm::Expression(WarAnts::Asm::Register::P1X, yy_code.get()); }
+    | P1 COLON COORD_Y                                  { $$ = new WarAnts::Asm::Expression(WarAnts::Asm::Register::P1Y, yy_code.get()); }
+    | P2 COLON COORD_X                                  { $$ = new WarAnts::Asm::Expression(WarAnts::Asm::Register::P2X, yy_code.get()); }
+    | P2 COLON COORD_Y                                  { $$ = new WarAnts::Asm::Expression(WarAnts::Asm::Register::P2Y, yy_code.get()); }
     | number                                            { $$ = new WarAnts::Asm::Expression($1, yy_code.get()); }
     | label                                             { $$ = new WarAnts::Asm::Expression(getDefine($1->get()), yy_code.get()); }
     ;

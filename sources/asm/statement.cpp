@@ -105,7 +105,7 @@ Statement* Statement::extrudeExpression(Code* code)
 
         if (m_dst->type() == ExpressionType::Register)
         {
-            if (m_dst->reg() == RegisterType::RF)
+            if (m_dst->reg() == Register::RF)
             {
                 code->error(lineno(), "Register `RF` can not be using as destination.");
             }
@@ -229,13 +229,13 @@ bool Statement::optimizeValueStatement(Code* code)
         return true;
     }
 
-    if (m_bcode[1] == (int8_t)RegisterType::CHAR)
+    if (m_bcode[1] == Register::CHAR)
     {
         m_bcode[0] |= (int8_t)BCodeValue::CHAR;
         m_bcode[1] = m_bcode[2];
         m_bcode.pop_back();
     }
-    else if (m_bcode[1] == (int8_t)RegisterType::SHORT)
+    else if (m_bcode[1] == Register::SHORT)
     {
         m_bcode[0] |= (int8_t)BCodeValue::SHORT;
         m_bcode[1] = m_bcode[2];
@@ -411,25 +411,25 @@ void Statement::print(std::ofstream& file) const
     file << std::endl;
 }
 
-RegisterType Statement::compileExpr(Expression* expr, bool isDst, Code* code)
+Register::Type Statement::compileExpr(Expression* expr, bool isDst, Code* code)
 {
     Int16And8 val;
     int8_t reg = expr->compile(true, val.i16, code);
     
     if (code->hasError())
     {
-        return RegisterType::INVALIDE;
+        return Register::INVALIDE;
     }
 
-    RegisterType clearReg = (RegisterType)(reg & 0x7F);
+    Register::Type clearReg = (Register::Type)(reg & 0x7F);
     m_bcode.push_back(reg);
 
-    if (clearReg == RegisterType::CHAR)
+    if (clearReg == Register::CHAR)
     {
         m_bcode.push_back(val.i8[0]);
     }
 
-    if (clearReg == RegisterType::SHORT)
+    if (clearReg == Register::SHORT)
     {
         m_bcode.push_back(val.i8[0]);
         m_bcode.push_back(val.i8[1]);
@@ -438,20 +438,20 @@ RegisterType Statement::compileExpr(Expression* expr, bool isDst, Code* code)
     return clearReg;
 }
 
-void Statement::compileDstSrc(BCodeCommand cmd, RegisterType& dst, RegisterType& src, Code* code)
+void Statement::compileDstSrc(BCodeCommand cmd, Register::Type& dst, Register::Type& src, Code* code)
 {
     m_bcode.push_back((int8_t)cmd);
     dst = compileExpr(m_dst, true, code);
     src = compileExpr(m_src, false, code);
 }
 
-void Statement::compileDst(BCodeCommand cmd, RegisterType& dst, Code* code)
+void Statement::compileDst(BCodeCommand cmd, Register::Type& dst, Code* code)
 {
     m_bcode.push_back((int8_t)cmd);
     dst = compileExpr(m_dst, true, code);
 }
 
-void Statement::compileSrc(BCodeCommand cmd, RegisterType& src, Code* code)
+void Statement::compileSrc(BCodeCommand cmd, Register::Type& src, Code* code)
 {
     m_bcode.push_back((int8_t)cmd);
     src = compileExpr(m_src, false, code);
@@ -464,27 +464,27 @@ void Statement::compileNoArgs(BCodeCommand cmd, Code* code)
 
 void Statement::compileCommon(BCodeCommand cmd, Code* code)
 {
-    RegisterType dst;
-    RegisterType src;
+    Register::Type dst;
+    Register::Type src;
     compileDstSrc(cmd, dst, src, code);
 }
 
 void Statement::compileDstCommon(BCodeCommand cmd, Code* code)
 {
-    RegisterType dst;
+    Register::Type dst;
     compileDst(cmd, dst, code);
 }
 
 void Statement::compileSrcCommon(BCodeCommand cmd, Code* code)
 {
-    RegisterType src;
+    Register::Type src;
     compileSrc(cmd, src, code);
 }
 
 void Statement::compileNoPosition(BCodeCommand cmd, Code* code)
 {
-    RegisterType dst;
-    RegisterType src;
+    Register::Type dst;
+    Register::Type src;
     compileDstSrc(cmd, dst, src, code);
 
     if (isPositionRegister(dst) || isPositionRegister(src))
@@ -496,7 +496,7 @@ void Statement::compileNoPosition(BCodeCommand cmd, Code* code)
 
 void Statement::compileDstNoPosition(BCodeCommand cmd, Code* code)
 {
-    RegisterType dst;
+    Register::Type dst;
     compileDst(cmd, dst, code);
 
     if (isPositionRegister(dst))
@@ -508,7 +508,7 @@ void Statement::compileDstNoPosition(BCodeCommand cmd, Code* code)
 
 void Statement::compileSrcNoPosition(BCodeCommand cmd, Code* code)
 {
-    RegisterType src;
+    Register::Type src;
     compileSrc(cmd, src, code);
 
     if (isPositionRegister(src))
@@ -520,8 +520,8 @@ void Statement::compileSrcNoPosition(BCodeCommand cmd, Code* code)
 
 void Statement::compileStrong(BCodeCommand cmd, Code* code)
 {
-    RegisterType dst;
-    RegisterType src;
+    Register::Type dst;
+    Register::Type src;
     compileDstSrc(cmd, dst, src, code);
 
     if (isPositionRegister(dst) == isPositionRegister(src) ||
@@ -543,8 +543,8 @@ void Statement::compileJump(BCodeCommand cmdl, Code* code)
 
 void Statement::compilePosition(BCodeCommand cmd, Code* code)
 {
-    RegisterType dst;
-    RegisterType src;
+    Register::Type dst;
+    Register::Type src;
     compileDstSrc(cmd, dst, src, code);
 
     if ((isPositionRegister(dst) || m_dst->type() == ExpressionType::Address) &&
@@ -558,7 +558,7 @@ void Statement::compilePosition(BCodeCommand cmd, Code* code)
 
 void Statement::compileDstPosition(BCodeCommand cmd, Code* code)
 {
-    RegisterType dst;
+    Register::Type dst;
     compileDst(cmd, dst, code);
 
     if (isPositionRegister(dst) || m_dst->type() == ExpressionType::Address)
@@ -571,8 +571,8 @@ void Statement::compileDstPosition(BCodeCommand cmd, Code* code)
 
 void Statement::compileDstNoPositionSrcPosition(BCodeCommand cmd, Code* code)
 {
-    RegisterType dst;
-    RegisterType src;
+    Register::Type dst;
+    Register::Type src;
     compileDstSrc(cmd, dst, src, code);
 
     if (isPositionRegister(dst))

@@ -2071,17 +2071,17 @@ yyreduce:
 
   case 85:
 
-    { (yyval.TEXPR) = new WarAnts::Asm::Expression(WarAnts::Asm::RegisterType::P0, yy_code.get()); ;}
+    { (yyval.TEXPR) = new WarAnts::Asm::Expression(WarAnts::Asm::Register::P0, yy_code.get()); ;}
     break;
 
   case 86:
 
-    { (yyval.TEXPR) = new WarAnts::Asm::Expression(WarAnts::Asm::RegisterType::P1, yy_code.get()); ;}
+    { (yyval.TEXPR) = new WarAnts::Asm::Expression(WarAnts::Asm::Register::P1, yy_code.get()); ;}
     break;
 
   case 87:
 
-    { (yyval.TEXPR) = new WarAnts::Asm::Expression(WarAnts::Asm::RegisterType::P2, yy_code.get()); ;}
+    { (yyval.TEXPR) = new WarAnts::Asm::Expression(WarAnts::Asm::Register::P2, yy_code.get()); ;}
     break;
 
   case 88:
@@ -2126,57 +2126,57 @@ yyreduce:
 
   case 96:
 
-    { (yyval.TEXPR) = new WarAnts::Asm::Expression(WarAnts::Asm::RegisterType::R0, yy_code.get()); ;}
+    { (yyval.TEXPR) = new WarAnts::Asm::Expression(WarAnts::Asm::Register::R0, yy_code.get()); ;}
     break;
 
   case 97:
 
-    { (yyval.TEXPR) = new WarAnts::Asm::Expression(WarAnts::Asm::RegisterType::R1, yy_code.get()); ;}
+    { (yyval.TEXPR) = new WarAnts::Asm::Expression(WarAnts::Asm::Register::R1, yy_code.get()); ;}
     break;
 
   case 98:
 
-    { (yyval.TEXPR) = new WarAnts::Asm::Expression(WarAnts::Asm::RegisterType::R2, yy_code.get()); ;}
+    { (yyval.TEXPR) = new WarAnts::Asm::Expression(WarAnts::Asm::Register::R2, yy_code.get()); ;}
     break;
 
   case 99:
 
-    { (yyval.TEXPR) = new WarAnts::Asm::Expression(WarAnts::Asm::RegisterType::RC, yy_code.get()); ;}
+    { (yyval.TEXPR) = new WarAnts::Asm::Expression(WarAnts::Asm::Register::RC, yy_code.get()); ;}
     break;
 
   case 100:
 
-    { (yyval.TEXPR) = new WarAnts::Asm::Expression(WarAnts::Asm::RegisterType::RF, yy_code.get()); ;}
+    { (yyval.TEXPR) = new WarAnts::Asm::Expression(WarAnts::Asm::Register::RF, yy_code.get()); ;}
     break;
 
   case 101:
 
-    { (yyval.TEXPR) = new WarAnts::Asm::Expression(WarAnts::Asm::RegisterType::P0X, yy_code.get()); ;}
+    { (yyval.TEXPR) = new WarAnts::Asm::Expression(WarAnts::Asm::Register::P0X, yy_code.get()); ;}
     break;
 
   case 102:
 
-    { (yyval.TEXPR) = new WarAnts::Asm::Expression(WarAnts::Asm::RegisterType::P0Y, yy_code.get()); ;}
+    { (yyval.TEXPR) = new WarAnts::Asm::Expression(WarAnts::Asm::Register::P0Y, yy_code.get()); ;}
     break;
 
   case 103:
 
-    { (yyval.TEXPR) = new WarAnts::Asm::Expression(WarAnts::Asm::RegisterType::P1X, yy_code.get()); ;}
+    { (yyval.TEXPR) = new WarAnts::Asm::Expression(WarAnts::Asm::Register::P1X, yy_code.get()); ;}
     break;
 
   case 104:
 
-    { (yyval.TEXPR) = new WarAnts::Asm::Expression(WarAnts::Asm::RegisterType::P1Y, yy_code.get()); ;}
+    { (yyval.TEXPR) = new WarAnts::Asm::Expression(WarAnts::Asm::Register::P1Y, yy_code.get()); ;}
     break;
 
   case 105:
 
-    { (yyval.TEXPR) = new WarAnts::Asm::Expression(WarAnts::Asm::RegisterType::P2X, yy_code.get()); ;}
+    { (yyval.TEXPR) = new WarAnts::Asm::Expression(WarAnts::Asm::Register::P2X, yy_code.get()); ;}
     break;
 
   case 106:
 
-    { (yyval.TEXPR) = new WarAnts::Asm::Expression(WarAnts::Asm::RegisterType::P2Y, yy_code.get()); ;}
+    { (yyval.TEXPR) = new WarAnts::Asm::Expression(WarAnts::Asm::Register::P2Y, yy_code.get()); ;}
     break;
 
   case 107:

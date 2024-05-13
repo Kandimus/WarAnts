@@ -107,10 +107,10 @@ public:
     void print(std::ofstream& file) const;
 
 protected:
-    RegisterType compileExpr(Expression* expr, bool isDst, Code* code);
-    void compileDstSrc(BCodeCommand cmd, RegisterType& dst, RegisterType& src, Code* code);
-    void compileDst(BCodeCommand cmd, RegisterType& dst, Code* code);
-    void compileSrc(BCodeCommand cmd, RegisterType& src, Code* code);
+    Register::Type compileExpr(Expression* expr, bool isDst, Code* code);
+    void compileDstSrc(BCodeCommand cmd, Register::Type& dst, Register::Type& src, Code* code);
+    void compileDst(BCodeCommand cmd, Register::Type& dst, Code* code);
+    void compileSrc(BCodeCommand cmd, Register::Type& src, Code* code);
 
     void compileNoArgs(BCodeCommand cmd, Code* code);
     void compileCommon(BCodeCommand cmd, Code* code);

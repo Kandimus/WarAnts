@@ -52,10 +52,11 @@ public:
     uint32_t health() const { return m_health; }
     uint32_t attack() const { return m_attack; }
     uint32_t visibility() const { return m_visibility; }
-    uint32_t maxCargo() const { return m_maxCargo; }
-    uint32_t cargo() const { return m_cargo; }
+    uint16_t maxCargo() const { return m_maxCargo; }
+    uint16_t cargo() const { return m_cargo; }
     AntType type() const { return m_type; }
     AntStatus status() const { return m_status; }
+    int8_t sizeOfMemory() const { return m_sizeOfMemory; }
 
     bool isWorker() const { return m_type == AntType::Worker; }
     bool isSolder() const { return m_type == AntType::Solder; }
@@ -70,14 +71,14 @@ public:
 
     //process(AntInfo& ai, Command& cmd);
 
-    //double satietyPercent();
-    //double healthPercent();
-
     bool hasCommand() const { return m_command.m_type != CommandType::Idle; }
     void setCommand(const AntCommand& cmd) { m_command = cmd; }
     void setCommand(CommandType cmd, int16_t x, int16_t y, int16_t userdata) { m_command.set(cmd, x, y, userdata); }
     const AntCommand& command() const { return m_command; }
     void clearCommand() { m_command.clear(); }
+
+    int16_t memory(size_t idx) const { return m_memory[idx]; }
+    int16_t& memory(size_t idx) { return m_memory[idx]; }
 
     uint32_t id() const { return m_id; }
     void setId(uint32_t id) { m_id = id; }
@@ -120,10 +121,11 @@ protected:
     int8_t m_eatPerTurn = 1;
     int8_t m_turnToWorker = 0;
     int8_t m_turnToSolder = 0;
-    int8_t m_memory = 4;
+    int8_t m_sizeOfMemory = 8;
 
     AntCommand m_command;
     PlayerPtr m_player;
+    std::vector<int16_t> m_memory;
     
     // statistic
     uint32_t m_lifeCount = 0;

@@ -17,7 +17,7 @@ class Expression : public BaseNode
     NOCOPY_STRUCT(Expression)
 
 public:
-    Expression(RegisterType reg, BaseNode* parent)
+    Expression(Register::Type reg, BaseNode* parent)
         : BaseNode(parent)
     {
         m_left = nullptr;
@@ -52,7 +52,7 @@ public:
     virtual ~Expression() = default;
 
     ExpressionType type() const { return m_type; }
-    RegisterType reg() const { return m_value.reg; }
+    Register::Type reg() const { return m_value.reg; }
 
     Statement* extrudeExpression(bool isDst, Code* code);
     int8_t compile(bool isDst, int16_t& val, Code* code) const;
@@ -65,7 +65,7 @@ protected:
 protected:
     union ExpressionValue
     {
-        RegisterType reg;
+        Register::Type reg;
         int16_t num;
         OperandType op;
     };
@@ -77,9 +77,9 @@ protected:
     Expression* m_right = nullptr;
 };
 
-inline bool isPositionRegister(const RegisterType& reg)
+inline bool isPositionRegister(const Register::Type& reg)
 {
-    return reg == RegisterType::P0 || reg == RegisterType::P1 || reg == RegisterType::P2;
+    return reg == Register::P0 || reg == Register::P1 || reg == Register::P2;
 }
 
 }; // namespace Asm

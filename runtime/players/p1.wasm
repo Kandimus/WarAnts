@@ -34,6 +34,7 @@ end_loop:
 //------------------------------
 // Main algorithm of WORKER ant
 .worker
+    MOV  R0, 48
     MOV  [R0 + 4], 33
 //    MOV  RF, [1 * 2 + 3]
 //	AND R0, P0
