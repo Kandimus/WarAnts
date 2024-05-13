@@ -14,7 +14,7 @@ namespace WarAnts
 namespace Asm
 {
 
-const uint16_t Code::CoreVersion = 0x0100;
+const uint16_t Code::CoreVersion = Version::Core;
 
 std::shared_ptr<WarAnts::Asm::Code> yy_compile(const char* source);
 

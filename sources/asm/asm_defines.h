@@ -11,6 +11,11 @@ namespace WarAnts
 namespace Asm
 {
 
+enum Version : uint16_t
+{
+    Core = 0x0100,
+};
+
 union Int16And8
 {
     int16_t i16;

@@ -1,8 +1,9 @@
 #pragma once
 
 #include <stdint.h>
-#include <string>
 #include <memory>
+#include <string>
+#include <vector>
 
 namespace WarAnts
 {
@@ -15,8 +16,8 @@ struct PlayerInfo
 {
     std::string antClass = "";
     std::string teamName = "";
-    std::string version = "";
-//	ApiVersion apiVersion = 0;
+    std::string teamVersion = "";
+    uint16_t coreVersion = 0;
 };
 
 struct AntCount
@@ -41,7 +42,7 @@ public:
 
     const std::string& antClass() const { return m_info.antClass; }
     const std::string& teamName() const { return m_info.teamName; }
-    const std::string& libVersion() const { return m_info.version; }
+    const std::string& libVersion() const { return m_info.teamVersion; }
     void changeTeamName(uint32_t count);
 
     void setAntQueen(const AntPtr& queen) { m_antQueen = queen; }
@@ -54,7 +55,6 @@ public:
     const AntCount& maxLifeCount() const { return m_maxLifeCount; }
 
 protected:
-    bool loadFile();
 
 protected:
     std::string m_libName = "";
@@ -62,6 +62,8 @@ protected:
     PlayerInfo m_info;
     uint32_t m_index = 0;
     bool m_isInit = false;
+
+    std::vector<int8_t> m_bcode;
 
     AntPtr m_antQueen;
 

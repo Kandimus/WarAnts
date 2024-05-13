@@ -5,28 +5,13 @@
 #include "commandline.h"
 #include "stringex.h"
 
-#include "../asm/Compiler.h"
+#include "Compiler.h"
+#include "wacfile.h"
 
 namespace Arg
 {
     const su::CommandLineOption LOGDIR = { "logdir", 'l' };
 };
-
-const uint32_t Magic = 0x43414157; // WAAC
-
-/*
-+------------------------------------------------
-| WAC file format
-+---+--------------------------------------------
-| 4 | WAAC magic number
-| 2 | Version of core
-| n | c-style string of ant class
-| n | c-style string of player copyright
-| n | c-style string of player version
-+---+--------------------------------------------
-| n | bcode
-+---+--------------------------------------------
-*/
 
 int main(int argc, const char **argv)
 {
@@ -71,24 +56,11 @@ int main(int argc, const char **argv)
                 }
             }
 
-            std::ofstream file(su::String_rawFilename(filename) + ".wac", std::ios_base::binary);
-            
-            file.write((const char*)&Magic, sizeof(Magic));
-
-            file.write((const char*)&coreVer, sizeof(coreVer));
-
-            std::string str = pragma[WarAnts::Asm::PragmaType::Class];
-            file.write((const char*)str.c_str(), str.size() + 1);
-
-            str = pragma[WarAnts::Asm::PragmaType::Name];
-            file.write((const char*)str.c_str(), str.size() + 1);
-
-            str = pragma[WarAnts::Asm::PragmaType::Version];
-            file.write((const char*)str.c_str(), str.size() + 1);
-
-            file.write((const char*)data.data(), data.size());
-
-            file.close();
+            std::string wacFilename = su::String_rawFilename(filename) + ".wac";
+            if (!WarAnts::saveWacFile(wacFilename, data, pragma))
+            {
+                printf("Error: Fault to save '%s' file.\n", wacFilename.c_str());
+            }
         }
     }
 

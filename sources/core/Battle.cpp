@@ -51,7 +51,7 @@ Battle::Battle(const std::string& confname, const std::vector<std::string>& play
     uint32_t player_index = 0;
     for (auto& libname : players)
     {
-        m_players.push_back(std::make_shared<Player>(player_index++, libname));
+        m_players.push_back(std::make_shared<Player>(player_index++, "players/" + libname));
     }
 
     if (players.size() < 2)

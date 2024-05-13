@@ -1,7 +1,10 @@
-#include "Player.h"
+﻿#include "Player.h"
 
 #include "stringex.h"
 #include "Log.h"
+
+#include "../asm/asm_defines.h"
+#include "wacfile.h"
 
 #include "Ant.h"
 
@@ -12,16 +15,24 @@ Player::Player(uint32_t index, const std::string& libname)
     : m_libName(libname)
     , m_index(index)
 {
-    //load lib
-    if (loadFile())
+    PragmaMap pragma;
+    //TODO может быть разрешить компиляцию на ходу????
+    //     тогда тут нужно смотреть на расширение файла
+    if (!loadWacFile(libname, m_bcode, pragma))
     {
-        // get PlayerInfo
-        //(*m_fnInit)(&m_info);
-        m_isInit = true;
+        LOGE("Player %i: Cannot load wac file '%s'", index, libname.c_str());
+        return;
     }
+
+    m_info.antClass = pragma[Asm::PragmaType::Class];
+    m_info.teamName = pragma[Asm::PragmaType::Name];
+    m_info.teamVersion = pragma[Asm::PragmaType::Version];
+    //m_info.coreVersion = atoi(pragma[Asm::PragmaType::Core].c_str());
 
     //TODO calc m_libHash as CRC32(file libname)
     m_libHash = 0;
+
+    m_isInit = true;
 }
 
 Player::~Player()
@@ -30,18 +41,6 @@ Player::~Player()
     //{
     //	(*m_fnFinalize)();
     //}
-}
-
-bool Player::loadFile()
-{
-    std::string filename = "./players/" + m_libName;
-    //TODO load asm file and compile it
-
-    m_info.antClass = "black";
-    m_info.teamName = "Test team";
-    m_info.version = "1.0";
-
-    return true;
 }
 
 void Player::changeTeamName(uint32_t count)
