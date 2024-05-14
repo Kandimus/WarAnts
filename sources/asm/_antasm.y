@@ -44,7 +44,7 @@ int  yylex();
     int64_t TINEGER;
 }
 
-%token LROUND RROUND LSQUARE RSQUARE COMMA NEW_LINE COLON DOT SIGN PERSENT
+%token LROUND RROUND LSQUARE RSQUARE COMMA COLON DOT SIGN PERSENT
 %token INT_NUMBER HEX_NUMBER ID CHARACTER_STRING
 %token NAME VERSION CLASS DEFINE CORE
 %token R0 R1 R2 RC RF P0 P1 P2 COORD_X COORD_Y
@@ -60,7 +60,7 @@ int  yylex();
 %type <TPRAGMATYPE> pragma
 %type <TPRAGMA> list_of_pragmas pragma_definition
 %type <TFUNCTION> list_of_asm_functions asm_function asm_function_declaration
-%type <TSTATETMENT> list_of_commands asm_command_line asm_command
+%type <TSTATETMENT> list_of_commands asm_command
 %type <TSTRING> asm_function_name label quted_string
 %type <TEXPR> address expr_0 expr_1 expr_2 expr_3
 %type <TINEGER> number
@@ -70,8 +70,7 @@ int  yylex();
 %%
 
 asm_file
-    : newline asm_code
-    | asm_code
+    : asm_code
     ;
 
 asm_code
@@ -86,7 +85,7 @@ list_of_pragmas
     ;
 
 pragma_definition
-    : persent pragma quted_string newline               { $$ = new WarAnts::Asm::Pragma($2, $3->get(), yy_code.get()); }
+    : persent pragma quted_string                       { $$ = new WarAnts::Asm::Pragma($2, $3->get(), yy_code.get()); }
     ;
 
 pragma
@@ -107,7 +106,7 @@ list_of_defines
     ;
 
 define_definition
-    : sign DEFINE label number newline                  { yy_code->m_defines[$3->get()] = $4; }
+    : sign DEFINE label number                          { yy_code->m_defines[$3->get()] = $4; }
     ;
 
 // functions
@@ -126,17 +125,12 @@ asm_function_declaration
     ;
 
 asm_function_name
-    : DOT label newline                                 { $$ = $2; }
+    : DOT label                                         { $$ = $2; }
     ;
 
 list_of_commands
-    : list_of_commands asm_command_line                 { $$ = $1->add($2); }
-    | list_of_commands newline                          { $$ = $1; }
-    | asm_command_line                                  { $$ = $1; }
-    ;
-
-asm_command_line
-    : asm_command newline                               { $$ = $1; }
+    : list_of_commands asm_command                      { $$ = $1->add($2); }
+    | asm_command                                       { $$ = $1; }
     ;
 
 asm_command
@@ -270,10 +264,6 @@ expr_3
 number
     : INT_NUMBER                                        { $$ = getIntNumber(yytext); }
     | HEX_NUMBER                                        { $$ = getHexNumber(yytext); }
-    ;
-
-newline
-    : NEW_LINE
     ;
 
 quted_string

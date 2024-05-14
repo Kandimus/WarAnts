@@ -380,7 +380,14 @@ void Code::print(const std::string& filename)
         return;
     }
 
-    file << "// pragma" << std::endl;
+    file << "; pragma" << std::endl;
+    auto pragma = m_pragma;
+    while (pragma)
+    {
+        file << (size_t)pragma->type() << " = '" << pragma->value() << "'" << std::endl;
+        pragma = pragma->next();
+    }
+    file << std::endl;
 
     auto func = m_function;
     while (func)

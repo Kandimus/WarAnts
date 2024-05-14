@@ -192,7 +192,9 @@ enum Type : uint8_t
 enum Jump : uint8_t
 {
     JUMP_CHAR = 0x00,
-    JUMP_SHORT = 0x01
+    JUMP_SHORT = 0x01,
+
+    JUMP_MASK = 0x01,
 };
 
 enum Value : uint8_t
@@ -201,13 +203,11 @@ enum Value : uint8_t
     VALUE_CHAR = 0x01,
     VALUE_SHORT = 0x02,
     VALUE_UNDEFINED = 0x03,
+    
     VALUE_MASK = 0x03,
 };
-};
 
-
-
-enum class BCodeCommand : int8_t
+enum Command : int8_t
 {
     NOP = 0,
 
@@ -258,23 +258,14 @@ enum class BCodeCommand : int8_t
     CPW,
 
     JMP = 0x40,
-    JMPl = 0x41,
     JZ = 0x42,
-    JZl = 0x43,
     JNZ = 0x44,
-    JNZl = 0x45,
     JO = 0x46,
-    JOl = 0x47,
     JNO = 0x48,
-    JNOl = 0x49,
     JCZ = 0x4a,
-    JCZl = 0x4b,
     JCNZ = 0x4c,
-    JCNZl = 0x4d,
     LOOP = 0x4e,
-    LOOPl = 0x4f,
     CALL = 0x50,
-    CALLl = 0x51,
 
     LDTR = 0x60,
     LDFD = 0x64,
@@ -283,6 +274,7 @@ enum class BCodeCommand : int8_t
     CIDL = 0x70,
     CEAT = 0x74,
 };
+}; // namespace BCode
 
 }; // namespace Asm
 }; // namespace WarAnts

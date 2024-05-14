@@ -12,8 +12,7 @@ void skipMultiLineComment(void);
 %option noyywrap
 %option yylineno
 
-delim     [ \t]
-new_line  [\n]
+delim     [ \t\n\r]*
 NQUOTE    [^"]
 id        [A-Z_]([A-Z0-9_])*
 digit     [0-9]
@@ -22,15 +21,16 @@ hexdigit  [0-9a-fA-F]
 uint_num   {digit}+
 int_num    "-"{digit}+
 hex_num   {hexdigit}+"H"
+comment   ";"[^\n\r]*
 
 %%
 
-{delim}+                    { ; }
+{delim}                     { ; }
+{comment}                   { ; }
 {uint_num}                  { return INT_NUMBER; }
 {int_num}                   { return INT_NUMBER; }
 {hex_num}                   { return HEX_NUMBER; }
 \"({NQUOTE}|"")+\"          { return CHARACTER_STRING; }
-{new_line}+                 { return NEW_LINE; }
 
 "("                         { return LROUND; }
 ")"                         { return RROUND; }
@@ -125,14 +125,13 @@ hex_num   {hexdigit}+"H"
 "cps"                       { return CPS; }
 "spw"                       { return CPW; }
 
-"//"                        { skipSignleLineComment(); }
-"/*"                        { skipMultiLineComment(); }
-
 {id}                        { return ID; }
 
 .                           { printf("flex: UNDEF!!!!\n");  return yytext[0]; }
 
 %%
+//";"                         { skipSignleLineComment(); }
+//"/*"                        { skipMultiLineComment(); }
 
 static void skipSignleLineComment(void)
 {

@@ -168,7 +168,7 @@ int Battle::run()
 
             ant->beginTurn();
 
-            if(!ant->hasCommand())
+            if(!ant->hasCommand() && ant->isSolder())
             {
                 vm.run(ant);
             //	AntInfo ai;

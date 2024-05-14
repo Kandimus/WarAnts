@@ -237,7 +237,7 @@ bool Function::save(Code* code)
 
 void Function::print(std::ofstream& file)
 {
-    file << "." << m_name << " // " << su::String_format2("[%i]", offset()) << std::endl;
+    file << "." << m_name << " ; " << su::String_format2("[%04x]", offset()) << std::endl;
 
     Statement* stat = m_stat;
 

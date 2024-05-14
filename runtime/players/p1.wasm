@@ -1,57 +1,67 @@
-%core "0100"
-% name "Black stupid ants"
-% version "1"
-%class "black"
+%   core "0100"
+%   name "Black stupid ants"
+%version "1"
+%  class "black"
 
-# define food_count 07H
+#define food_count  07H
 #define enemy_count 06H
 #define enemy_pos   21H
 
-// return R0 as index nearly enemy
+;-----------------------------------------------
+; return R0 as index the nearest enemy
 .GetNearlyEnemy
-    // R0 - current len to enemy
-    // R1 - min len to enemy
-    // R2 - index nearly enemy
-    MOV RC, [enemy_count]
-    DEC RC
-    MOV R1, 7FFFH // max len
-
+    ; R0 - the current distance to an enemy
+    ; R1 - min distance to an enemy
+    ; R2 - index of the nearest enemy
+    mov  R0, -1
+    mov  RC, [enemy_count]
+    ; Если кол-во видимых противников равно нулю, то выходим
+    jz  return
+    dec  RC
+    mov  R1, 7fffh ; max len
+    
+    ; Цикл поиска ближайшего врага
 beg_loop:
     LDEN RC
-	DIST R0, [enemy_pos]
-    GT   R0, R1
-	JNZ  end_loop
+    DIST R0, [enemy_pos] ; в R0 расстояние до противника
+    gt   R0, R1
+    JNZ  end_loop
     MOV  R1, R0
     MOV  R2, RC
 end_loop:
     LOOP beg_loop
     MOV  R0, R2
+return:
+    exit
+
 
 .unused_func
     MOV RC, [enemy_count]
     DEC RC
+    EXIT
 
-//------------------------------
-// Main algorithm of WORKER ant
+
+;-----------------------------------------------
+; Main algorithm of the WORKER ant
 .worker
     MOV  R0, 48
     MOV  [R0 + 4], 33
-//    MOV  RF, [1 * 2 + 3]
-//	AND R0, P0
+;    MOV  RF, [1 * 2 + 3]
+;	AND R0, P0
     MAX P1, P0
     MOV [R0 + 5], [R1 + P0:X * 2 + 10]
-    // Если мы голодны (сытость <= 50.0)
-    // то идем к ближайшей точке с едой
-    // или кушаем из карго
+    ; Если мы голодны (сытость <= 50.0)
+    ; то идем к ближайшей точке с едой
+    ; или кушаем из карго
     LE  [2], 500
     JNZ go_to_food
 
-    // Если рядом минимум 2 противника, то атакуем ближайшего
+    ; Если рядом минимум 2 противника, то атакуем ближайшего
     GE  [enemy_count], 2
     JNZ attack_enemy
     JMP finish
 go_to_food:
-    GT [7], 0
+    GT [food_count], 0
     JNZ eat_from_cargo
     LDFD 0
     CTKF [48]
@@ -70,8 +80,19 @@ finish:
     EXIT
 
 
+;------------------------------
+; Main algorithm of the SOLDER ant
 .solder
+    call GetNearlyEnemy
+    EQ R0, -1
+    JNZ attack_enemy
     CIDL 2
 
+attack_enemy:
+    LDEN R0
+    CATT [enemy_pos]
+    EXIT
+
+;
 .queen
     CIDL 2

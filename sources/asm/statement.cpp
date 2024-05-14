@@ -149,70 +149,70 @@ bool Statement::compile(Code* code)
 
     switch (m_cmd)
     {
-        case AsmCommand::ADD:  compileCommon(BCodeCommand::ADD, code); break;
-        case AsmCommand::AND:  compileNoPosition(BCodeCommand::AND, code); break;
-        case AsmCommand::DEC:  compileDstCommon(BCodeCommand::DEC, code); break;
-        case AsmCommand::DIV:  compileCommon(BCodeCommand::DIV, code); break;
-        case AsmCommand::INC:  compileDstCommon(BCodeCommand::INC, code); break;
-        case AsmCommand::MOD:  compileNoPosition(BCodeCommand::MOD, code); break;
-        case AsmCommand::MUL:  compileCommon(BCodeCommand::MUL, code); break;
-        case AsmCommand::NEG:  compileDstCommon(BCodeCommand::NEG, code); break;
-        case AsmCommand::NOT:  compileDstNoPosition(BCodeCommand::NOT, code); break;
-        case AsmCommand::OR:   compileNoPosition(BCodeCommand::OR, code); break;
-        case AsmCommand::SUB:  compileCommon(BCodeCommand::SUB, code); break;
-        case AsmCommand::XOR:  compileNoPosition(BCodeCommand::XOR, code); break;
-        case AsmCommand::MIN:  compileStrong(BCodeCommand::MIN, code); break;
-        case AsmCommand::MAX:  compileStrong(BCodeCommand::MAX, code); break;
+        case AsmCommand::ADD:  compileCommon(BCode::ADD, code); break;
+        case AsmCommand::AND:  compileNoPosition(BCode::AND, code); break;
+        case AsmCommand::DEC:  compileDstCommon(BCode::DEC, code); break;
+        case AsmCommand::DIV:  compileCommon(BCode::DIV, code); break;
+        case AsmCommand::INC:  compileDstCommon(BCode::INC, code); break;
+        case AsmCommand::MOD:  compileNoPosition(BCode::MOD, code); break;
+        case AsmCommand::MUL:  compileCommon(BCode::MUL, code); break;
+        case AsmCommand::NEG:  compileDstCommon(BCode::NEG, code); break;
+        case AsmCommand::NOT:  compileDstNoPosition(BCode::NOT, code); break;
+        case AsmCommand::OR:   compileNoPosition(BCode::OR, code); break;
+        case AsmCommand::SUB:  compileCommon(BCode::SUB, code); break;
+        case AsmCommand::XOR:  compileNoPosition(BCode::XOR, code); break;
+        case AsmCommand::MIN:  compileStrong(BCode::MIN, code); break;
+        case AsmCommand::MAX:  compileStrong(BCode::MAX, code); break;
 
-        case AsmCommand::BSF:  compileNoPosition(BCodeCommand::BSF, code); break;
-        case AsmCommand::BSR:  compileNoPosition(BCodeCommand::BSR, code); break;
-        case AsmCommand::BT:   compileNoPosition(BCodeCommand::BT,  code); break;
-        case AsmCommand::BTR:  compileNoPosition(BCodeCommand::BTR, code); break;
-        case AsmCommand::BTS:  compileNoPosition(BCodeCommand::BTS, code); break;
-        case AsmCommand::BTC:  compileNoPosition(BCodeCommand::BTC, code); break;
-        case AsmCommand::SHL:  compileNoPosition(BCodeCommand::SHL, code); break;
-        case AsmCommand::SHR:  compileNoPosition(BCodeCommand::SHR, code); break;
-        case AsmCommand::ROL:  compileNoPosition(BCodeCommand::ROL, code); break;
-        case AsmCommand::ROR:  compileNoPosition(BCodeCommand::ROR, code); break;
+        case AsmCommand::BSF:  compileNoPosition(BCode::BSF, code); break;
+        case AsmCommand::BSR:  compileNoPosition(BCode::BSR, code); break;
+        case AsmCommand::BT:   compileNoPosition(BCode::BT,  code); break;
+        case AsmCommand::BTR:  compileNoPosition(BCode::BTR, code); break;
+        case AsmCommand::BTS:  compileNoPosition(BCode::BTS, code); break;
+        case AsmCommand::BTC:  compileNoPosition(BCode::BTC, code); break;
+        case AsmCommand::SHL:  compileNoPosition(BCode::SHL, code); break;
+        case AsmCommand::SHR:  compileNoPosition(BCode::SHR, code); break;
+        case AsmCommand::ROL:  compileNoPosition(BCode::ROL, code); break;
+        case AsmCommand::ROR:  compileNoPosition(BCode::ROR, code); break;
 
-        case AsmCommand::EQ:   compileStrong(BCodeCommand::EQ , code); break;
-        case AsmCommand::NEQ:  compileStrong(BCodeCommand::NEQ, code); break;
-        case AsmCommand::GT:   compileNoPosition(BCodeCommand::GT  , code); break;
-        case AsmCommand::GE:   compileNoPosition(BCodeCommand::GE  , code); break;
-        case AsmCommand::LT:   compileNoPosition(BCodeCommand::LT  , code); break;
-        case AsmCommand::LE:   compileNoPosition(BCodeCommand::LE  , code); break;
-        case AsmCommand::TEST: compileNoPosition(BCodeCommand::TEST, code); break;
+        case AsmCommand::EQ:   compileStrong(BCode::EQ , code); break;
+        case AsmCommand::NEQ:  compileStrong(BCode::NEQ, code); break;
+        case AsmCommand::GT:   compileNoPosition(BCode::GT  , code); break;
+        case AsmCommand::GE:   compileNoPosition(BCode::GE  , code); break;
+        case AsmCommand::LT:   compileNoPosition(BCode::LT  , code); break;
+        case AsmCommand::LE:   compileNoPosition(BCode::LE  , code); break;
+        case AsmCommand::TEST: compileNoPosition(BCode::TEST, code); break;
 
-        case AsmCommand::JMP:  compileJump(BCodeCommand::JMPl, code); break;
-        case AsmCommand::JZ:   compileJump(BCodeCommand::JZl, code); break;
-        case AsmCommand::JNZ:  compileJump(BCodeCommand::JNZl, code); break;
-        case AsmCommand::JO:   compileJump(BCodeCommand::JOl, code); break;
-        case AsmCommand::JNO:  compileJump(BCodeCommand::JNOl, code); break;
-        case AsmCommand::JCZ:  compileJump(BCodeCommand::JCZl, code); break;
-        case AsmCommand::JCNZ: compileJump(BCodeCommand::JCNZl, code); break;
-        case AsmCommand::LOOP: compileJump(BCodeCommand::LOOPl, code); break;
-        case AsmCommand::CALL: compileJump(BCodeCommand::CALLl, code); break;
+        case AsmCommand::JMP:  compileJump(BCode::JMP, code); break;
+        case AsmCommand::JZ:   compileJump(BCode::JZ, code); break;
+        case AsmCommand::JNZ:  compileJump(BCode::JNZ, code); break;
+        case AsmCommand::JO:   compileJump(BCode::JO, code); break;
+        case AsmCommand::JNO:  compileJump(BCode::JNO, code); break;
+        case AsmCommand::JCZ:  compileJump(BCode::JCZ, code); break;
+        case AsmCommand::JCNZ: compileJump(BCode::JCNZ, code); break;
+        case AsmCommand::LOOP: compileJump(BCode::LOOP, code); break;
+        case AsmCommand::CALL: compileJump(BCode::CALL, code); break;
 
-        case AsmCommand::MOV:  compileCommon(BCodeCommand::MOV, code); break;
-        case AsmCommand::LEN:  compilePosition(BCodeCommand::LEN, code); break;
-        case AsmCommand::DIST: compileDstNoPositionSrcPosition(BCodeCommand::DIST, code); break;
-        case AsmCommand::EXIT: compileNoArgs(BCodeCommand::EXIT, code); break;
+        case AsmCommand::MOV:  compileCommon(BCode::MOV, code); break;
+        case AsmCommand::LEN:  compilePosition(BCode::LEN, code); break;
+        case AsmCommand::DIST: compileDstNoPositionSrcPosition(BCode::DIST, code); break;
+        case AsmCommand::EXIT: compileNoArgs(BCode::EXIT, code); break;
 
-        case AsmCommand::LDTR: compileSrcNoPosition(BCodeCommand::LDTR, code); break;
-        case AsmCommand::LDFD: compileSrcNoPosition(BCodeCommand::LDFD, code); break;
-        case AsmCommand::LDEN: compileSrcNoPosition(BCodeCommand::LDEN, code); break;
-        case AsmCommand::LDFR: compileSrcNoPosition(BCodeCommand::LDFR, code); break;
+        case AsmCommand::LDTR: compileSrcNoPosition(BCode::LDTR, code); break;
+        case AsmCommand::LDFD: compileSrcNoPosition(BCode::LDFD, code); break;
+        case AsmCommand::LDEN: compileSrcNoPosition(BCode::LDEN, code); break;
+        case AsmCommand::LDFR: compileSrcNoPosition(BCode::LDFR, code); break;
 
-        case AsmCommand::CIDL: compileSrcNoPosition(BCodeCommand::CIDL, code); break;
-        case AsmCommand::CMOV: compileDstPosition(BCodeCommand::CMOV, code); break;
-        case AsmCommand::CATT: compileDstPosition(BCodeCommand::CATT, code); break;
-        case AsmCommand::CTKF: compileDstPosition(BCodeCommand::CTKF, code); break;
-        case AsmCommand::CGVF: compileDstPosition(BCodeCommand::CGVF, code); break;
-        case AsmCommand::CEAT: compileSrcNoPosition(BCodeCommand::CEAT, code); break;
-        case AsmCommand::CPS:  compileNoArgs(BCodeCommand::CPS, code); break;
-        case AsmCommand::CPW:  compileNoArgs(BCodeCommand::CPW, code); break;
+        case AsmCommand::CIDL: compileSrcNoPosition(BCode::CIDL, code); break;
+        case AsmCommand::CMOV: compileDstPosition(BCode::CMOV, code); break;
+        case AsmCommand::CATT: compileDstPosition(BCode::CATT, code); break;
+        case AsmCommand::CTKF: compileDstPosition(BCode::CTKF, code); break;
+        case AsmCommand::CGVF: compileDstPosition(BCode::CGVF, code); break;
+        case AsmCommand::CEAT: compileSrcNoPosition(BCode::CEAT, code); break;
+        case AsmCommand::CPS:  compileNoArgs(BCode::CPS, code); break;
+        case AsmCommand::CPW:  compileNoArgs(BCode::CPW, code); break;
 
-        case AsmCommand::NOP:  compileNoArgs(BCodeCommand::NOP, code); break;
+        case AsmCommand::NOP:  compileNoArgs(BCode::NOP, code); break;
 
         default:
             SU_BREAKPOINT();
@@ -398,7 +398,7 @@ void Statement::print(std::ofstream& file) const
 
     if (m_bcode.size())
     {
-        file << "\t\t//" << su::String_format2("[%i]", offset());
+        file << "    ; " << su::String_format2("[%04x]", offset());
         
         for (auto item : m_bcode)
         {
@@ -438,50 +438,50 @@ Register::Type Statement::compileExpr(Expression* expr, bool isDst, Code* code)
     return clearReg;
 }
 
-void Statement::compileDstSrc(BCodeCommand cmd, Register::Type& dst, Register::Type& src, Code* code)
+void Statement::compileDstSrc(BCode::Command cmd, Register::Type& dst, Register::Type& src, Code* code)
 {
     m_bcode.push_back((int8_t)cmd);
     dst = compileExpr(m_dst, true, code);
     src = compileExpr(m_src, false, code);
 }
 
-void Statement::compileDst(BCodeCommand cmd, Register::Type& dst, Code* code)
+void Statement::compileDst(BCode::Command cmd, Register::Type& dst, Code* code)
 {
     m_bcode.push_back((int8_t)cmd);
     dst = compileExpr(m_dst, true, code);
 }
 
-void Statement::compileSrc(BCodeCommand cmd, Register::Type& src, Code* code)
+void Statement::compileSrc(BCode::Command cmd, Register::Type& src, Code* code)
 {
     m_bcode.push_back((int8_t)cmd);
     src = compileExpr(m_src, false, code);
 }
 
-void Statement::compileNoArgs(BCodeCommand cmd, Code* code)
+void Statement::compileNoArgs(BCode::Command cmd, Code* code)
 {
     m_bcode.push_back((int8_t)cmd);
 }
 
-void Statement::compileCommon(BCodeCommand cmd, Code* code)
+void Statement::compileCommon(BCode::Command cmd, Code* code)
 {
     Register::Type dst;
     Register::Type src;
     compileDstSrc(cmd, dst, src, code);
 }
 
-void Statement::compileDstCommon(BCodeCommand cmd, Code* code)
+void Statement::compileDstCommon(BCode::Command cmd, Code* code)
 {
     Register::Type dst;
     compileDst(cmd, dst, code);
 }
 
-void Statement::compileSrcCommon(BCodeCommand cmd, Code* code)
+void Statement::compileSrcCommon(BCode::Command cmd, Code* code)
 {
     Register::Type src;
     compileSrc(cmd, src, code);
 }
 
-void Statement::compileNoPosition(BCodeCommand cmd, Code* code)
+void Statement::compileNoPosition(BCode::Command cmd, Code* code)
 {
     Register::Type dst;
     Register::Type src;
@@ -494,7 +494,7 @@ void Statement::compileNoPosition(BCodeCommand cmd, Code* code)
     }
  }
 
-void Statement::compileDstNoPosition(BCodeCommand cmd, Code* code)
+void Statement::compileDstNoPosition(BCode::Command cmd, Code* code)
 {
     Register::Type dst;
     compileDst(cmd, dst, code);
@@ -506,7 +506,7 @@ void Statement::compileDstNoPosition(BCodeCommand cmd, Code* code)
     }
 }
 
-void Statement::compileSrcNoPosition(BCodeCommand cmd, Code* code)
+void Statement::compileSrcNoPosition(BCode::Command cmd, Code* code)
 {
     Register::Type src;
     compileSrc(cmd, src, code);
@@ -518,7 +518,7 @@ void Statement::compileSrcNoPosition(BCodeCommand cmd, Code* code)
     }
 }
 
-void Statement::compileStrong(BCodeCommand cmd, Code* code)
+void Statement::compileStrong(BCode::Command cmd, Code* code)
 {
     Register::Type dst;
     Register::Type src;
@@ -534,14 +534,14 @@ void Statement::compileStrong(BCodeCommand cmd, Code* code)
     code->error(lineno(), "Only equalies types of registers must be used in this statement.");
 }
 
-void Statement::compileJump(BCodeCommand cmdl, Code* code)
+void Statement::compileJump(BCode::Command cmdl, Code* code)
 {
     m_bcode.push_back((int8_t)cmdl | BCode::JUMP_SHORT);
     m_bcode.push_back(0);
     m_bcode.push_back(0);
 }
 
-void Statement::compilePosition(BCodeCommand cmd, Code* code)
+void Statement::compilePosition(BCode::Command cmd, Code* code)
 {
     Register::Type dst;
     Register::Type src;
@@ -556,7 +556,7 @@ void Statement::compilePosition(BCodeCommand cmd, Code* code)
     code->error(lineno(), "Only position registers must be used in this statement.");
 }
 
-void Statement::compileDstPosition(BCodeCommand cmd, Code* code)
+void Statement::compileDstPosition(BCode::Command cmd, Code* code)
 {
     Register::Type dst;
     compileDst(cmd, dst, code);
@@ -569,7 +569,7 @@ void Statement::compileDstPosition(BCodeCommand cmd, Code* code)
     code->error(lineno(), "Only position registers must be used in this statement.");
 }
 
-void Statement::compileDstNoPositionSrcPosition(BCodeCommand cmd, Code* code)
+void Statement::compileDstNoPositionSrcPosition(BCode::Command cmd, Code* code)
 {
     Register::Type dst;
     Register::Type src;

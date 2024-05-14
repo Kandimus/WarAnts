@@ -40,6 +40,7 @@ public:
         prepare();
     }
 
+    uint16_t pos() const { return m_pos; }
     void setPos(uint16_t pos) { m_pos = pos; };
     int8_t getNextChar() { ++m_pos; return m_bcode[m_pos - 1]; }
 
@@ -140,6 +141,14 @@ int16_t* VirtualMachineRunData::getDestination()
                 m_bcode[m_pos - 2], m_pos - 1, m_registers[reg]);
             return nullptr;
         }
+
+        if (m_registers[reg] < Memory::UserData)
+        {
+            LOGE("Command %02x (%04x): address 0x04x is readonly",
+                m_bcode[m_pos - 2], m_pos - 1, m_registers[reg]);
+            return nullptr;
+        }
+
         return &m_memory[m_registers[reg]];
     }
 
@@ -180,25 +189,90 @@ bool VirtualMachine::run(const std::shared_ptr<Ant>& ant)
     int8_t cmd = 0;
     int16_t* dst = 0;
     int16_t src = 0;
+    int16_t value = 0;
+    uint8_t valType = 0;
+    bool usingValue = false;
+    std::vector<uint16_t> callstack;
+
     while (true)
     {
-        int8_t cmd = data.getNextChar();
+        usingValue = false;
+        cmd = data.getNextChar();
 
         if ((cmd & Asm::BCode::TYPE_VALUE) == Asm::BCode::TYPE_VALUE)
         {
-            src = cmd & Asm::BCode::VALUE_MASK;
+            valType = cmd & Asm::BCode::VALUE_MASK;
             cmd &= ~Asm::BCode::VALUE_MASK;
+
+            if (valType == Asm::BCode::VALUE_CHAR)
+            {
+                usingValue = true;
+                value = data.getNextChar();
+            }
+            else if (valType == Asm::BCode::VALUE_SHORT)
+            {
+                usingValue = true;
+                value = data.getNextChar();
+                value |= data.getNextChar() << 8;
+            }
+        }
+        else if ((cmd & Asm::BCode::TYPE_JUMP) == Asm::BCode::TYPE_JUMP)
+        {
+            valType = cmd & Asm::BCode::JUMP_MASK;
+            cmd &= ~Asm::BCode::JUMP_MASK;
+            value = data.getNextChar();
+
+            if (valType == Asm::BCode::JUMP_SHORT)
+            {
+                value |= data.getNextChar() << 8;
+            }
         }
 
-        switch ((Asm::BCodeCommand)cmd)
+        switch (cmd)
         {
-//            case Asm::BCodeCommand::ADD:
+            case Asm::BCode::ADD:
+                dst = data.getDestination();
+                src = data.getSource();
+                if (dst)
+                {
+                    *dst = *dst + src;
+                }
+                break;
 
+            case Asm::BCode::AND:
+                dst = data.getDestination();
+                src = data.getSource();
+                if (dst)
+                {
+                    *dst = *dst & src;
+                }
+                break;
+
+            case Asm::BCode::DEC:
+                dst = data.getDestination();
+                if (dst)
+                {
+                    *dst -= 1;
+                }
+                break;
+
+            case Asm::BCode::DIV:
+                dst = data.getDestination();
+                src = data.getSource();
+                if (dst)
+                {
+                    *dst = *dst / src;
+                }
+                break;
+
+            case Asm::BCode::INC:
+                dst = data.getDestination();
+                if (dst)
+                {
+                    *dst += 1;
+                }
+                break;
 /*
-                AND,
-                DEC,
-                DIV,
-                INC,
                 MOD,
                 MUL,
                 NEG,
@@ -229,7 +303,7 @@ bool VirtualMachine::run(const std::shared_ptr<Ant>& ant)
                 TEST,
 */
 
-            case Asm::BCodeCommand::MOV:
+            case Asm::BCode::MOV: 
                 dst = data.getDestination();
                 src = data.getSource();
                 if (dst)
@@ -237,11 +311,17 @@ bool VirtualMachine::run(const std::shared_ptr<Ant>& ant)
                     *dst = src;
                 }
                 break;
+//                LEN,
+//                DIST,
+            case Asm::BCode::EXIT:
+                if (callstack.empty())
+                {
+                    return true;
+                }
+                data.setPos(callstack.back());
+                callstack.pop_back();
+                break;
 /*
-                LEN,
-                DIST,
-                EXIT,
-
                 CMOV,
                 CATT,
                 CTKF,
@@ -250,24 +330,18 @@ bool VirtualMachine::run(const std::shared_ptr<Ant>& ant)
                 CPW,
 
                 JMP = 0x40,
-                JMPl = 0x41,
                 JZ = 0x42,
-                JZl = 0x43,
                 JNZ = 0x44,
-                JNZl = 0x45,
                 JO = 0x46,
-                JOl = 0x47,
                 JNO = 0x48,
-                JNOl = 0x49,
                 JCZ = 0x4a,
-                JCZl = 0x4b,
                 JCNZ = 0x4c,
-                JCNZl = 0x4d,
-                LOOP = 0x4e,
-                LOOPl = 0x4f,
-                CALL = 0x50,
-                CALLl = 0x51,
-
+                LOOP = 0x4e,*/
+            case Asm::BCode::CALL:
+                callstack.push_back(data.pos());
+                data.setPos(data.pos() + value - 2 - (valType == Asm::BCode::JUMP_SHORT ? 1 : 0));
+                break;
+/*
                 LDTR = 0x60,
                 LDFD = 0x64,
                 LDEN = 0x68,

@@ -108,22 +108,22 @@ public:
 
 protected:
     Register::Type compileExpr(Expression* expr, bool isDst, Code* code);
-    void compileDstSrc(BCodeCommand cmd, Register::Type& dst, Register::Type& src, Code* code);
-    void compileDst(BCodeCommand cmd, Register::Type& dst, Code* code);
-    void compileSrc(BCodeCommand cmd, Register::Type& src, Code* code);
+    void compileDstSrc(BCode::Command cmd, Register::Type& dst, Register::Type& src, Code* code);
+    void compileDst(BCode::Command cmd, Register::Type& dst, Code* code);
+    void compileSrc(BCode::Command cmd, Register::Type& src, Code* code);
 
-    void compileNoArgs(BCodeCommand cmd, Code* code);
-    void compileCommon(BCodeCommand cmd, Code* code);
-    void compileDstCommon(BCodeCommand cmd, Code* code);
-    void compileSrcCommon(BCodeCommand cmd, Code* code);
-    void compileNoPosition(BCodeCommand cmd, Code* code);
-    void compileDstNoPosition(BCodeCommand cmd, Code* code);
-    void compileSrcNoPosition(BCodeCommand cmd, Code* code);
-    void compileStrong(BCodeCommand cmd, Code* code);
-    void compileJump(BCodeCommand cmdl, Code* code);
-    void compilePosition(BCodeCommand cmd, Code* code);
-    void compileDstPosition(BCodeCommand cmd, Code* code);
-    void compileDstNoPositionSrcPosition(BCodeCommand cmd, Code* code);
+    void compileNoArgs(BCode::Command cmd, Code* code);
+    void compileCommon(BCode::Command cmd, Code* code);
+    void compileDstCommon(BCode::Command cmd, Code* code);
+    void compileSrcCommon(BCode::Command cmd, Code* code);
+    void compileNoPosition(BCode::Command cmd, Code* code);
+    void compileDstNoPosition(BCode::Command cmd, Code* code);
+    void compileSrcNoPosition(BCode::Command cmd, Code* code);
+    void compileStrong(BCode::Command cmd, Code* code);
+    void compileJump(BCode::Command cmdl, Code* code);
+    void compilePosition(BCode::Command cmd, Code* code);
+    void compileDstPosition(BCode::Command cmd, Code* code);
+    void compileDstNoPositionSrcPosition(BCode::Command cmd, Code* code);
 
 public:
     StatementType m_type;
