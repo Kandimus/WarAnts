@@ -63,7 +63,7 @@ public:
 protected:
     void createMap(uint32_t w, uint32_t h);
     void incPosition(Position& pos, uint32_t x = 1) const;
-    inline int32_t absPosition(const Position& pos) const { return pos.x() + pos.y() * m_size.x(); }
+    int32_t absPosition(const Position& pos) const;
 
 protected:
     Position m_size;

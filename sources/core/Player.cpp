@@ -15,18 +15,14 @@ Player::Player(uint32_t index, const std::string& libname)
     : m_libName(libname)
     , m_index(index)
 {
-    PragmaMap pragma;
     //TODO может быть разрешить компиляцию на ходу????
     //     тогда тут нужно смотреть на расширение файла
-    if (!loadWacFile(libname, m_bcode, pragma))
+    if (!loadWacFile(libname, m_info))
     {
         LOGE("Player %i: Cannot load wac file '%s'", index, libname.c_str());
         return;
     }
 
-    m_info.antClass = pragma[Asm::PragmaType::Class];
-    m_info.teamName = pragma[Asm::PragmaType::Name];
-    m_info.teamVersion = pragma[Asm::PragmaType::Version];
     //m_info.coreVersion = atoi(pragma[Asm::PragmaType::Core].c_str());
 
     //TODO calc m_libHash as CRC32(file libname)

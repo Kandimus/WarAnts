@@ -6,6 +6,7 @@ output/*
 *.log
 
 sources/asm/_antasm.y.output
+*.wasm.s*
 
 # Prerequisites
 *.d

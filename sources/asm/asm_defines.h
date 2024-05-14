@@ -179,27 +179,33 @@ enum class AsmCommand
 
 */
 
-enum class BCodeType : int8_t
+namespace BCode
 {
-    COMMON = 0x00,
-    POSITION = 0x20,
-    JUMP = 0x40,
-    VALUE = 0x60
+enum Type : uint8_t
+{
+    TYPE_COMMON = 0x00,
+    TYPE_POSITION = 0x20,
+    TYPE_JUMP = 0x40,
+    TYPE_VALUE = 0x60
 };
 
-enum class BCodeJump : int8_t
+enum Jump : uint8_t
 {
-    CHAR = 0x00,
-    SHORT = 0x01
+    JUMP_CHAR = 0x00,
+    JUMP_SHORT = 0x01
 };
 
-enum class BCodeValue : int8_t
+enum Value : uint8_t
 {
-    REGISTER = 0x00,
-    CHAR = 0x01,
-    SHORT = 0x10,
-    UNDEFINED = 0x11
+    VALUE_REGISTER = 0x00,
+    VALUE_CHAR = 0x01,
+    VALUE_SHORT = 0x02,
+    VALUE_UNDEFINED = 0x03,
+    VALUE_MASK = 0x03,
 };
+};
+
+
 
 enum class BCodeCommand : int8_t
 {

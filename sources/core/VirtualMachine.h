@@ -33,8 +33,8 @@ class Player;
 class VirtualMachine
 {
 public:
-    VirtualMachine(const std::shared_ptr<Map>& pMap)
-        : m_map(pMap)
+    VirtualMachine(const std::shared_ptr<Map>& map)
+        : m_map(map)
     {}
     VirtualMachine(const VirtualMachine&) = delete;
     VirtualMachine(VirtualMachine&&) = delete;
@@ -43,7 +43,7 @@ public:
     VirtualMachine& operator=(const VirtualMachine& ant) = delete;
 
 public:
-    bool run(Ant* ant);
+    bool run(const std::shared_ptr<Ant>& ant);
 //    uint32_t maxSatiety() const { return m_maxSatiety; }
 //    uint32_t satiety() const { return m_satiety; }
 //    uint32_t health() const { return m_health; }

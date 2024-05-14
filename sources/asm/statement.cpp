@@ -58,7 +58,7 @@ int16_t Statement::jumpValue() const
         return 0;
     }
 
-    return (m_bcode[0] & (int32_t)BCodeJump::SHORT)
+    return (m_bcode[0] & BCode::JUMP_SHORT)
      ? m_bcode[1] + m_bcode[2] * 256
      : m_bcode[1];
 }
@@ -70,7 +70,7 @@ bool Statement::checkUnusedJump() const
         return false;
     }
 
-    if ((m_bcode[0] & (int8_t)BCodeJump::SHORT) == 0)
+    if ((m_bcode[0] & BCode::JUMP_SHORT) == 0)
     {
         return m_bcode[1] == 2;
     }
@@ -85,7 +85,7 @@ bool Statement::isExit() const
 
 bool Statement::isValueCommand() const
 {
-    int8_t tv = (int8_t)BCodeType::VALUE;
+    int8_t tv = BCode::TYPE_VALUE;
     return m_bcode.size() && ((m_bcode[0] & tv) == tv);
 }
 
@@ -231,13 +231,13 @@ bool Statement::optimizeValueStatement(Code* code)
 
     if (m_bcode[1] == Register::CHAR)
     {
-        m_bcode[0] |= (int8_t)BCodeValue::CHAR;
+        m_bcode[0] |= BCode::VALUE_CHAR;
         m_bcode[1] = m_bcode[2];
         m_bcode.pop_back();
     }
     else if (m_bcode[1] == Register::SHORT)
     {
-        m_bcode[0] |= (int8_t)BCodeValue::SHORT;
+        m_bcode[0] |= BCode::VALUE_SHORT;
         m_bcode[1] = m_bcode[2];
         m_bcode[2] = m_bcode[3];
         m_bcode.pop_back();
@@ -280,12 +280,12 @@ bool Statement::resolveLabels(bool& recalc, Code* code)
     recalc |= newSize != m_bcode.size() || isChanged;
     if (newSize > m_bcode.size())
     {
-        m_bcode[0] |= (int8_t)BCodeJump::SHORT;
+        m_bcode[0] |= BCode::JUMP_SHORT;
         m_bcode.push_back(0);
     }
     else if (newSize < m_bcode.size())
     {
-        m_bcode[0] &= ~((int8_t)BCodeJump::SHORT);
+        m_bcode[0] &= ~(BCode::JUMP_SHORT);
         m_bcode.pop_back();
     }
 
@@ -536,7 +536,7 @@ void Statement::compileStrong(BCodeCommand cmd, Code* code)
 
 void Statement::compileJump(BCodeCommand cmdl, Code* code)
 {
-    m_bcode.push_back((int8_t)cmdl | (int8_t)BCodeJump::SHORT);
+    m_bcode.push_back((int8_t)cmdl | BCode::JUMP_SHORT);
     m_bcode.push_back(0);
     m_bcode.push_back(0);
 }

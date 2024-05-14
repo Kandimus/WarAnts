@@ -49,9 +49,6 @@ bool saveWacFile(const std::string& filename, const std::vector<int8_t>& data, P
     str = pragma[WarAnts::Asm::PragmaType::Version];
     file.write((const char*)str.c_str(), str.size() + 1);
 
-    uint16_t size = (uint16_t)data.size();
-    file.write((const char*)&size, sizeof(size));
-
     file.write((const char*)data.data(), data.size());
 
     file.close();
@@ -75,12 +72,18 @@ static std::string readCString(std::ifstream& ifs)
 }
 
 
-bool loadWacFile(const std::string& filename, std::vector<int8_t>& data, PragmaMap& pragma)
+bool loadWacFile(const std::string& filename, WacFile& data)
 {
     std::ifstream file(filename, std::ios_base::binary);
 
-    data.clear();
-    pragma.clear();
+    data.coreVersion = 0xffff;
+    data.funcQueen = 0xffff;
+    data.funcSolder = 0xffff;
+    data.funcWorker = 0xffff;
+    data.bcode.clear();
+    data.teamClass = "";
+    data.teamName = "";
+    data.teamVersion = "";
 
     if (!file.is_open())
     {
@@ -94,22 +97,25 @@ bool loadWacFile(const std::string& filename, std::vector<int8_t>& data, PragmaM
         return false;
     }
 
-    uint16_t coreVer = 0;
-    file.read((char*)&coreVer, sizeof(coreVer));
-    if (coreVer != Asm::Version::Core)
+    file.read((char*)&data.coreVersion, sizeof(data.coreVersion));
+    if (data.coreVersion != Asm::Version::Core)
     {
         return false;
     }
 
-    pragma[WarAnts::Asm::PragmaType::Class] = readCString(file);
-    pragma[WarAnts::Asm::PragmaType::Name] = readCString(file);
-    pragma[WarAnts::Asm::PragmaType::Version] = readCString(file);
+    data.teamClass = readCString(file);
+    data.teamName = readCString(file);
+    data.teamVersion = readCString(file);
+
+    file.read((char*)&data.funcQueen, sizeof(data.funcQueen));
+    file.read((char*)&data.funcSolder, sizeof(data.funcSolder));
+    file.read((char*)&data.funcWorker, sizeof(data.funcWorker));
 
     uint16_t size = 0;
     file.read((char*)&size, sizeof(size));
 
-    data.resize(size);
-    file.read((char*)data.data(), data.size());
+    data.bcode.resize(size);
+    file.read((char*)data.bcode.data(), data.bcode.size());
 
     file.close();
 

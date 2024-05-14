@@ -1,4 +1,6 @@
-#include "VirtualMachine.h"
+﻿#include "VirtualMachine.h"
+
+#include "log.h"
 
 #include "asm_defines.h"
 #include "defines.h"
@@ -27,143 +29,147 @@ enum Memory
 class VirtualMachineRunData
 {
 public:
-    VirtualMachineRunData(const std::vector<int8_t>& data);
+    VirtualMachineRunData(const std::vector<int8_t>& data, const std::shared_ptr<Ant>& ant, const std::shared_ptr<Map>& map)
+        : m_bcode(data)
+    {
+        m_ant = ant;
+        m_map = map;
 
-    void prepareRunData(Ant* ant, Map* map);
+        m_memory.resize(Memory::UserData + m_ant->sizeOfMemory()); //TODO возможно нужно перенести это в класс Ant
+
+        prepare();
+    }
+
+    void setPos(uint16_t pos) { m_pos = pos; };
+    int8_t getNextChar() { ++m_pos; return m_bcode[m_pos - 1]; }
+
+    void prepare();
     int16_t* getDestination();
-
+    int16_t getSource();
 
 public:
-    VectorAnts allies;
-    VectorAnts enemies;
-    VectorPosition foods;
-    std::vector<int16_t> memory;
-    int8_t reg[Asm::Register::MASK];
+    const std::vector<int8_t>& m_bcode;
+
+    std::shared_ptr<Ant> m_ant;
+    std::shared_ptr<Map> m_map;
+
+    VectorAnts m_allies;
+    VectorAnts m_enemies;
+    VectorPosition m_foods;
+    std::vector<int16_t> m_memory;
+    int16_t m_registers[Asm::Register::MASK];
+
+    uint16_t m_pos = 0;
 };
 
-void prepareRunData(VirtualMachineRunData& data, Ant* ant, Map* map)
+void VirtualMachineRunData::prepare()
 {
-    auto visibleCells = Math::visibleCells(ant->position(), ant->visibility());
-
-    data.allies.clear();
-    data.enemies.clear();
-    data.foods.clear();
-    data.memory.clear();
-
-    data.memory.resize(Memory::UserData + ant->sizeOfMemory());
+    auto visibleCells = Math::visibleCells(m_ant->position(), m_ant->visibility());
 
     for (auto& pos : visibleCells)
     {
-        auto cell = map->cell(pos);
+        auto cell = m_map->cell(pos);
 
-        if (cell->isEmpty())
+        if (!cell || cell->isEmpty())
         {
             continue;
         }
 
         if (cell->food())
         {
-            ++data.memory[Memory::CountOfFood];
-            data.foods.push_back(pos);
+            ++m_memory[Memory::CountOfFood];
+            m_foods.push_back(pos);
             continue;
         }
 
         auto cellAnt = cell->ant();
         if (cellAnt.get())
         {
-            if (cellAnt->player() == ant->player())
+            if (cellAnt->player() == m_ant->player())
             {
-                ++data.memory[Memory::CountOfAllies];
-                data.allies.push_back(cellAnt);
+                ++m_memory[Memory::CountOfAllies];
+                m_allies.push_back(cellAnt);
             }
             else
             {
-                ++data.memory[Memory::CountOfEnemy];
-                data.enemies.push_back(cellAnt);
+                ++m_memory[Memory::CountOfEnemy];
+                m_enemies.push_back(cellAnt);
             }
         }
     }
 
-    data.memory[Memory::SatietyPercent] = int16_t(ant->satietyPercent() * 10);
-    data.memory[Memory::HealthPercent] = int16_t(ant->healthPercent() * 10);
-    data.memory[Memory::Cargo] = ant->cargo();
+    m_memory[Memory::SatietyPercent] = int16_t(m_ant->satietyPercent() * 10);
+    m_memory[Memory::HealthPercent] = int16_t(m_ant->healthPercent() * 10);
+    m_memory[Memory::Cargo] = m_ant->cargo();
 
-    for (size_t ii = 0; ii < ant->sizeOfMemory(); ++ii)
+    for (size_t ii = 0; ii < m_ant->sizeOfMemory(); ++ii)
     {
-        data.memory[UserData + ii] = ant->memory(ii);
+        m_memory[UserData + ii] = m_ant->memory(ii);
     }
 }
 
-int16_t* getDestination(const std::vector<int8_t>& bcode, uint16_t& pos, int16_t* registers)
+int16_t* VirtualMachineRunData::getDestination()
 {
-    int8_t reg = bcode[++pos];
-    int16_t* out = nullptr;
+    int8_t reg = m_bcode[m_pos++];
     bool isAddress = reg & Asm::Register::ADDRESS;
 
     reg &= Asm::Register::MASK;
     
     if (reg > Asm::Register::MASK)
     {
-        LOGE("Command %02x (%04x): Undefined register type %i", bcode[pos - 2], pos - 1, bcode[pos - 1]);
-        return out;
+        LOGE("Command %02x (%04x): Undefined register type %i",
+            m_bcode[m_pos - 2], m_pos - 1, m_bcode[m_pos - 1]);
+        return nullptr;
     }
 
-    out = &registers[Asm::Register::R0];
+    if (reg == Asm::Register::CHAR)
+    {
+        m_registers[Asm::Register::CHAR] = m_bcode[m_pos++];
+    }
+    else if (reg == Asm::Register::SHORT)
+    {
+        m_registers[Asm::Register::SHORT] = m_bcode[m_pos++];
+        m_registers[Asm::Register::SHORT] |= (m_bcode[m_pos++] << 8);
+    }
 
     if (isAddress)
     {
-        out
+        if (m_registers[reg] >= m_memory.size())
+        {
+            LOGE("Command %02x (%04x): invalide address 0x04x",
+                m_bcode[m_pos - 2], m_pos - 1, m_registers[reg]);
+            return nullptr;
+        }
+        return &m_memory[m_registers[reg]];
     }
 
+    return &m_registers[reg];
 }
 
-int16_t getSourceValue(const std::vector<int8_t>& bcode, uint16_t& pos, int16_t* reg)
+int16_t VirtualMachineRunData::getSource()
 {
-    int8_t reg = bcode[++pos];
-    int16_t val = 0;
-    bool isAddress = reg & Asm::Register::ADDRESS;
-
-    reg &= Asm::Register::MASK;
-    switch (reg)
-    {
-        case Asm::Register::R0:
-        case Asm::Register::R1:
-        case Asm::Register::R2:
-        case Asm::Register::P0X:
-        case Asm::Register::P0Y:
-        case Asm::Register::P1X:
-        case Asm::Register::P1Y:
-        case Asm::Register::P2X:
-        case Asm::Register::P2Y:
-        case Asm::Register::CHAR: val = bcode[++pos]; break;
-        case Asm::Register::SHORT: val = bcode[++pos]; val |= bcode[++pos] << 8; break;
-    }
-    else if 
-
+    auto ptr = getDestination();
+    return ptr ? *ptr : 0;
 }
 
-
-bool VirtualMachine::run(Ant* ant)
+bool VirtualMachine::run(const std::shared_ptr<Ant>& ant)
 {
-    VirtualMachineRunData data;
     auto plr = ant->player();
-    auto bcode = plr->bcode();
-    
-    prepareRunData(data, ant, m_map.get());
+    auto wac = plr->info();
 
-    uint16_t pos = 0;
+    VirtualMachineRunData data(wac.bcode, ant, m_map);
 
     if (ant->isQueen())
     {
-        pos = bcode[Asm::FunctionOffset::Queen];
+        data.setPos(wac.funcQueen);
     }
     else if (ant->isSolder())
     {
-        pos = bcode[Asm::FunctionOffset::Solder];
+        data.setPos(wac.funcSolder);
     }
     else if (ant->isWorker())
     {
-        pos = bcode[Asm::FunctionOffset::Worker];
+        data.setPos(wac.funcWorker);
     }
     else
     {
@@ -171,18 +177,17 @@ bool VirtualMachine::run(Ant* ant)
         return false;
     }
 
-    int8_t reg[16];
     int8_t cmd = 0;
-    int8_t dst = 0;
-    int8_t src = 0;
+    int16_t* dst = 0;
+    int16_t src = 0;
     while (true)
     {
-        int8_t cmd = bcode[pos];
+        int8_t cmd = data.getNextChar();
 
-        if ((cmd & (int8_t)Asm::BCodeType::VALUE) == (int8_t)Asm::BCodeType::VALUE)
+        if ((cmd & Asm::BCode::TYPE_VALUE) == Asm::BCode::TYPE_VALUE)
         {
-            src = cmd & 0x03;
-            cmd &= 0xfc;
+            src = cmd & Asm::BCode::VALUE_MASK;
+            cmd &= ~Asm::BCode::VALUE_MASK;
         }
 
         switch ((Asm::BCodeCommand)cmd)
@@ -225,9 +230,13 @@ bool VirtualMachine::run(Ant* ant)
 */
 
             case Asm::BCodeCommand::MOV:
-                dst = bcode[++pos];
-
-                src = bcode[++pos];
+                dst = data.getDestination();
+                src = data.getSource();
+                if (dst)
+                {
+                    *dst = src;
+                }
+                break;
 /*
                 LEN,
                 DIST,

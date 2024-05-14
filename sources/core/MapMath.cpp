@@ -130,7 +130,7 @@ Direction probabilisticDirection(const Direction& dir)
 
 Direction directionTo(const Position& posFrom, const Position& posTo)
 {
-    //TODO Учитывать что карта может быть без бордюров!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    //TODO РЈС‡РёС‚С‹РІР°С‚СЊ С‡С‚Рѕ РєР°СЂС‚Р° РјРѕР¶РµС‚ Р±С‹С‚СЊ Р±РµР· Р±РѕСЂРґСЋСЂРѕРІ!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     if (posFrom == posTo)
     {
         return randDirection();

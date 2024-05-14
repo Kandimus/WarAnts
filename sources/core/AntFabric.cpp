@@ -29,7 +29,7 @@ bool AntFabric::init(const std::string& filename)
 
     for (auto& [key, val] : json.items())
     {
-        // нужен правильный порядок
+        // РЅСѓР¶РµРЅ РїСЂР°РІРёР»СЊРЅС‹Р№ РїРѕСЂСЏРґРѕРє
         AntFabricData::gTemplates[key].push_back(Ant(json[key][AntTypeToString(AntType::Queen)], AntType::Queen));
         AntFabricData::gTemplates[key].push_back(Ant(json[key][AntTypeToString(AntType::Solder)], AntType::Solder));
         AntFabricData::gTemplates[key].push_back(Ant(json[key][AntTypeToString(AntType::Worker)], AntType::Worker));

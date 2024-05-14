@@ -5,20 +5,14 @@
 #include <string>
 #include <vector>
 
+#include "wacfile.h"
+
 namespace WarAnts
 {
 class Ant;
 enum class AntType;
 
 using AntPtr = std::shared_ptr<Ant>;
-
-struct PlayerInfo
-{
-    std::string antClass = "";
-    std::string teamName = "";
-    std::string teamVersion = "";
-    uint16_t coreVersion = 0;
-};
 
 struct AntCount
 {
@@ -40,7 +34,7 @@ public:
     const std::string& library() const { return m_libName; }
     uint32_t libHash() const { return m_libHash; }
 
-    const std::string& antClass() const { return m_info.antClass; }
+    const std::string& antClass() const { return m_info.teamClass; }
     const std::string& teamName() const { return m_info.teamName; }
     const std::string& libVersion() const { return m_info.teamVersion; }
     void changeTeamName(uint32_t count);
@@ -54,18 +48,16 @@ public:
     const AntCount& maxCounts() const { return m_maxCount; }
     const AntCount& maxLifeCount() const { return m_maxLifeCount; }
 
-    const std::vector<int8_t>& bcode() const { return m_bcode; }
+    const WacFile& info() const { return m_info; }
 
 protected:
 
 protected:
     std::string m_libName = "";
     uint32_t m_libHash = 0;
-    PlayerInfo m_info;
+    WacFile m_info;
     uint32_t m_index = 0;
     bool m_isInit = false;
-
-    std::vector<int8_t> m_bcode;
 
     AntPtr m_antQueen;
 

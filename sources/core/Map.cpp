@@ -267,4 +267,13 @@ void Map::incPosition(Position& pos, uint32_t x) const
     }
 }
 
+int32_t Map::absPosition(const Position& pos) const
+{
+    if (m_conf->isBordered())
+    {
+        return (pos.x() >= 0 && pos.x() < m_size.x() && pos.y() >= 0 && pos.y() < m_size.y()) ? pos.x() + pos.y() * m_size.x() : 0xffffffff;
+    }
+    return 0xffffffff; //TODO Issue-2
+}
+
 };

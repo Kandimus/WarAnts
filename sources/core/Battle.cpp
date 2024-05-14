@@ -8,6 +8,7 @@
 #include "Map.h"
 #include "MapMath.h"
 #include "Player.h"
+#include "VirtualMachine.h"
 
 #include "battlelog/BattleLogService.h"
 #include "battlelog/FileProvider.h"
@@ -100,10 +101,8 @@ size_t getTickCount()
 
 struct TickCountClock
 {
-    typedef size_t                                   rep;
-    typedef std::milli                               period;
-    typedef std::chrono::duration<rep, period>       duration;
-    typedef std::chrono::time_point<TickCountClock>  time_point;
+    typedef std::chrono::duration<size_t, std::milli> duration;
+    typedef std::chrono::time_point<TickCountClock> time_point;
     static const bool is_steady = true;
 
     static time_point now() noexcept
@@ -126,7 +125,7 @@ int Battle::run()
     m_ants = m_map->generate(m_players);
 
     //TEST!!!
-    m_ants.begin()->get()->setCommand(CommandType::MoveAndIdle, 1, 1, 0);
+    //m_ants.begin()->get()->setCommand(CommandType::MoveAndIdle, 1, 1, 0);
 
     // send of starting info
     m_logService->saveMapInfo(*m_map.get());
@@ -135,6 +134,8 @@ int Battle::run()
         m_logService->savePlayer(*player.get());
     }
     m_logService->saveMap(*m_map.get());
+
+    VirtualMachine vm(m_map);
 
     // main loop
     while(true)
@@ -169,6 +170,7 @@ int Battle::run()
 
             if(!ant->hasCommand())
             {
+                vm.run(ant);
             //	AntInfo ai;
             //	Command cmd;
 
@@ -296,11 +298,11 @@ bool Battle::commandAttack(AntPtr ant)
         return true;
     }
 
-    int index = Math::random(0, arrayOfEnemy.size() - 1);
+    int index = (int)Math::random(0, arrayOfEnemy.size() - 1);
     auto enemy = arrayOfEnemy[index];
 
-    //TODO Íóæíî ëè òóò ïðîâåðÿòü, ÷òî àòàêóåìûé ìóðàâåé óìåð? è ñîîòâåòñòâåííî âûçûâàòü player->antIsDied()
-    //     èëè æå äàòü ìóðàâüþ îòâåòèòü íà óäàð èëè äðóãîå äåéñòâèå è óáèòü åãî â åãî ôàçó õîäà?
+    //TODO ÐÑƒÐ¶Ð½Ð¾ Ð»Ð¸ Ñ‚ÑƒÑ‚ Ð¿Ñ€Ð¾Ð²ÐµÑ€ÑÑ‚ÑŒ, Ñ‡Ñ‚Ð¾ Ð°Ñ‚Ð°ÐºÑƒÐµÐ¼Ñ‹Ð¹ Ð¼ÑƒÑ€Ð°Ð²ÐµÐ¹ ÑƒÐ¼ÐµÑ€? Ð¸ ÑÐ¾Ð¾Ñ‚Ð²ÐµÑ‚ÑÑ‚Ð²ÐµÐ½Ð½Ð¾ Ð²Ñ‹Ð·Ñ‹Ð²Ð°Ñ‚ÑŒ player->antIsDied()
+    //     Ð¸Ð»Ð¸ Ð¶Ðµ Ð´Ð°Ñ‚ÑŒ Ð¼ÑƒÑ€Ð°Ð²ÑŒÑŽ Ð¾Ñ‚Ð²ÐµÑ‚Ð¸Ñ‚ÑŒ Ð½Ð° ÑƒÐ´Ð°Ñ€ Ð¸Ð»Ð¸ Ð´Ñ€ÑƒÐ³Ð¾Ðµ Ð´ÐµÐ¹ÑÑ‚Ð²Ð¸Ðµ Ð¸ ÑƒÐ±Ð¸Ñ‚ÑŒ ÐµÐ³Ð¾ Ð² ÐµÐ³Ð¾ Ñ„Ð°Ð·Ñƒ Ñ…Ð¾Ð´Ð°?
     if (!enemy->damage(ant->attack()))
     {
         killAnt(enemy);

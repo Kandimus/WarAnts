@@ -98,10 +98,10 @@
     <ClCompile Include="battlelog\TextScreenProvider.cpp">
       <Filter>Sources\BattleLog</Filter>
     </ClCompile>
-    <ClCompile Include="MapMath.cpp">
-      <Filter>Headers</Filter>
-    </ClCompile>
     <ClCompile Include="VirtualMachine.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="MapMath.cpp">
       <Filter>Sources</Filter>
     </ClCompile>
   </ItemGroup>
