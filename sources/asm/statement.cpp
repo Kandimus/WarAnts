@@ -35,12 +35,14 @@ namespace Asm
 bool Statement::isJump() const
 {
     return type() == StatementType::Command &&
-        (m_cmd == AsmCommand::JMP ||
-         m_cmd == AsmCommand::JZ ||
-         m_cmd == AsmCommand::JNZ ||
-         m_cmd == AsmCommand::JO ||
-         m_cmd == AsmCommand::JNO ||
-         m_cmd == AsmCommand::JCZ ||
+        (m_cmd == AsmCommand::JMP  ||
+         m_cmd == AsmCommand::JZ   ||
+         m_cmd == AsmCommand::JNZ  ||
+         m_cmd == AsmCommand::JO   ||
+         m_cmd == AsmCommand::JNO  ||
+         m_cmd == AsmCommand::JS   ||
+         m_cmd == AsmCommand::JNS  ||
+         m_cmd == AsmCommand::JCZ  ||
          m_cmd == AsmCommand::JCNZ ||
          m_cmd == AsmCommand::LOOP ||
          m_cmd == AsmCommand::CALL);
@@ -188,6 +190,8 @@ bool Statement::compile(Code* code)
         case AsmCommand::JNZ:  compileJump(BCode::JNZ, code); break;
         case AsmCommand::JO:   compileJump(BCode::JO, code); break;
         case AsmCommand::JNO:  compileJump(BCode::JNO, code); break;
+        case AsmCommand::JS:   compileJump(BCode::JS, code); break;
+        case AsmCommand::JNS:  compileJump(BCode::JNS, code); break;
         case AsmCommand::JCZ:  compileJump(BCode::JCZ, code); break;
         case AsmCommand::JCNZ: compileJump(BCode::JCNZ, code); break;
         case AsmCommand::LOOP: compileJump(BCode::LOOP, code); break;
@@ -366,6 +370,8 @@ void Statement::print(std::ofstream& file) const
         case AsmCommand::JNZ:  printLabel(file, "JNZ ", m_label); break;
         case AsmCommand::JO:   printLabel(file, "JO  ", m_label); break;
         case AsmCommand::JNO:  printLabel(file, "JNO ", m_label); break;
+        case AsmCommand::JS:   printLabel(file, "JS  ", m_label); break;
+        case AsmCommand::JNS:  printLabel(file, "JNS ", m_label); break;
         case AsmCommand::JCZ:  printLabel(file, "JCZ ", m_label); break;
         case AsmCommand::JCNZ: printLabel(file, "JCNZ", m_label); break;
         case AsmCommand::LOOP: printLabel(file, "LOOP", m_label); break;

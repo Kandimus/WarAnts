@@ -17,7 +17,7 @@ Player::Player(uint32_t index, const std::string& libname)
 {
     //TODO может быть разрешить компиляцию на ходу????
     //     тогда тут нужно смотреть на расширение файла
-    if (!loadWacFile(libname, m_info))
+    if (!Asm::loadWacFile(libname, m_info))
     {
         LOGE("Player %i: Cannot load wac file '%s'", index, libname.c_str());
         return;

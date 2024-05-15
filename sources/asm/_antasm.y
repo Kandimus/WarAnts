@@ -52,7 +52,7 @@ int  yylex();
 %token ADD AND DEC DIV INC MOD MUL NEG NOT OR SUB XOR MIN MAX
 %token BSF BSR BT BTR BTS BTC SHL SHR ROL ROR
 %token EQ NEQ GT GE LT LE TEST
-%token JMP JZ JNZ JO JNO JCZ JCNZ LOOP CALL
+%token JMP JZ JNZ JT JF JO JNO JS JNS JCZ JCNZ LOOP CALL
 %token MOV LEN DIST EXIT
 %token LDTR LDFD LDEN LDFR
 %token CIDL CMOV CATT CTKF CGVF CEAT CPS CPW
@@ -177,8 +177,12 @@ asm_command
     | JMP  label                                        { $$ = new WarAnts::Asm::Statement(WarAnts::Asm::AsmCommand::JMP , $2->get(), yy_code.get()); }
     | JZ   label                                        { $$ = new WarAnts::Asm::Statement(WarAnts::Asm::AsmCommand::JZ  , $2->get(), yy_code.get()); }
     | JNZ  label                                        { $$ = new WarAnts::Asm::Statement(WarAnts::Asm::AsmCommand::JNZ , $2->get(), yy_code.get()); }
+    | JT   label                                        { $$ = new WarAnts::Asm::Statement(WarAnts::Asm::AsmCommand::JNZ , $2->get(), yy_code.get()); }
+    | JF   label                                        { $$ = new WarAnts::Asm::Statement(WarAnts::Asm::AsmCommand::JZ  , $2->get(), yy_code.get()); }
     | JO   label                                        { $$ = new WarAnts::Asm::Statement(WarAnts::Asm::AsmCommand::JO  , $2->get(), yy_code.get()); }
     | JNO  label                                        { $$ = new WarAnts::Asm::Statement(WarAnts::Asm::AsmCommand::JNO , $2->get(), yy_code.get()); }
+    | JS   label                                        { $$ = new WarAnts::Asm::Statement(WarAnts::Asm::AsmCommand::JS  , $2->get(), yy_code.get()); }
+    | JNS  label                                        { $$ = new WarAnts::Asm::Statement(WarAnts::Asm::AsmCommand::JNS , $2->get(), yy_code.get()); }
     | JCZ  label                                        { $$ = new WarAnts::Asm::Statement(WarAnts::Asm::AsmCommand::JCZ , $2->get(), yy_code.get()); }
     | JCNZ label                                        { $$ = new WarAnts::Asm::Statement(WarAnts::Asm::AsmCommand::JCNZ, $2->get(), yy_code.get()); }
     | LOOP label                                        { $$ = new WarAnts::Asm::Statement(WarAnts::Asm::AsmCommand::LOOP, $2->get(), yy_code.get()); }

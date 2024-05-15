@@ -13,6 +13,7 @@ namespace Asm
 
 class Function;
 class Pragma;
+struct WacFile;
 
 class Code : public BaseNode
 {
@@ -36,7 +37,7 @@ public:
     bool calculationJumpsAndCalls();
     bool assignOffsets();
     bool resolveLabels(bool& recalc);
-    bool save(std::vector<int8_t>& data);
+    bool save(WacFile& wac);
     void print(const std::string& filename);
     void printData(const std::string& filename);
 

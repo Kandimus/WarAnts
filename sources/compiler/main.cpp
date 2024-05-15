@@ -30,12 +30,11 @@ int main(int argc, const char **argv)
 
     for (size_t ii = 0; ii < cl.getCountArgument(); ++ii)
     {
-        std::vector<int8_t> data;
+        WarAnts::Asm::WacFile wac;
         StringArray errors;
         StringArray warnings;
-        PragmaMap pragma;
         std::string filename = cl.getArgument((unsigned int)ii);
-        auto result = WarAnts::Asm::compileFile(filename, warnings, errors, data, pragma);
+        auto result = WarAnts::Asm::compileFile(filename, warnings, errors, wac);
 
         printf("%s\n", filename.c_str());
 
@@ -57,7 +56,7 @@ int main(int argc, const char **argv)
             }
 
             std::string wacFilename = su::String_rawFilename(filename) + ".wac";
-            if (!WarAnts::saveWacFile(wacFilename, data, pragma))
+            if (!WarAnts::Asm::saveWacFile(wacFilename, wac))
             {
                 printf("Error: Fault to save '%s' file.\n", wacFilename.c_str());
             }

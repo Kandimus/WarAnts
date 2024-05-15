@@ -99,8 +99,12 @@ comment   ";"[^\n\r]*
 "jmp"                       { return JMP; }
 "jz"                        { return JZ; }
 "jnz"                       { return JNZ; }
+"jt"                        { return JT; }
+"jf"                        { return JF; }
 "jo"                        { return JO; }
 "jno"                       { return JNO; }
+"js"                        { return JS; }
+"jns"                       { return JNS; }
 "jcz"                       { return JCZ; }
 "jncz"                      { return JCNZ; }
 "loop"                      { return LOOP; }

@@ -13,24 +13,24 @@
     ; R0 - the current distance to an enemy
     ; R1 - min distance to an enemy
     ; R2 - index of the nearest enemy
-    mov  R0, -1
-    mov  RC, [enemy_count]
+    mov   R0, -1
+    mov   RC, [enemy_count]
     ; Если кол-во видимых противников равно нулю, то выходим
-    jz  return
-    dec  RC
-    mov  R1, 7fffh ; max len
+    jz    return
+    dec   RC
+    mov   R1, 7fffh ; max len
     
     ; Цикл поиска ближайшего врага
 beg_loop:
-    LDEN RC
-    DIST R0, [enemy_pos] ; в R0 расстояние до противника
-    gt   R0, R1
-    JNZ  end_loop
-    MOV  R1, R0
-    MOV  R2, RC
+    LDEN  RC
+    DIST  R0, [enemy_pos] ; в R0 расстояние до противника
+    gt    R0, R1
+    jt    end_loop
+    mov   R1, R0
+    mov   R2, RC
 end_loop:
-    LOOP beg_loop
-    MOV  R0, R2
+    loop  beg_loop
+    mov   R0, R2
 return:
     exit
 
@@ -54,15 +54,15 @@ return:
     ; то идем к ближайшей точке с едой
     ; или кушаем из карго
     LE  [2], 500
-    JNZ go_to_food
+    jt  go_to_food
 
     ; Если рядом минимум 2 противника, то атакуем ближайшего
     GE  [enemy_count], 2
-    JNZ attack_enemy
-    JMP finish
+    jt  attack_enemy
+    jmp finish
 go_to_food:
-    GT [food_count], 0
-    JNZ eat_from_cargo
+    GT  [food_count], 0
+    jt  eat_from_cargo
     LDFD 0
     CTKF [48]
     JMP finish
@@ -83,16 +83,18 @@ finish:
 ;------------------------------
 ; Main algorithm of the SOLDER ant
 .solder
-    call GetNearlyEnemy
-    EQ R0, -1
-    JNZ attack_enemy
-    CIDL 2
+    call   GetNearlyEnemy
+    eq    R0, -1
+    jt    attack_enemy
+    CIDL  2
 
 attack_enemy:
     LDEN R0
     CATT [enemy_pos]
     EXIT
 
-;
+
+;------------------------------
+; Main algorithm of the SOLDER ant
 .queen
     CIDL 2

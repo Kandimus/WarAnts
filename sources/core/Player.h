@@ -48,14 +48,14 @@ public:
     const AntCount& maxCounts() const { return m_maxCount; }
     const AntCount& maxLifeCount() const { return m_maxLifeCount; }
 
-    const WacFile& info() const { return m_info; }
+    const Asm::WacFile& info() const { return m_info; }
 
 protected:
 
 protected:
     std::string m_libName = "";
     uint32_t m_libHash = 0;
-    WacFile m_info;
+    Asm::WacFile m_info;
     uint32_t m_index = 0;
     bool m_isInit = false;
 

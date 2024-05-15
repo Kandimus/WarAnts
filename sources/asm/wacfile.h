@@ -1,13 +1,11 @@
 #pragma once
 
-#include <unordered_map>
+#include <string>
 #include <vector>
 
-#include "asm_defines.h"
-
-using PragmaMap = std::unordered_map<WarAnts::Asm::PragmaType, std::string>;
-
 namespace WarAnts
+{
+namespace Asm
 {
 
 struct WacFile
@@ -23,8 +21,8 @@ struct WacFile
     std::string teamVersion;
 };
 
-
-bool saveWacFile(const std::string& filename, const std::vector<int8_t>& data, PragmaMap& pragma);
+bool saveWacFile(const std::string& filename, const WacFile& data);
 bool loadWacFile(const std::string& filename, WacFile& data);
 
+}; // namespace Asm
 }; // namespace WarAnts

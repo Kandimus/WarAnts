@@ -35,7 +35,7 @@
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
       <!--AdditionalIncludeDirectories>$(SolutionDir)external\smallutils;$(SolutionDir)core;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories-->
-      <AdditionalIncludeDirectories>$(SolutionDir)wacfile;$(SolutionDir)asm;$(SolutionDir)external\smallutils;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)asm;$(SolutionDir)external\smallutils;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -75,11 +75,6 @@
   <ItemGroup>
     <ProjectReference Include="..\asm\asm.vcxproj">
       <Project>{0A232C44-A132-4601-A1C1-B589F2D8AF68}</Project>
-    </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\wacfile\wacfile.vcxproj">
-      <Project>{CE842BA9-147E-420B-986D-BD8726628CC3}</Project>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

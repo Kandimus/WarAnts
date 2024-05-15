@@ -14,8 +14,6 @@ namespace WarAnts
 namespace Asm
 {
 
-const uint16_t Code::CoreVersion = Version::Core;
-
 std::shared_ptr<WarAnts::Asm::Code> yy_compile(const char* source);
 
 uint16_t compileVersion()
@@ -24,8 +22,9 @@ uint16_t compileVersion()
 }
 
 bool compileFile(const std::string& filename,
-    StringArray& warnings, StringArray& errors,
-    std::vector<int8_t>& data, PragmaMap& pragma)
+    StringArray& warnings,
+    StringArray& errors,
+    WacFile& wac)
 {
     std::ifstream file(filename);
     std::stringstream buffer;
@@ -33,7 +32,15 @@ bool compileFile(const std::string& filename,
 
     warnings.clear();
     errors.clear();
-    pragma.clear();
+    
+    wac.bcode.clear();
+    wac.coreVersion = 0;
+    wac.funcQueen = 0;
+    wac.funcSolder = 0;
+    wac.funcWorker = 0;
+    wac.teamClass = "";
+    wac.teamName = "";
+    wac.teamVersion = "";
 
     if (!file.is_open())
     {
@@ -124,16 +131,11 @@ bool compileFile(const std::string& filename,
     code->print(filename + ".step8.txt");
 
     // Step 9. Forming resulting array
-    if (!code->save(data))
+    if (!code->save(wac))
     {
         return false;
     }
     code->printData(su::String_rawFilename(filename) + ".out");
-
-    pragma[PragmaType::Class] = code->getPragma(PragmaType::Class);
-    pragma[PragmaType::Core] = code->getPragma(PragmaType::Core);
-    pragma[PragmaType::Name] = code->getPragma(PragmaType::Name);
-    pragma[PragmaType::Version] = code->getPragma(PragmaType::Version);
 
     warnings = code->m_warnings;
 

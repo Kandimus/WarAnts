@@ -36,7 +36,7 @@
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(SolutionDir)core;$(SolutionDir)external\smallutils;$(SolutionDir)external\json\include;$(SolutionDir)external\catchtest;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)core;$(SolutionDir)asm;$(SolutionDir)external\smallutils;$(SolutionDir)external\json\include;$(SolutionDir)external\catchtest;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -77,6 +77,11 @@
   <ItemGroup>
     <ProjectReference Include="..\core\core.vcxproj">
       <Project>{10E7C627-03EA-4183-B439-D904B77825A8}</Project>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\asm\asm.vcxproj">
+      <Project>{0A232C44-A132-4601-A1C1-B589F2D8AF68}</Project>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

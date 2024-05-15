@@ -84,12 +84,17 @@ void VirtualMachine::prepare()
     m_memory[Memory::Cargo] = m_ant->cargo();
 }
 
-int16_t* VirtualMachine::getDestination()
+int16_t* VirtualMachine::getDestination(Asm::Register::Type* type)
 {
     int8_t reg = m_bcode[m_pos++];
     bool isAddress = reg & Asm::Register::ADDRESS;
 
     reg &= Asm::Register::MASK;
+
+    if (type)
+    {
+        *type = Asm::Register::INVALIDE;
+    }
     
     if (reg > Asm::Register::MASK)
     {
@@ -110,6 +115,13 @@ int16_t* VirtualMachine::getDestination()
 
     if (isAddress)
     {
+        if (reg & Asm::Register::P0)
+        {
+            LOGE("Command %02x (%04x): Cannot using positional register as address",
+                m_bcode[m_pos - 2], m_pos - 1);
+            return nullptr;
+        }
+
         if (m_registers[reg] >= m_memory.size())
         {
             LOGE("Command %02x (%04x): invalide address 0x04x",
@@ -127,12 +139,17 @@ int16_t* VirtualMachine::getDestination()
         return &m_memory[m_registers[reg]];
     }
 
+    if (type)
+    {
+        *type = (Asm::Register::Type)reg;
+    }
+
     return &m_registers[reg];
 }
 
-int16_t VirtualMachine::getSource()
+int16_t VirtualMachine::getSource(Asm::Register::Type* type)
 {
-    auto ptr = getDestination();
+    auto ptr = getDestination(type);
     return ptr ? *ptr : 0;
 }
 
@@ -186,28 +203,13 @@ bool VirtualMachine::run()
         {
             case Asm::BCode::ADD: result = arithmetic2(cmd); break;
             case Asm::BCode::AND: result = arithmetic2(cmd); break;
-
-            case Asm::BCode::DEC:
-                dst = getDestination();
-                if (dst)
-                {
-                    *dst -= 1;
-                }
-                break;
-
+            case Asm::BCode::DEC: result = arithmetic1(cmd); break;
             case Asm::BCode::DIV: result = arithmetic2(cmd); break;
-
-            case Asm::BCode::INC:
-                dst = getDestination();
-                if (dst)
-                {
-                    *dst += 1;
-                }
-                break;
+            case Asm::BCode::INC: result = arithmetic1(cmd); break;
             case Asm::BCode::MOD: result = arithmetic2(cmd); break;
             case Asm::BCode::MUL: result = arithmetic2(cmd); break;
-//                NEG,
-//                NOT,
+            case Asm::BCode::NEG: result = arithmetic1(cmd); break;
+            case Asm::BCode::NOT: result = arithmetic1(cmd); break;
             case Asm::BCode::OR:  result = arithmetic2(cmd); break;
             case Asm::BCode::SUB: result = arithmetic2(cmd); break;
             case Asm::BCode::XOR: result = arithmetic2(cmd); break;
@@ -224,19 +226,18 @@ bool VirtualMachine::run()
                 SHR,
                 ROL,
                 ROR,
-
-                EQ,
-                NEQ,
-                GT,
-                GE,
-                LT,
-                LE,
-                TEST,
 */
+            case Asm::BCode::EQ:   result = logical(cmd); break;
+            case Asm::BCode::NEQ:  result = logical(cmd); break;
+            case Asm::BCode::GT:   result = logical(cmd); break;
+            case Asm::BCode::GE:   result = logical(cmd); break;
+            case Asm::BCode::LT:   result = logical(cmd); break;
+            case Asm::BCode::LE:   result = logical(cmd); break;
+            case Asm::BCode::TEST: result = logical(cmd); break;
 
             case Asm::BCode::MOV: 
-                dst = getDestination();
-                src = getSource();
+                dst = getDestination(nullptr);
+                src = getSource(nullptr);
                 if (dst)
                 {
                     *dst = src;
@@ -245,12 +246,12 @@ bool VirtualMachine::run()
 //                LEN,
 //                DIST,
             case Asm::BCode::EXIT:
-                if (callstack.empty())
+                if (m_callstack.empty())
                 {
                     return true;
                 }
-                setPos(callstack.back());
-                callstack.pop_back();
+                setPos(m_callstack.back());
+                m_callstack.pop_back();
                 break;
 /*
                 CMOV,
@@ -260,18 +261,17 @@ bool VirtualMachine::run()
                 CPS,
                 CPW,
 */
-//                JMP = 0x40,
-            case Asm::BCode::JZ:
-/*                JNZ = 0x44,
-                JO = 0x46,
-                JNO = 0x48,
-                JCZ = 0x4a,
-                JCNZ = 0x4c,
-                LOOP = 0x4e,*/
-            case Asm::BCode::CALL:
-                callstack.push_back(pos());
-                setPos(pos() + value - 2 - (valType == Asm::BCode::JUMP_SHORT ? 1 : 0));
-                break;
+            case Asm::BCode::JMP:  result = jump(cmd, value, valType); break;
+            case Asm::BCode::JZ:   result = jump(cmd, value, valType); break;
+            case Asm::BCode::JNZ:  result = jump(cmd, value, valType); break;
+            case Asm::BCode::JO:   result = jump(cmd, value, valType); break;
+            case Asm::BCode::JNO:  result = jump(cmd, value, valType); break;
+            case Asm::BCode::JS:   result = jump(cmd, value, valType); break;
+            case Asm::BCode::JNS:  result = jump(cmd, value, valType); break;
+            case Asm::BCode::JCZ:  result = jump(cmd, value, valType); break;
+            case Asm::BCode::JCNZ: result = jump(cmd, value, valType); break;
+            case Asm::BCode::LOOP: result = jump(cmd, value, valType); break;
+            case Asm::BCode::CALL: result = jump(cmd, value, valType); break;
 /*
                 LDTR = 0x60,
                 LDFD = 0x64,
@@ -307,7 +307,7 @@ void VirtualMachine::setRF(int16_t bit, bool value)
 bool VirtualMachine::arithmetic1(uint8_t cmd)
 {
     auto cmdPos = pos();
-    auto dst = getDestination();
+    auto dst = getDestination(nullptr);
 
     CHECK_DST;
 
@@ -315,20 +315,17 @@ bool VirtualMachine::arithmetic1(uint8_t cmd)
 
     switch (cmd)
     {
-    case Asm::BCode::DEC: tmp -= 1; break;
-    case Asm::BCode::INC: tmp += 1; break;
-    case Asm::BCode::NEG: tmp = -tmp; break;
-    case Asm::BCode::NOT: tmp = ~tmp; break;
-    default:
-        LOGE("Command %02x (%04x): Undefined arithmetic operand", (int)cmd, cmdPos);
-        SU_BREAKPOINT();
-        return false;
+        case Asm::BCode::DEC: tmp -= 1; break;
+        case Asm::BCode::INC: tmp += 1; break;
+        case Asm::BCode::NEG: tmp = -tmp; break;
+        case Asm::BCode::NOT: tmp = ~tmp; break;
+        default:
+            LOGE("Command %02x (%04x): Undefined the single arithmetic command", (int)cmd, cmdPos);
+            SU_BREAKPOINT();
+            return false;
     }
 
-    *dst = tmp & 0xffff;
-
-    setRF(Asm::Register::ZF, *dst == 0);
-    setRF(Asm::Register::OF, !!(tmp & 0xffff0000));
+    setDstAndFlags(dst, tmp);
     return true;
 }
 
@@ -336,12 +333,11 @@ bool VirtualMachine::arithmetic1(uint8_t cmd)
 bool VirtualMachine::arithmetic2(uint8_t cmd)
 {
     auto cmdPos = pos();
-    auto dst = getDestination();
-    auto src = getSource();
+    auto dst = getDestination(nullptr);
+    auto src = getSource(nullptr);
 
     CHECK_DST;
 
-    uint16_t oldDst = *dst;
     int32_t tmp = *dst;
 
     switch (cmd)
@@ -355,16 +351,68 @@ bool VirtualMachine::arithmetic2(uint8_t cmd)
         case Asm::BCode::SUB: tmp -= src; break;
         case Asm::BCode::XOR: tmp ^= src; break;
         default:
-            LOGE("Command %02x (%04x): Undefined arithmetic operand", (int)cmd, cmdPos);
+            LOGE("Command %02x (%04x): Undefined the arithmetic command", (int)cmd, cmdPos);
             SU_BREAKPOINT();
             return false;
     }
     
-    *dst = tmp & 0xffff;
-    
-    setRF(Asm::Register::ZF, *dst == 0);
-    setRF(Asm::Register::OF, !!(tmp & 0xffff0000));
-    setRF(Asm::Register::SF, (oldDst & 0x8000) != (*dst & 0x8000);
+    setDstAndFlags(dst, tmp);
+    return true;
+}
+
+bool VirtualMachine::min(uint8_t cmd)
+{
+    auto cmdPos = pos();
+    Asm::Register::Type regDst;
+    Asm::Register::Type regSrc;
+    auto dst = getDestination(&regDst);
+    auto src = getDestination(&regSrc);
+
+    CHECK_DST;
+
+    if (regDst & Asm::Register::P0)
+    {
+        Position* posDest = (Position*)dst;
+//        Position* posdest = (Position*)dst;
+    }
+    else
+    {
+        *dst = *dst < *src ? *dst : *src;
+    }
+
+    return true;
+}
+
+bool VirtualMachine::max(uint8_t cmd)
+{
+    return true;
+}
+
+bool VirtualMachine::logical(uint8_t cmd)
+{
+    auto cmdPos = pos();
+    auto left = getSource(nullptr);
+    auto right = getSource(nullptr);
+
+    int16_t fakeDst = 0;
+    int32_t result = 0;
+
+    switch (cmd)
+    {
+        case Asm::BCode::EQ:   result = left == right; break;
+        case Asm::BCode::NEQ:  result = left != right; break;
+        case Asm::BCode::GT:   result = left >  right; break;
+        case Asm::BCode::GE:   result = left >= right; break;
+        case Asm::BCode::LT:   result = left <  right; break;
+        case Asm::BCode::LE:   result = left <= right; break;
+        case Asm::BCode::TEST: result = (left & right) == right; break;
+        default:
+            LOGE("Command %02x (%04x): Undefined the logical command", (int)cmd, cmdPos);
+            SU_BREAKPOINT();
+            return false;
+    }
+
+    setDstAndFlags(&fakeDst, result);
     return true;
 }
 
@@ -381,10 +429,44 @@ bool VirtualMachine::jump(uint8_t cmd, uint16_t offset, uint8_t offsetType)
 
     switch (cmd)
     {
-        case Asm::BCode::JMP: doJump = true;
+        case Asm::BCode::JMP:  doJump = true; break;
+        case Asm::BCode::JZ:   doJump =  (m_registers[Asm::Register::RF] & Asm::Register::ZF); break;
+        case Asm::BCode::JNZ:  doJump = !(m_registers[Asm::Register::RF] & Asm::Register::ZF); break;
+        case Asm::BCode::JO:   doJump =  (m_registers[Asm::Register::RF] & Asm::Register::OF); break;
+        case Asm::BCode::JNO:  doJump = !(m_registers[Asm::Register::RF] & Asm::Register::OF); break;
+        case Asm::BCode::JS:   doJump =  (m_registers[Asm::Register::RF] & Asm::Register::SF); break;
+        case Asm::BCode::JNS:  doJump = !(m_registers[Asm::Register::RF] & Asm::Register::SF); break;
+        case Asm::BCode::JCZ:  doJump =   m_registers[Asm::Register::RC] == 0; break;
+        case Asm::BCode::JCNZ: doJump =   m_registers[Asm::Register::RF] != 0; break;
+        case Asm::BCode::LOOP: doJump =   m_registers[Asm::Register::RC] != 0; break;
+        case Asm::BCode::CALL: doJump = true; break;
+        default:
+            LOGE("Command %02x (%04x): Undefined the jump command", (int)cmd, pos() - sizeCmd);
+            SU_BREAKPOINT();
+            return false;
     }
-    setPos();
+
+    if (doJump)
+    {
+        if (cmd == Asm::BCode::LOOP)
+        {
+            int32_t rc = m_registers[Asm::Register::RC] - 1;
+            setDstAndFlags(&m_registers[Asm::Register::RC], rc);
+        }
+
+        setPos(newPos);
+    }
+
+    return true;
 }
 
+void VirtualMachine::setDstAndFlags(int16_t* dst, int32_t value)
+{
+    *dst = value & 0xffff;
+
+    setRF(Asm::Register::ZF, *dst == 0);
+    setRF(Asm::Register::OF, !!(value & 0xffff0000));
+    setRF(Asm::Register::SF, !!(*dst & 0x8000));
+}
 
 };

@@ -74,7 +74,7 @@ enum Type : uint8_t
     RF,
     RD,
     RS,
-    P0,
+    P0, // 16
     P1,
     P2,
 
@@ -140,15 +140,17 @@ enum class AsmCommand
     LE,
     TEST,
 
-    JMP,
+    JMP, // 0
     JZ,
     JNZ,
     JO,
     JNO,
+    JS,
+    JNS,
     JCZ,
     JCNZ,
     LOOP,
-    CALL,
+    CALL, // 10
 
     MOV,
     LEN,
@@ -269,10 +271,13 @@ enum Command : int8_t
     JNZ = 0x44,
     JO = 0x46,
     JNO = 0x48,
-    JCZ = 0x4a,
-    JCNZ = 0x4c,
-    LOOP = 0x4e,
-    CALL = 0x50,
+    JS = 0x4a,
+    JNS = 0x4c,
+    JCZ = 0x4e,
+    JCNZ = 0x50,
+    LOOP = 0x52,
+    CALL = 0x54,
+    // max 0x5e
 
     LDTR = 0x60,
     LDFD = 0x64,
@@ -280,6 +285,7 @@ enum Command : int8_t
     LDFR = 0x6c,
     CIDL = 0x70,
     CEAT = 0x74,
+    // max 0x7c
 };
 }; // namespace BCode
 

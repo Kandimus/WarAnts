@@ -6,6 +6,7 @@
 #include "stringex.h"
 
 #include "asm_defines.h"
+#include "wacfile.h"
 
 const uint32_t Magic = 0x43414157; // WAAC
 
@@ -18,16 +19,20 @@ const uint32_t Magic = 0x43414157; // WAAC
 | n | c-style string of ant class
 | n | c-style string of player copyright
 | n | c-style string of player version
-| 2 | size of bcode
-+---+--------------------------------------------
-| n | bcode
+| 2 | Queen function offset
+| 2 | Solder function offset
+| 2 | Worker function offset
+| 2 | size of code
+| n | n bytes of code
 +---+--------------------------------------------
 */
 
 namespace WarAnts
 {
+namespace Asm
+{
 
-bool saveWacFile(const std::string& filename, const std::vector<int8_t>& data, PragmaMap& pragma)
+bool saveWacFile(const std::string& filename, const WacFile& wac)
 {
     std::ofstream file(filename, std::ios_base::binary);
     if (!file.is_open())
@@ -35,22 +40,18 @@ bool saveWacFile(const std::string& filename, const std::vector<int8_t>& data, P
         return false;
     }
 
+    uint16_t size = static_cast<uint16_t>(wac.bcode.size());
+
     file.write((const char*)&Magic, sizeof(Magic));
-
-    uint16_t coreVer = Asm::Version::Core;
-    file.write((const char*)&coreVer, sizeof(coreVer));
-
-    std::string str = pragma[WarAnts::Asm::PragmaType::Class];
-    file.write((const char*)str.c_str(), str.size() + 1);
-
-    str = pragma[WarAnts::Asm::PragmaType::Name];
-    file.write((const char*)str.c_str(), str.size() + 1);
-
-    str = pragma[WarAnts::Asm::PragmaType::Version];
-    file.write((const char*)str.c_str(), str.size() + 1);
-
-    file.write((const char*)data.data(), data.size());
-
+    file.write((const char*)&wac.coreVersion, sizeof(wac.coreVersion));
+    file.write(wac.teamClass.c_str(), wac.teamClass.size() + 1);
+    file.write(wac.teamName.c_str(), wac.teamName.size() + 1);
+    file.write(wac.teamVersion.c_str(), wac.teamVersion.size() + 1);
+    file.write((const char*)&wac.funcQueen, sizeof(wac.funcQueen));
+    file.write((const char*)&wac.funcSolder, sizeof(wac.funcSolder));
+    file.write((const char*)&wac.funcWorker, sizeof(wac.funcWorker));
+    file.write((const char*)&size, sizeof(size));
+    file.write((const char*)wac.bcode.data(), wac.bcode.size());
     file.close();
 
     return true;
@@ -98,7 +99,7 @@ bool loadWacFile(const std::string& filename, WacFile& data)
     }
 
     file.read((char*)&data.coreVersion, sizeof(data.coreVersion));
-    if (data.coreVersion != Asm::Version::Core)
+    if (data.coreVersion != Version::Core)
     {
         return false;
     }
@@ -122,4 +123,5 @@ bool loadWacFile(const std::string& filename, WacFile& data)
     return true;
 }
 
+}; // namespace Asm
 }; // namespace WarAnts

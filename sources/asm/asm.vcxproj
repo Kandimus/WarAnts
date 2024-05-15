@@ -40,6 +40,7 @@
     <ClCompile Include="expression.cpp" />
     <ClCompile Include="function.cpp" />
     <ClCompile Include="statement.cpp" />
+    <ClCompile Include="wacfile.cpp" />
     <ClCompile Include="_antasm.y.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -53,6 +54,7 @@
     <ClInclude Include="statement.h" />
     <ClInclude Include="stringNode.h" />
     <ClInclude Include="unistd.h" />
+    <ClInclude Include="wacfile.h" />
     <ClInclude Include="_antasm.l.h" />
   </ItemGroup>
   <ItemGroup>

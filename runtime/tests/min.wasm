@@ -1,0 +1,82 @@
+%core "0100"
+%name "Test min"
+%version "1"
+%class "black"
+
+.Test_MIN
+    mov   [48], 0
+    mov   [49], 1
+
+    ; min (5, 1) == 1
+    inc   [48]
+    mov   R0, 5 
+    mov   r1, 1
+    min   r0, r1
+    eq    r0, 1
+    jf    abort
+    
+    ; min (2, 6) == 2
+    inc   [48]
+    mov   R0, 2
+    mov   r1, 6
+    min   r0, r1
+    eq    r0, 2
+    jf    abort
+    
+    
+    ; min (<4, 2>, 6) == <4, 2>
+    inc   [48]
+    mov   p0:x, 4
+    mov   p0:y, 2
+    min   p0, 6
+    eq    p0:x, 4
+    jf    abort
+    eq    p0:y, 2
+    jf    abort
+    
+    ; min (<4, 8>, 6) == <4, 6>
+    inc   [48]
+    mov   p0:x, 4
+    mov   p0:y, 8
+    min   p0, 6
+    eq    p0:x, 4
+    jf    abort
+    eq    p0:y, 6
+    jf    abort
+    
+    ; min (<7, 8>, 6) == <6, 6>
+    inc   [48]
+    mov   p0:x, 7
+    mov   p0:y, 8
+    min   p0, 6
+    eq    p0:x, 6
+    jf    abort
+    eq    p0:y, 6
+    jf    abort
+    
+    ; min (<9, 15>, <13, 3>) == <9, 3>
+    inc   [48]
+    mov   p0:x, 9
+    mov   p0:y, 15
+    mov   p1:x, 13
+    mov   p1:y, 3
+    min   p0, p1
+    eq    p0:x, 9
+    jf    abort
+    eq    p0:y, 9
+    jf    abort
+    exit
+    
+abort:
+    mov   [49], 0
+    exit
+
+.worker
+    call Test_MIN
+    EXIT
+
+.solder
+    EXIT
+
+.queen
+    EXIT

@@ -8,11 +8,14 @@
 
 #include "function.h"
 #include "pragma.h"
+#include "wacfile.h"
 
 namespace WarAnts
 {
 namespace Asm
 {
+
+const uint16_t Code::CoreVersion = Version::Core;
 
 void Code::error(const char* format, ...)
 {
@@ -320,19 +323,7 @@ bool Code::resolveLabels(bool& recalc)
     return true;
 }
 
-/*
-+------------------------------------------------
-| BCode buffer format
-+---+--------------------------------------------
-| 2 | Queen function offset
-| 2 | Solder function offset
-| 2 | Worker function offset
-| 2 | size of code
-| n | n bytes of code
-+---+--------------------------------------------
-*/
-
-bool Code::save(std::vector<int8_t>& data)
+bool Code::save(WacFile& wac)
 {
     auto func = m_function;
     while (func)
@@ -345,27 +336,16 @@ bool Code::save(std::vector<int8_t>& data)
         func = func->next();
     }
 
-    data.clear();
+    wac.funcQueen = m_funcQueen->offset();
+    wac.funcSolder = m_funcSolder->offset();
+    wac.funcWorker = m_funcWorker->offset();
 
-    Int16And8 value;
+    wac.teamClass = getPragma(PragmaType::Class);
+    wac.coreVersion = CoreVersion;
+    wac.teamName = getPragma(PragmaType::Name);
+    wac.teamVersion = getPragma(PragmaType::Version);
 
-    value.i16 = m_funcQueen->offset();
-    data.push_back(value.i8[0]);
-    data.push_back(value.i8[1]);
-
-    value.i16 = m_funcSolder->offset();
-    data.push_back(value.i8[0]);
-    data.push_back(value.i8[1]);
-
-    value.i16 = m_funcWorker->offset();
-    data.push_back(value.i8[0]);
-    data.push_back(value.i8[1]);
-
-    value.i16 = (int16_t)m_data.size();
-    data.push_back(value.i8[0]);
-    data.push_back(value.i8[1]);
-
-    data.insert(data.end(), m_data.begin(), m_data.end());
+    wac.bcode = m_data;
 
     return true;
 }

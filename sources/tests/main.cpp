@@ -3,11 +3,13 @@
 
 #include <fstream>
 
+#include "cell.h"
+#include "Compiler.h"
+#include "config.h"
+#include "log.h"
 #include "Map.h"
 #include "MapMath.h"
-#include "log.h"
-#include "config.h"
-#include "cell.h"
+#include "Player.h"
 
 class PublicMap : public WarAnts::Map
 {
@@ -20,6 +22,14 @@ public:
     inline WarAnts::Cell* getCell(int x, int y)
     {
         return m_map[absPosition(WarAnts::Position(x, y))].get();
+    }
+};
+
+class TestPlayer : public WarAnts::Player
+{
+    TestPlayer(const WarAnts::Asm::WacFile& wac) : WarAnts::Player(0, "")
+    {
+        m_info = wac;
     }
 };
 
@@ -147,3 +157,17 @@ TEST_CASE("nearAvaliblePosition", "[Map]")
     CHECK((test2a + test2b) == test2max);
 }
 
+TEST_CASE("nearAvaliblePosition", "[Map]")
+{
+    WarAnts::Asm::WacFile wac;
+    StringArray errors;
+    StringArray warnings;
+    auto result = WarAnts::Asm::compileFile("./tests/main.wasm", warnings, errors, wac);
+
+    REQUIRE(errors.empty());
+
+    std::shared_ptr<Player> plr = std::make_shared<>();
+    std::shared_ptr<PublicMap> map = std::make_shared<PublicMap>();
+    VirtualMachine vm(map);
+
+}

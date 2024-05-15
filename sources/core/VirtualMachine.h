@@ -33,14 +33,18 @@ protected:
     int8_t getNextChar() { ++m_pos; return m_bcode[m_pos - 1]; }
 
     void prepare();
-    int16_t* getDestination();
-    int16_t getSource();
+    int16_t* getDestination(Asm::Register::Type* type);
+    int16_t getSource(Asm::Register::Type* type);
 
     void setRF(int16_t bit, bool value);
 
     bool arithmetic1(uint8_t cmd);
     bool arithmetic2(uint8_t cmd);
-    bool jump(uint8_t cmd);
+    bool min(uint8_t cmd);
+    bool max(uint8_t cmd);
+    bool logical(uint8_t cmd);
+    bool jump(uint8_t cmd, uint16_t offset, uint8_t offsetType);
+    void setDstAndFlags(int16_t* dst, int32_t value);
 
 protected:
     const std::vector<int8_t>& m_bcode;
