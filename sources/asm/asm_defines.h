@@ -39,7 +39,6 @@ enum class PragmaType
     Core,
 };
 
-
 enum class ExpressionType
 {
     Register,
@@ -83,6 +82,14 @@ enum Type : uint8_t
     ADDRESS = 0x80,
     INVALIDE = 0xff
 };
+
+enum Flag
+{
+    ZF = 0x01,
+    OF = 0x02,
+    SF = 0x04,
+};
+
 }
 
 /*

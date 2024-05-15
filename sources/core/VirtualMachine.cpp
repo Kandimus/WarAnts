@@ -1,69 +1,49 @@
 ﻿#include "VirtualMachine.h"
 
 #include "log.h"
-
-#include "asm_defines.h"
 #include "defines.h"
+#include "wacfile.h"
 
-#include "Ant.h"
 #include "Cell.h"
 #include "Map.h"
 #include "MapMath.h"
+#include "memory.h"
 #include "Player.h"
 
 namespace WarAnts
 {
 
-enum Memory
+VirtualMachine::VirtualMachine(const std::shared_ptr<Map>& map, const std::shared_ptr<Ant>& ant)
+    : m_bcode(m_ant->player()->info().bcode)
+    , m_memory(m_ant->memory())
 {
-    SatietyPercent = 0x02,
-    HealthPercent = 0x03,
-    Cargo = 0x04,
-    CountOfAllies = 0x05,
-    CountOfEnemy = 0x06,
-    CountOfFood = 0x07,
+    auto wac = m_ant->player()->info();
 
-    UserData = 0x30,
-};
+    m_ant = ant;
+    m_map = map;
 
-class VirtualMachineRunData
-{
-public:
-    VirtualMachineRunData(const std::vector<int8_t>& data, const std::shared_ptr<Ant>& ant, const std::shared_ptr<Map>& map)
-        : m_bcode(data)
+    if (ant->isQueen())
     {
-        m_ant = ant;
-        m_map = map;
-
-        m_memory.resize(Memory::UserData + m_ant->sizeOfMemory()); //TODO возможно нужно перенести это в класс Ant
-
-        prepare();
+        setPos(wac.funcQueen);
+    }
+    else if (ant->isSolder())
+    {
+        setPos(wac.funcSolder);
+    }
+    else if (ant->isWorker())
+    {
+        setPos(wac.funcWorker);
+    }
+    else
+    {
+        SU_BREAKPOINT();
+        return;
     }
 
-    uint16_t pos() const { return m_pos; }
-    void setPos(uint16_t pos) { m_pos = pos; };
-    int8_t getNextChar() { ++m_pos; return m_bcode[m_pos - 1]; }
+    prepare();
+}
 
-    void prepare();
-    int16_t* getDestination();
-    int16_t getSource();
-
-public:
-    const std::vector<int8_t>& m_bcode;
-
-    std::shared_ptr<Ant> m_ant;
-    std::shared_ptr<Map> m_map;
-
-    VectorAnts m_allies;
-    VectorAnts m_enemies;
-    VectorPosition m_foods;
-    std::vector<int16_t> m_memory;
-    int16_t m_registers[Asm::Register::MASK];
-
-    uint16_t m_pos = 0;
-};
-
-void VirtualMachineRunData::prepare()
+void VirtualMachine::prepare()
 {
     auto visibleCells = Math::visibleCells(m_ant->position(), m_ant->visibility());
 
@@ -102,14 +82,9 @@ void VirtualMachineRunData::prepare()
     m_memory[Memory::SatietyPercent] = int16_t(m_ant->satietyPercent() * 10);
     m_memory[Memory::HealthPercent] = int16_t(m_ant->healthPercent() * 10);
     m_memory[Memory::Cargo] = m_ant->cargo();
-
-    for (size_t ii = 0; ii < m_ant->sizeOfMemory(); ++ii)
-    {
-        m_memory[UserData + ii] = m_ant->memory(ii);
-    }
 }
 
-int16_t* VirtualMachineRunData::getDestination()
+int16_t* VirtualMachine::getDestination()
 {
     int8_t reg = m_bcode[m_pos++];
     bool isAddress = reg & Asm::Register::ADDRESS;
@@ -142,7 +117,7 @@ int16_t* VirtualMachineRunData::getDestination()
             return nullptr;
         }
 
-        if (m_registers[reg] < Memory::UserData)
+        if (m_registers[reg] <= Memory::ReadOnly)
         {
             LOGE("Command %02x (%04x): address 0x04x is readonly",
                 m_bcode[m_pos - 2], m_pos - 1, m_registers[reg]);
@@ -155,49 +130,28 @@ int16_t* VirtualMachineRunData::getDestination()
     return &m_registers[reg];
 }
 
-int16_t VirtualMachineRunData::getSource()
+int16_t VirtualMachine::getSource()
 {
     auto ptr = getDestination();
     return ptr ? *ptr : 0;
 }
 
-bool VirtualMachine::run(const std::shared_ptr<Ant>& ant)
+bool VirtualMachine::run()
 {
-    auto plr = ant->player();
-    auto wac = plr->info();
-
-    VirtualMachineRunData data(wac.bcode, ant, m_map);
-
-    if (ant->isQueen())
-    {
-        data.setPos(wac.funcQueen);
-    }
-    else if (ant->isSolder())
-    {
-        data.setPos(wac.funcSolder);
-    }
-    else if (ant->isWorker())
-    {
-        data.setPos(wac.funcWorker);
-    }
-    else
-    {
-        SU_BREAKPOINT();
-        return false;
-    }
-
-    int8_t cmd = 0;
+    uint8_t cmd = 0;
     int16_t* dst = 0;
     int16_t src = 0;
     int16_t value = 0;
     uint8_t valType = 0;
     bool usingValue = false;
-    std::vector<uint16_t> callstack;
+    bool result = true;
+    
+    m_callstack.clear();
 
     while (true)
     {
         usingValue = false;
-        cmd = data.getNextChar();
+        cmd = getNextChar();
 
         if ((cmd & Asm::BCode::TYPE_VALUE) == Asm::BCode::TYPE_VALUE)
         {
@@ -207,80 +161,57 @@ bool VirtualMachine::run(const std::shared_ptr<Ant>& ant)
             if (valType == Asm::BCode::VALUE_CHAR)
             {
                 usingValue = true;
-                value = data.getNextChar();
+                value = getNextChar();
             }
             else if (valType == Asm::BCode::VALUE_SHORT)
             {
                 usingValue = true;
-                value = data.getNextChar();
-                value |= data.getNextChar() << 8;
+                value = getNextChar();
+                value |= getNextChar() << 8;
             }
         }
         else if ((cmd & Asm::BCode::TYPE_JUMP) == Asm::BCode::TYPE_JUMP)
         {
             valType = cmd & Asm::BCode::JUMP_MASK;
             cmd &= ~Asm::BCode::JUMP_MASK;
-            value = data.getNextChar();
+            value = getNextChar();
 
             if (valType == Asm::BCode::JUMP_SHORT)
             {
-                value |= data.getNextChar() << 8;
+                value |= getNextChar() << 8;
             }
         }
 
         switch (cmd)
         {
-            case Asm::BCode::ADD:
-                dst = data.getDestination();
-                src = data.getSource();
-                if (dst)
-                {
-                    *dst = *dst + src;
-                }
-                break;
-
-            case Asm::BCode::AND:
-                dst = data.getDestination();
-                src = data.getSource();
-                if (dst)
-                {
-                    *dst = *dst & src;
-                }
-                break;
+            case Asm::BCode::ADD: result = arithmetic2(cmd); break;
+            case Asm::BCode::AND: result = arithmetic2(cmd); break;
 
             case Asm::BCode::DEC:
-                dst = data.getDestination();
+                dst = getDestination();
                 if (dst)
                 {
                     *dst -= 1;
                 }
                 break;
 
-            case Asm::BCode::DIV:
-                dst = data.getDestination();
-                src = data.getSource();
-                if (dst)
-                {
-                    *dst = *dst / src;
-                }
-                break;
+            case Asm::BCode::DIV: result = arithmetic2(cmd); break;
 
             case Asm::BCode::INC:
-                dst = data.getDestination();
+                dst = getDestination();
                 if (dst)
                 {
                     *dst += 1;
                 }
                 break;
-/*
-                MOD,
-                MUL,
-                NEG,
-                NOT,
-                OR,
-                SUB,
-                XOR,
-                MIN,
+            case Asm::BCode::MOD: result = arithmetic2(cmd); break;
+            case Asm::BCode::MUL: result = arithmetic2(cmd); break;
+//                NEG,
+//                NOT,
+            case Asm::BCode::OR:  result = arithmetic2(cmd); break;
+            case Asm::BCode::SUB: result = arithmetic2(cmd); break;
+            case Asm::BCode::XOR: result = arithmetic2(cmd); break;
+/*                MIN,
                 MAX,
 
                 BSF,
@@ -304,8 +235,8 @@ bool VirtualMachine::run(const std::shared_ptr<Ant>& ant)
 */
 
             case Asm::BCode::MOV: 
-                dst = data.getDestination();
-                src = data.getSource();
+                dst = getDestination();
+                src = getSource();
                 if (dst)
                 {
                     *dst = src;
@@ -318,7 +249,7 @@ bool VirtualMachine::run(const std::shared_ptr<Ant>& ant)
                 {
                     return true;
                 }
-                data.setPos(callstack.back());
+                setPos(callstack.back());
                 callstack.pop_back();
                 break;
 /*
@@ -328,18 +259,18 @@ bool VirtualMachine::run(const std::shared_ptr<Ant>& ant)
                 CGVF,
                 CPS,
                 CPW,
-
-                JMP = 0x40,
-                JZ = 0x42,
-                JNZ = 0x44,
+*/
+//                JMP = 0x40,
+            case Asm::BCode::JZ:
+/*                JNZ = 0x44,
                 JO = 0x46,
                 JNO = 0x48,
                 JCZ = 0x4a,
                 JCNZ = 0x4c,
                 LOOP = 0x4e,*/
             case Asm::BCode::CALL:
-                callstack.push_back(data.pos());
-                data.setPos(data.pos() + value - 2 - (valType == Asm::BCode::JUMP_SHORT ? 1 : 0));
+                callstack.push_back(pos());
+                setPos(pos() + value - 2 - (valType == Asm::BCode::JUMP_SHORT ? 1 : 0));
                 break;
 /*
                 LDTR = 0x60,
@@ -350,8 +281,109 @@ bool VirtualMachine::run(const std::shared_ptr<Ant>& ant)
                 CEAT = 0x74,
 */
         }
+        if (!result)
+        {
+            return false;
+        }
     }
 
+    return true;
+}
+
+void VirtualMachine::setRF(int16_t bit, bool value)
+{
+    if (value)
+    {
+        m_registers[Asm::Register::RF] |= bit;
+    }
+    else
+    {
+        m_registers[Asm::Register::RF] &= ~bit;
+    }
+}
+
+#define CHECK_DST            if (!dst) { return false; }
+
+bool VirtualMachine::arithmetic1(uint8_t cmd)
+{
+    auto cmdPos = pos();
+    auto dst = getDestination();
+
+    CHECK_DST;
+
+    int32_t tmp = *dst;
+
+    switch (cmd)
+    {
+    case Asm::BCode::DEC: tmp -= 1; break;
+    case Asm::BCode::INC: tmp += 1; break;
+    case Asm::BCode::NEG: tmp = -tmp; break;
+    case Asm::BCode::NOT: tmp = ~tmp; break;
+    default:
+        LOGE("Command %02x (%04x): Undefined arithmetic operand", (int)cmd, cmdPos);
+        SU_BREAKPOINT();
+        return false;
+    }
+
+    *dst = tmp & 0xffff;
+
+    setRF(Asm::Register::ZF, *dst == 0);
+    setRF(Asm::Register::OF, !!(tmp & 0xffff0000));
+    return true;
+}
+
+
+bool VirtualMachine::arithmetic2(uint8_t cmd)
+{
+    auto cmdPos = pos();
+    auto dst = getDestination();
+    auto src = getSource();
+
+    CHECK_DST;
+
+    uint16_t oldDst = *dst;
+    int32_t tmp = *dst;
+
+    switch (cmd)
+    {
+        case Asm::BCode::ADD: tmp += src; break;
+        case Asm::BCode::AND: tmp &= src; break;
+        case Asm::BCode::DIV: tmp /= src; break;
+        case Asm::BCode::MOD: tmp %= src; break;
+        case Asm::BCode::MUL: tmp *= src; break;
+        case Asm::BCode::OR:  tmp |= src; break;
+        case Asm::BCode::SUB: tmp -= src; break;
+        case Asm::BCode::XOR: tmp ^= src; break;
+        default:
+            LOGE("Command %02x (%04x): Undefined arithmetic operand", (int)cmd, cmdPos);
+            SU_BREAKPOINT();
+            return false;
+    }
+    
+    *dst = tmp & 0xffff;
+    
+    setRF(Asm::Register::ZF, *dst == 0);
+    setRF(Asm::Register::OF, !!(tmp & 0xffff0000));
+    setRF(Asm::Register::SF, (oldDst & 0x8000) != (*dst & 0x8000);
+    return true;
+}
+
+bool VirtualMachine::jump(uint8_t cmd, uint16_t offset, uint8_t offsetType)
+{
+    if (cmd == Asm::BCode::CALL)
+    {
+        m_callstack.push_back(pos());
+    }
+
+    uint16_t sizeCmd = 2 + (offsetType == Asm::BCode::JUMP_SHORT ? 1 : 0);
+    uint16_t newPos = pos() + offset - sizeCmd;
+    bool doJump = false;
+
+    switch (cmd)
+    {
+        case Asm::BCode::JMP: doJump = true;
+    }
+    setPos();
 }
 
 

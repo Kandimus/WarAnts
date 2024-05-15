@@ -1,5 +1,7 @@
 #include "Ant.h"
 
+#include "memory.h"
+
 namespace WarAnts
 {
 
@@ -27,6 +29,9 @@ Ant::Ant(const nlohmann::json& json, AntType type)
     m_turnToSolder = json.contains("solder") ? static_cast<int16_t>(json["solder"]) : m_turnToSolder;
     m_turnToWorker = json.contains("worker") ? static_cast<int16_t>(json["worker"]) : m_turnToWorker;
 
+    m_memory.clear();
+    m_memory.resize(Memory::UserData + m_sizeOfMemory);
+
     reset();
 }
 
@@ -35,9 +40,6 @@ void Ant::reset()
     m_satiety = m_maxSatiety;
     m_health = m_maxHealth;
     m_cargo = 0;
-
-    m_memory.clear();
-    m_memory.resize(m_sizeOfMemory);
 }
 
 bool Ant::damage(int16_t damage)

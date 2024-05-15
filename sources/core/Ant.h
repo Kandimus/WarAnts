@@ -56,7 +56,6 @@ public:
     uint16_t cargo() const { return m_cargo; }
     AntType type() const { return m_type; }
     AntStatus status() const { return m_status; }
-    int8_t sizeOfMemory() const { return m_sizeOfMemory; }
 
     bool isWorker() const { return m_type == AntType::Worker; }
     bool isSolder() const { return m_type == AntType::Solder; }
@@ -69,16 +68,13 @@ public:
     
     void reset();
 
-    //process(AntInfo& ai, Command& cmd);
-
     bool hasCommand() const { return m_command.m_type != CommandType::Idle; }
     void setCommand(const AntCommand& cmd) { m_command = cmd; }
     void setCommand(CommandType cmd, int16_t x, int16_t y, int16_t userdata) { m_command.set(cmd, x, y, userdata); }
     const AntCommand& command() const { return m_command; }
     void clearCommand() { m_command.clear(); }
 
-    int16_t memory(size_t idx) const { return m_memory[idx]; }
-    int16_t& memory(size_t idx) { return m_memory[idx]; }
+    std::vector<int16_t>& memory() { return m_memory; }
 
     uint32_t id() const { return m_id; }
     void setId(uint32_t id) { m_id = id; }

@@ -49,6 +49,7 @@
     <ClInclude Include="Hardware.h" />
     <ClInclude Include="Map.h" />
     <ClInclude Include="MapMath.h" />
+    <ClInclude Include="memory.h" />
     <ClInclude Include="Player.h" />
     <ClInclude Include="Position.h" />
     <ClInclude Include="VirtualMachine.h" />

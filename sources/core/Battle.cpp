@@ -135,8 +135,6 @@ int Battle::run()
     }
     m_logService->saveMap(*m_map.get());
 
-    VirtualMachine vm(m_map);
-
     // main loop
     while(true)
     {
@@ -168,9 +166,11 @@ int Battle::run()
 
             ant->beginTurn();
 
-            if(!ant->hasCommand() && ant->isSolder())
+            if(!ant->hasCommand())
             {
-                vm.run(ant);
+                VirtualMachine vm(m_map, ant);
+
+                vm.run();
             //	AntInfo ai;
             //	Command cmd;
 
