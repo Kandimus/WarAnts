@@ -32,6 +32,8 @@ public:
 protected:
     //std::vector<std::weak_ptr<Ant>> sortAnts();
 
+    void runBcode(const AntPtr& ant);
+
     void doAntCommand(AntPtr ant);
     bool commandMove(AntPtr ant);
     bool commandAttack(AntPtr ant);

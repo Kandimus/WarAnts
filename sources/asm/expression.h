@@ -41,13 +41,13 @@ public:
         m_type = ExpressionType::Operand;
         m_value.op = op;
     }
-    Expression(Expression* left, BaseNode* parent)
+    Expression(Expression* left, bool posAdr, BaseNode* parent)
         : BaseNode(parent)
     {
         m_left = left;
         m_right = nullptr;
         m_type = ExpressionType::Address;
-        m_value.num = 0;
+        m_value.num = posAdr;
     }
     virtual ~Expression() = default;
 

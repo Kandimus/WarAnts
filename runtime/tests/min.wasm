@@ -65,6 +65,19 @@
     jf    abort
     eq    p0:y, 9
     jf    abort
+
+    ; min (<14, 18>, <20, 20>) == <14, 18>
+    inc   [48]
+    mov   [50], 14
+    mov   [51], 18
+    mov   p0:x, 20
+    mov   p0:y, p0:x
+    min   <50>, p0
+    eq    [50], 20
+    jf    abort
+    eq    [51], 20
+    jf    abort
+
     exit
     
 abort:

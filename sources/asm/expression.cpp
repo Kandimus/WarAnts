@@ -131,7 +131,7 @@ int8_t Expression::compile(bool isDst, int16_t& val, Code* code) const
 
     if (m_type == ExpressionType::Address)
     {
-        return m_left->compile(isDst, val, code) | Register::ADDRESS;
+        return m_left->compile(isDst, val, code) | Register::ADDRESS | (m_value.num ? Register::POSADR : 0);
     }
 
     SU_BREAKPOINT();

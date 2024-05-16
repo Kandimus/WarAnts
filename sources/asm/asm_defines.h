@@ -16,20 +16,11 @@ enum Version : uint16_t
     Core = 0x0100,
 };
 
-enum FunctionOffset : uint16_t
-{
-    Queen = 0,
-    Solder = 2,
-    Worker = 4,
-    Size = 6,
-    Data = 8
-};
-
-union Int16And8
-{
-    int16_t i16;
-    int8_t i8[2];
-};
+//union Int16And8
+//{
+//    int16_t i16;
+//    int8_t i8[2];
+//};
 
 enum class PragmaType
 {
@@ -70,16 +61,14 @@ enum Type : uint8_t
     P2Y,
     CHAR,
     SHORT,
-    RESERVED,
     RF,
     RD,
     RS,
-    P0, // 16
-    P1,
-    P2,
+    RESERVED, // 15
 
     MASK = 0x1f,
-    ADDRESS = 0x80,
+    POSITION = 0x10,
+    ADDRESS = 0x20,
     INVALIDE = 0xff
 };
 
@@ -90,17 +79,7 @@ enum Flag
     SF = 0x04,
 };
 
-}
-
-/*
-
-+--
-| 0...
-+--
-
-
-*/
-
+} //namespace Register
 
 enum class AsmCommand
 {
@@ -277,7 +256,7 @@ enum Command : int8_t
     JCNZ = 0x50,
     LOOP = 0x52,
     CALL = 0x54,
-    // max 0x5e
+    // max 0x5e (5 free)
 
     LDTR = 0x60,
     LDFD = 0x64,
@@ -285,7 +264,7 @@ enum Command : int8_t
     LDFR = 0x6c,
     CIDL = 0x70,
     CEAT = 0x74,
-    // max 0x7c
+    // max 0x7c (2 free)
 };
 }; // namespace BCode
 

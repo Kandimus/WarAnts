@@ -14,8 +14,8 @@ namespace WarAnts
 {
 
 VirtualMachine::VirtualMachine(const std::shared_ptr<Map>& map, const std::shared_ptr<Ant>& ant)
-    : m_bcode(m_ant->player()->info().bcode)
-    , m_memory(m_ant->memory())
+    : m_bcode(ant->player()->info().bcode)
+    , m_memory(ant->memory())
 {
     auto wac = m_ant->player()->info();
 
@@ -58,7 +58,7 @@ void VirtualMachine::prepare()
 
         if (cell->food())
         {
-            ++m_memory[Memory::CountOfFood];
+            m_ant->incValue(Memory::CountOfFood);
             m_foods.push_back(pos);
             continue;
         }
@@ -68,20 +68,20 @@ void VirtualMachine::prepare()
         {
             if (cellAnt->player() == m_ant->player())
             {
-                ++m_memory[Memory::CountOfAllies];
+                m_ant->incValue(Memory::CountOfAllies);
                 m_allies.push_back(cellAnt);
             }
             else
             {
-                ++m_memory[Memory::CountOfEnemy];
+                m_ant->incValue(Memory::CountOfEnemy);
                 m_enemies.push_back(cellAnt);
             }
         }
     }
 
-    m_memory[Memory::SatietyPercent] = int16_t(m_ant->satietyPercent() * 10);
-    m_memory[Memory::HealthPercent] = int16_t(m_ant->healthPercent() * 10);
-    m_memory[Memory::Cargo] = m_ant->cargo();
+    m_ant->setValue(Memory::SatietyPercent, int16_t(m_ant->satietyPercent() * 10));
+    m_ant->setValue(Memory::HealthPercent, int16_t(m_ant->healthPercent() * 10));
+    m_ant->setValue(Memory::Cargo, m_ant->cargo());
 }
 
 int16_t* VirtualMachine::getDestination(Asm::Register::Type* type)

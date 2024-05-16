@@ -44,7 +44,7 @@ int  yylex();
     int64_t TINEGER;
 }
 
-%token LROUND RROUND LSQUARE RSQUARE COMMA COLON DOT SIGN PERSENT
+%token LROUND RROUND LSQUARE RSQUARE COMMA COLON DOT SIGN PERSENT LESS GREATER
 %token INT_NUMBER HEX_NUMBER ID CHARACTER_STRING
 %token NAME VERSION CLASS DEFINE CORE
 %token R0 R1 R2 RC RF P0 P1 P2 COORD_X COORD_Y
@@ -218,7 +218,8 @@ address
     | P0                                                { $$ = new WarAnts::Asm::Expression(WarAnts::Asm::Register::P0, yy_code.get()); }
     | P1                                                { $$ = new WarAnts::Asm::Expression(WarAnts::Asm::Register::P1, yy_code.get()); }
     | P2                                                { $$ = new WarAnts::Asm::Expression(WarAnts::Asm::Register::P2, yy_code.get()); }
-    | LSQUARE expr_0 RSQUARE                            { $$ = new WarAnts::Asm::Expression($2, yy_code.get()); }
+    | LSQUARE expr_0 RSQUARE                            { $$ = new WarAnts::Asm::Expression($2, false, yy_code.get()); }
+    | LESS expr_0 GREATER                               { $$ = new WarAnts::Asm::Expression($2, true,  yy_code.get()); }
     ;
 
 /*

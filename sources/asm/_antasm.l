@@ -41,6 +41,8 @@ comment   ";"[^\n\r]*
 "."                         { return DOT; }
 "#"                         { return SIGN; }
 "%"                         { return PERSENT; }
+"<"                         { return LESS; }
+">"                         { return GREATER; }
 
 "core"                      { return CORE; }
 "name"                      { return NAME; }

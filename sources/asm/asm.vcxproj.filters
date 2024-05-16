@@ -68,7 +68,9 @@
     <ClCompile Include="expression.cpp">
       <Filter>Sources</Filter>
     </ClCompile>
-    <ClCompile Include="wacfile.cpp" />
+    <ClCompile Include="wacfile.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="_antasm.l">

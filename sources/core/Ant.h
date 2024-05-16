@@ -74,6 +74,9 @@ public:
     const AntCommand& command() const { return m_command; }
     void clearCommand() { m_command.clear(); }
 
+    int16_t getValue(size_t idx) const { return idx < m_memory.size() ? m_memory[idx] : 0; }
+    void setValue(size_t idx, int16_t val) { if (idx < m_memory.size()) m_memory[idx] = val; }
+    void incValue(size_t idx) { if (idx < m_memory.size()) ++m_memory[idx]; }
     std::vector<int16_t>& memory() { return m_memory; }
 
     uint32_t id() const { return m_id; }

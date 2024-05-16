@@ -8,8 +8,10 @@
 #include "config.h"
 #include "log.h"
 #include "Map.h"
+#include "memory.h"
 #include "MapMath.h"
 #include "Player.h"
+#include "VirtualMachine.h"
 
 class PublicMap : public WarAnts::Map
 {
@@ -27,9 +29,21 @@ public:
 
 class TestPlayer : public WarAnts::Player
 {
+public:
     TestPlayer(const WarAnts::Asm::WacFile& wac) : WarAnts::Player(0, "")
     {
         m_info = wac;
+    }
+};
+
+class TestAnt : public WarAnts::Ant
+{
+public:
+    TestAnt(const std::shared_ptr<TestPlayer>& plr) : WarAnts::Ant()
+    {
+        m_visibility = 1;
+        m_player = plr;
+        m_memory.resize(WarAnts::Memory::UserData + 256);
     }
 };
 
@@ -157,17 +171,23 @@ TEST_CASE("nearAvaliblePosition", "[Map]")
     CHECK((test2a + test2b) == test2max);
 }
 
-TEST_CASE("nearAvaliblePosition", "[Map]")
+TEST_CASE("min", "[VM]")
 {
     WarAnts::Asm::WacFile wac;
     StringArray errors;
     StringArray warnings;
-    auto result = WarAnts::Asm::compileFile("./tests/main.wasm", warnings, errors, wac);
+    auto result = WarAnts::Asm::compileFile("./tests/min.wasm", warnings, errors, wac);
 
     REQUIRE(errors.empty());
 
-    std::shared_ptr<Player> plr = std::make_shared<>();
+    std::shared_ptr<TestPlayer> plr = std::make_shared<TestPlayer>(wac);
+    std::shared_ptr<TestAnt> ant = std::make_shared<TestAnt>(plr);
     std::shared_ptr<PublicMap> map = std::make_shared<PublicMap>();
-    VirtualMachine vm(map);
+    
+    WarAnts::VirtualMachine vm(map, ant);
+
+    vm.run();
+
+    CHECK(ant->getValue(49) == 1);
 
 }
