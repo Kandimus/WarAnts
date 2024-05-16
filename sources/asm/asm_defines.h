@@ -16,11 +16,11 @@ enum Version : uint16_t
     Core = 0x0100,
 };
 
-//union Int16And8
-//{
-//    int16_t i16;
-//    int8_t i8[2];
-//};
+union Int16And8
+{
+    int16_t i16;
+    int8_t i8[2];
+};
 
 enum class PragmaType
 {
@@ -59,14 +59,14 @@ enum Type : uint8_t
     P1Y,
     P2X,
     P2Y,
-    CHAR,
-    SHORT,
     RF,
     RD,
     RS,
+    CHAR,
+    SHORT,
     RESERVED, // 15
+    COUNT = 0x0f,
 
-    MASK = 0x1f,
     POSITION = 0x10,
     ADDRESS = 0x20,
     INVALIDE = 0xff
@@ -195,7 +195,7 @@ enum Value : uint8_t
     VALUE_MASK = 0x03,
 };
 
-enum Command : int8_t
+enum Command : uint8_t
 {
     NOP = 0,
 

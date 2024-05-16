@@ -12,18 +12,42 @@ namespace Asm
 class Code;
 class Statement;
 
+class BaseRegister
+{
+public:
+    BaseRegister(uint8_t reg) : m_reg(reg) {}
+    virtual bool isPosition() const = 0;
+    virtual uint8_t reg() const { return m_reg; }
+protected:
+    uint8_t m_reg;
+};
+
+class CReg : public BaseRegister
+{
+public:
+    CReg(uint8_t reg) : BaseRegister(reg) {}
+    bool isPosition() const override { return false; }
+};
+
+class PReg : public BaseRegister
+{
+public:
+    PReg(uint8_t reg) : BaseRegister(reg) {}
+    bool isPosition() const override { return true; }
+};
+
 class Expression : public BaseNode
 {
     NOCOPY_STRUCT(Expression)
 
 public:
-    Expression(Register::Type reg, BaseNode* parent)
+    Expression(const BaseRegister& reg, BaseNode* parent)
         : BaseNode(parent)
     {
         m_left = nullptr;
         m_right = nullptr;
         m_type = ExpressionType::Register;
-        m_value.reg = reg;
+        m_value.reg = reg.reg() | (reg.isPosition() ? Register::POSITION : 0);
     }
     Expression(int16_t num, BaseNode* parent)
         : BaseNode(parent)
@@ -52,10 +76,10 @@ public:
     virtual ~Expression() = default;
 
     ExpressionType type() const { return m_type; }
-    Register::Type reg() const { return m_value.reg; }
+    int8_t reg() const { return m_value.reg; }
 
     Statement* extrudeExpression(bool isDst, Code* code);
-    int8_t compile(bool isDst, int16_t& val, Code* code) const;
+    int8_t compile(int16_t& val, Code* code) const;
     std::string toString() const;
 
 protected:
@@ -65,7 +89,7 @@ protected:
 protected:
     union ExpressionValue
     {
-        Register::Type reg;
+        uint8_t reg;
         int16_t num;
         OperandType op;
     };
@@ -77,9 +101,9 @@ protected:
     Expression* m_right = nullptr;
 };
 
-inline bool isPositionRegister(const Register::Type& reg)
+inline bool isPositionRegister(int8_t reg)
 {
-    return reg == Register::P0 || reg == Register::P1 || reg == Register::P2;
+    return reg & Register::POSITION;
 }
 
 }; // namespace Asm

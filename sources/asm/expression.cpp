@@ -17,7 +17,7 @@ Statement* Expression::extrudeExpression(bool isDst, Code* code)
         return nullptr;
     }
 
-    Register::Type reg = isDst ? Register::RD : Register::RS;
+    uint8_t reg = isDst ? Register::RD : Register::RS;
 
     if (m_type == ExpressionType::Address)
     {
@@ -33,7 +33,7 @@ Statement* Expression::extrudeExpression(bool isDst, Code* code)
             return nullptr;
         }
 
-        m_left = new Expression(reg, parent());
+        m_left = new Expression(CReg(reg), parent());
 
         return statLeft;
     }
@@ -57,7 +57,8 @@ Statement* Expression::extrudeExpression(bool isDst, Code* code)
 
     if (!statLeft && !statRight)
     {
-        statInit = new Statement(AsmCommand::MOV, new Expression(reg, parent()), m_left, parent());
+        yyRealLineNo = lineno();
+        statInit = new Statement(AsmCommand::MOV, new Expression(CReg(reg), parent()), m_left, parent());
         m_left = nullptr;
         m_right = nullptr;
     }
@@ -81,15 +82,15 @@ Statement* Expression::extrudeExpression(bool isDst, Code* code)
     switch (m_value.op)
     {
         case OperandType::Plus:
-            statOper = new Statement(AsmCommand::ADD, new Expression(reg, parent()), expr, parent());
+            statOper = new Statement(AsmCommand::ADD, new Expression(CReg(reg), parent()), expr, parent());
             break;
 
         case OperandType::Minus:
-            statOper = new Statement(AsmCommand::SUB, new Expression(reg, parent()), expr, parent());
+            statOper = new Statement(AsmCommand::SUB, new Expression(CReg(reg), parent()), expr, parent());
             break;
 
         case OperandType::Star:
-            statOper = new Statement(AsmCommand::MUL, new Expression(reg, parent()), expr, parent());
+            statOper = new Statement(AsmCommand::MUL, new Expression(CReg(reg), parent()), expr, parent());
             break;
 
         default:
@@ -116,7 +117,7 @@ Statement* Expression::extrudeExpression(bool isDst, Code* code)
     return statInit;
 }
 
-int8_t Expression::compile(bool isDst, int16_t& val, Code* code) const
+int8_t Expression::compile(int16_t& val, Code* code) const
 {
     if (m_type == ExpressionType::Number)
     {
@@ -131,7 +132,7 @@ int8_t Expression::compile(bool isDst, int16_t& val, Code* code) const
 
     if (m_type == ExpressionType::Address)
     {
-        return m_left->compile(isDst, val, code) | Register::ADDRESS | (m_value.num ? Register::POSADR : 0);
+        return m_left->compile(val, code) | Register::ADDRESS | (m_value.num ? Register::POSITION : 0);
     }
 
     SU_BREAKPOINT();
@@ -147,31 +148,29 @@ std::string Expression::toString() const
 
     if (m_type == ExpressionType::Register)
     {
-        switch (m_value.reg)
+        switch (m_value.reg & Register::COUNT)
         {
             case Register::R0: return "R0";
             case Register::R1: return "R1";
             case Register::R2: return "R2";
             case Register::RC: return "RC";
-            case Register::P0X: return "P0:X";
+            case Register::P0X: return isPosition() ? "P0" : "P0:X";
             case Register::P0Y: return "P0:Y";
-            case Register::P1X: return "P1:X";
+            case Register::P1X: return isPosition() ? "P2" : "P1:X";
             case Register::P1Y: return "P1:Y";
-            case Register::P2X: return "P2:X";
+            case Register::P2X: return isPosition() ? "P2" : "P2:X";
             case Register::P2Y: return "P2:Y";
             case Register::RF: return "RF";
             case Register::RD: return "RD";
             case Register::RS: return "RS";
-            case Register::P0: return "P0";
-            case Register::P1: return "P1";
-            case Register::P2: return "P2";
             default: return "UNDEFINE REG " + std::to_string((uint32_t)m_value.reg);
         }
     }
 
     if (m_type == ExpressionType::Address)
     {
-        return "[" + m_left->toString() + "]";
+        static std::string brañket[2][2] = { {"[", "]"}, {"<", ">"} };
+        return brañket[m_value.num][0] + m_left->toString() + brañket[m_value.num][1];
     }
 
     switch (m_value.op)

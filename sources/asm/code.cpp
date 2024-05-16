@@ -30,7 +30,7 @@ void Code::error(const char* format, ...)
     std::string result = buff;
     delete[] buff;
 
-    m_errors.push_back("error: " + result);
+    m_errors.push_back("Error: " + result);
 }
 
 void Code::error(uint32_t lineno, const char* format, ...)
@@ -46,7 +46,7 @@ void Code::error(uint32_t lineno, const char* format, ...)
     std::string result = buff;
     delete[] buff;
 
-    m_errors.push_back(std::to_string(lineno) + ": Error:" + result);
+    m_errors.push_back(std::to_string(lineno) + ": Error: " + result);
 }
 
 void Code::warning(uint32_t lineno, const char* format, ...)
@@ -62,7 +62,7 @@ void Code::warning(uint32_t lineno, const char* format, ...)
     std::string result = buff;
     delete[] buff;
 
-    m_warnings.push_back(std::to_string(lineno) + ": Warning:" + result);
+    m_warnings.push_back(std::to_string(lineno) + ": Warning: " + result);
 }
 
 uint16_t Code::updateOffset(uint16_t addOffset)
@@ -271,6 +271,8 @@ bool Code::calculationJumpsAndCalls()
 
     while (recalc)
     {
+        recalc = false;
+
         if (!assignOffsets())
         {
             return false;
@@ -307,8 +309,6 @@ bool Code::assignOffsets()
 bool Code::resolveLabels(bool& recalc)
 {
     auto func = m_function;
-
-    recalc = false;
 
     while (func)
     {

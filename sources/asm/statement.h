@@ -13,6 +13,11 @@ namespace Asm
 class Code;
 class Expression;
 
+namespace Table
+{
+    typedef bool CheckTable[5][5];
+}
+
 enum class StatementType
 {
     Label,
@@ -107,23 +112,12 @@ public:
     void print(std::ofstream& file) const;
 
 protected:
-    Register::Type compileExpr(Expression* expr, bool isDst, Code* code);
-    void compileDstSrc(BCode::Command cmd, Register::Type& dst, Register::Type& src, Code* code);
-    void compileDst(BCode::Command cmd, Register::Type& dst, Code* code);
-    void compileSrc(BCode::Command cmd, Register::Type& src, Code* code);
+    uint8_t compileExpr(Expression* expr, Code* code);
 
     void compileNoArgs(BCode::Command cmd, Code* code);
-    void compileCommon(BCode::Command cmd, Code* code);
-    void compileDstCommon(BCode::Command cmd, Code* code);
-    void compileSrcCommon(BCode::Command cmd, Code* code);
-    void compileNoPosition(BCode::Command cmd, Code* code);
-    void compileDstNoPosition(BCode::Command cmd, Code* code);
-    void compileSrcNoPosition(BCode::Command cmd, Code* code);
-    void compileStrong(BCode::Command cmd, Code* code);
+    void compile2Args(BCode::Command cmd, const Table::CheckTable& table, Code* code);
+    void compile1Args(BCode::Command cmd, const Table::CheckTable& table, Code* code);
     void compileJump(BCode::Command cmdl, Code* code);
-    void compilePosition(BCode::Command cmd, Code* code);
-    void compileDstPosition(BCode::Command cmd, Code* code);
-    void compileDstNoPositionSrcPosition(BCode::Command cmd, Code* code);
 
 public:
     StatementType m_type;

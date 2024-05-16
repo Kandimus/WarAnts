@@ -17,6 +17,16 @@ class Player;
 class VirtualMachine
 {
 public:
+    struct RegSource
+    {
+        int16_t* ptr;
+        uint8_t  reg;
+        int16_t  val;
+        bool     pos;
+    };
+
+
+public:
     VirtualMachine(const std::shared_ptr<Map>& map, const std::shared_ptr<Ant>& ant);
     VirtualMachine(const VirtualMachine&) = delete;
     VirtualMachine(VirtualMachine&&) = delete;
@@ -33,8 +43,7 @@ protected:
     int8_t getNextChar() { ++m_pos; return m_bcode[m_pos - 1]; }
 
     void prepare();
-    int16_t* getDestination(Asm::Register::Type* type);
-    int16_t getSource(Asm::Register::Type* type);
+    RegSource getSource();
 
     void setRF(int16_t bit, bool value);
 
@@ -58,7 +67,7 @@ protected:
     VectorPosition m_foods;
     std::vector<uint16_t> m_callstack;
     
-    int16_t m_registers[Asm::Register::MASK];
+    int16_t m_registers[Asm::Register::COUNT];
 
     uint16_t m_pos = 0;
 };

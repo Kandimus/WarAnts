@@ -4,7 +4,7 @@
 #include "asm_defines.h"
 
 // Flex/Bison
-extern int yylineno;
+extern int yyRealLineNo;
 
 namespace WarAnts
 {
@@ -16,7 +16,7 @@ class BaseNode
 public:
     BaseNode(BaseNode* parent)
     {
-        m_lineno = yylineno;
+        m_lineno = yyRealLineNo;
         m_parent = parent;
 
         if (m_parent)
