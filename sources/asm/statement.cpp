@@ -135,9 +135,10 @@ int16_t Statement::jumpValue() const
     if ((m_bcode[0] & BCode::JUMP_MASK) == BCode::JUMP_SHORT)
     {
         out.i8[1] = m_bcode[2];
+        return out.i16;
     }
 
-    return out.i16;
+    return out.i8[0];
 }
 
 bool Statement::checkUnusedJump() const

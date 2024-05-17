@@ -1,0 +1,103 @@
+%core "0100"
+%name "Test arithmetics operations"
+%version "1"
+%class "black"
+
+.Test_ARITHMETIC
+    mov   [48], 0
+    mov   [49], 1
+
+    ; 1
+    ; 5 + 1 = 6
+    inc   [48]
+    mov   r0, 5 
+    add   r0, 1
+    eq    r0, 6
+    jf    abort
+    
+    ; 2
+    ; ++6 == 7
+    inc   [48]
+    inc   r0
+    eq    r0, 7
+    jf    abort
+    
+    
+    ; 3
+    ; --7 == 6
+    inc   [48]
+    dec   r0
+    eq    r0, 6
+    jf    abort
+    
+    ; 4
+    ; 6 - 10 == -4
+    inc   [48]
+    sub   r0, 10
+    eq    r0, -4
+    jf    abort
+    
+    ; 5
+    ; -4 / 2 == -2
+    inc   [48]
+    div   r0, 2
+    eq    r0, -2
+    jf    abort
+    
+    ; 6
+    ; -2 * -3 == 6
+    inc   [48]
+    mul   r0, -3
+    eq    r0, 6
+    jf    abort
+
+    ; 7
+    ; -(6) == -6
+    inc   [48]
+    neg   r0
+    eq    r0, -6
+    jf    abort
+
+    ; 8
+    ; ~(-6) == 5
+    inc   [48]
+    not   r0
+    eq    r0, 5
+    jf    abort
+
+    ; 9
+    ; 5 & 6 == 4
+    inc   [48]
+    and   r0, 6
+    eq    r0, 4
+    jf    abort
+
+    ; 10
+    ; 4 | 17 == 21
+    inc   [48]
+    or    r0, 17
+    eq    r0, 21
+    jf    abort
+
+    ; 11
+    ; 21 ^ 11 == 30
+    inc   [48]
+    xor   r0, 11
+    eq    r0, 1eh
+    jf    abort
+
+    exit
+
+abort:
+    mov   [49], 0
+    exit
+
+.worker
+    call Test_ARITHMETIC
+    EXIT
+
+.solder
+    EXIT
+
+.queen
+    EXIT

@@ -1,0 +1,67 @@
+%core "0100"
+%name "Test bit operations"
+%version "1"
+%class "black"
+
+.Test_BIT
+    ; init
+    mov   [48], 0
+    mov   [49], 1
+
+    ; 1
+    ; 1st bit of 0001000010001000b == 3
+    inc   [48]
+    bsf   R0, 1088h
+    eq    r0, 3
+    jf    abort
+
+    ; 2
+    ; 1st bit of 0001000010001001b == 0
+    inc   [48]
+    bsf   R0, 1089h
+    eq    r0, 0
+    jf    abort
+
+    ; 3
+    ; 1st bit of 1000000000000000b == 15
+    inc   [48]
+    bsf   R0, 8000h
+    eq    r0, 15
+    jf    abort
+
+    ; 4
+    ; lastest bit of 0001000010001000b == 12
+    inc   [48]
+    bsf   R0, 1088h
+    eq    r0, 12
+    jf    abort
+
+    ; 5
+    ; lastest bit of 1001000010001000b == 15
+    inc   [48]
+    bsf   R0, 9088h
+    eq    r0, 15
+    jf    abort
+
+    ; 6
+    ; 1st bit of 0000000000000001b == 0
+    inc   [48]
+    bsf   R0, 0001h
+    eq    r0, 15
+    jf    abort
+
+    exit
+    
+abort:
+    mov   [49], 0
+    exit
+
+.worker
+    call Test_MAX
+    EXIT
+
+.solder
+    EXIT
+
+.queen
+    EXIT

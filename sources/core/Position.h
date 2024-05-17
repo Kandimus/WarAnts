@@ -31,6 +31,8 @@ public:
     void dec() { --m_x; --m_y; }
     void neg() { m_x = -m_x; m_y = -m_y; }
 
+    void store(int16_t* p) const { p[0] = m_x; p[1] = m_y; }
+
     bool operator==(const Position& p) const { return m_x == p.x() && m_y == p.y(); }
     bool operator!=(const Position& p) const { return m_x != p.x() || m_y != p.y(); }
 
@@ -89,7 +91,7 @@ public:
 
     std::string toString() const
     {
-        return "[" + std::to_string(m_x) + ", " + std::to_string(m_y) + "]";
+        return "<" + std::to_string(m_x) + ", " + std::to_string(m_y) + ">";
     }
 
 private:

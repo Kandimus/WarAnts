@@ -1,0 +1,29 @@
+%core "0100"
+%name "Test basic operations"
+%version "1"
+%class "black"
+
+.Test_MIN
+    mov   [49], 49
+    exit
+    
+abort:
+    mov   [49], 0
+    exit
+
+.worker
+    mov   [48], 48
+    call Test_MIN
+    mov   R0, 50
+    mov   [r0], r0
+    eq    [r0], r0
+    jt    end
+    mov   [50], 55
+end:
+    EXIT
+
+.solder
+    EXIT
+
+.queen
+    EXIT

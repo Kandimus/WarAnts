@@ -41,6 +41,7 @@ class TestAnt : public WarAnts::Ant
 public:
     TestAnt(const std::shared_ptr<TestPlayer>& plr) : WarAnts::Ant()
     {
+        m_type = WarAnts::AntType::Worker;
         m_visibility = 1;
         m_player = plr;
         m_memory.resize(WarAnts::Memory::UserData + 256);
@@ -76,6 +77,26 @@ void PrintVisibleArr(const WarAnts::VectorPosition& arr, const WarAnts::Position
         file << out;
         file.close();
     }
+}
+
+std::shared_ptr<TestAnt> runBCode(const std::string& filename)
+{
+    WarAnts::Asm::WacFile wac;
+    StringArray errors;
+    StringArray warnings;
+    auto result = WarAnts::Asm::compileFile("./tests/" + filename, warnings, errors, wac);
+
+    REQUIRE(errors.empty());
+
+    std::shared_ptr<TestPlayer> plr = std::make_shared<TestPlayer>(wac);
+    std::shared_ptr<TestAnt> ant = std::make_shared<TestAnt>(plr);
+    std::shared_ptr<PublicMap> map = std::make_shared<PublicMap>();
+
+    WarAnts::VirtualMachine vm(map, ant);
+
+    vm.run();
+
+    return ant;
 }
 
 TEST_CASE("visibleCells", "[Math]")
@@ -171,23 +192,31 @@ TEST_CASE("nearAvaliblePosition", "[Map]")
     CHECK((test2a + test2b) == test2max);
 }
 
+TEST_CASE("basic", "[VM]")
+{
+    auto ant = runBCode("basic.wasm");
+    CHECK(ant->getValue(48) == 48);
+    CHECK(ant->getValue(49) == 49);
+    CHECK(ant->getValue(50) == 50);
+}
+
+TEST_CASE("arithmetic", "[VM]")
+{
+    auto ant = runBCode("arithmetic.wasm");
+    CHECK(ant->getValue(48) == 11);
+    CHECK(ant->getValue(49) == 1);
+}
+
 TEST_CASE("min", "[VM]")
 {
-    WarAnts::Asm::WacFile wac;
-    StringArray errors;
-    StringArray warnings;
-    auto result = WarAnts::Asm::compileFile("./tests/min.wasm", warnings, errors, wac);
-
-    REQUIRE(errors.empty());
-
-    std::shared_ptr<TestPlayer> plr = std::make_shared<TestPlayer>(wac);
-    std::shared_ptr<TestAnt> ant = std::make_shared<TestAnt>(plr);
-    std::shared_ptr<PublicMap> map = std::make_shared<PublicMap>();
-    
-    WarAnts::VirtualMachine vm(map, ant);
-
-    vm.run();
-
+    auto ant = runBCode("min.wasm");
+    CHECK(ant->getValue(48) == 7);
     CHECK(ant->getValue(49) == 1);
+}
 
+TEST_CASE("max", "[VM]")
+{
+    auto ant = runBCode("max.wasm");
+    CHECK(ant->getValue(48) == 7);
+    CHECK(ant->getValue(49) == 1);
 }
