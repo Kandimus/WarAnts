@@ -17,14 +17,14 @@ class Player;
 class VirtualMachine
 {
 public:
-    struct RegSource
+    struct Argument
     {
         int16_t* ptr;
         uint8_t  reg;
-        int16_t  val;
         bool     pos;
+        bool     adr;
+        uint16_t offset;
     };
-
 
 public:
     VirtualMachine(const std::shared_ptr<Map>& map, const std::shared_ptr<Ant>& ant);
@@ -43,17 +43,17 @@ protected:
     int8_t getNextChar() { ++m_pos; return m_bcode[m_pos - 1]; }
 
     void prepare();
-    RegSource getSource();
+    Argument getRegisterArgument();
 
     void setRF(int16_t bit, bool value);
 
     bool arithmetic1(uint8_t cmd);
     bool arithmetic2(uint8_t cmd);
-    bool min(uint8_t cmd);
-    bool max(uint8_t cmd);
+    bool minmax(uint8_t cmd);
     bool logical(uint8_t cmd);
     bool jump(uint8_t cmd, uint16_t offset, uint8_t offsetType);
     void setDstAndFlags(int16_t* dst, int32_t value);
+    bool checkLVal(const Argument& arg);
 
 protected:
     const std::vector<int8_t>& m_bcode;

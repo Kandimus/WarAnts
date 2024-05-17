@@ -84,40 +84,33 @@ void VirtualMachine::prepare()
     m_ant->setValue(Memory::Cargo, m_ant->cargo());
 }
 
-VirtualMachine::RegSource VirtualMachine::getSource()
+VirtualMachine::Argument VirtualMachine::getRegisterArgument()
 {
-    RegSource out;
+    Argument out;
     int8_t reg = m_bcode[m_pos++];
-    bool isAddress = reg & Asm::Register::ADDRESS;
 
+    out.ptr = nullptr;
     out.reg = reg & Asm::Register::COUNT;
     out.pos = reg & Asm::Register::POSITION;
-    out.ptr = nullptr;
-    out.val = 0;
+    out.adr = reg & Asm::Register::ADDRESS;
+    out.offset = m_pos - 1;
     
-    if (reg == Asm::Register::CHAR)
+    if (out.reg == Asm::Register::CHAR)
     {
         m_registers[Asm::Register::CHAR] = m_bcode[m_pos++];
     }
-    else if (reg == Asm::Register::SHORT)
+    else if (out.reg == Asm::Register::SHORT)
     {
         m_registers[Asm::Register::SHORT] = m_bcode[m_pos++];
         m_registers[Asm::Register::SHORT] |= (m_bcode[m_pos++] << 8);
     }
 
-    if (isAddress)
+    if (out.adr)
     {
-        if (m_registers[reg] >= m_memory.size())
+        if (m_registers[out.reg] >= m_memory.size())
         {
             LOGE("Command %02x (%04x): invalide address 0x04x",
-                m_bcode[m_pos - 2], m_pos - 1, m_registers[reg]);
-            return out;
-        }
-
-        if (m_registers[reg] <= Memory::ReadOnly)
-        {
-            LOGE("Command %02x (%04x): address 0x04x is readonly",
-                m_bcode[m_pos - 2], m_pos - 1, m_registers[reg]);
+                m_bcode[m_pos - 2], m_pos - 1, m_registers[out.reg]);
             return out;
         }
 
@@ -191,9 +184,9 @@ bool VirtualMachine::run()
             case Asm::BCode::OR:  result = arithmetic2(cmd); break;
             case Asm::BCode::SUB: result = arithmetic2(cmd); break;
             case Asm::BCode::XOR: result = arithmetic2(cmd); break;
-/*                MIN,
-                MAX,
-
+            case Asm::BCode::MIN: result = minmax(cmd); break;
+            case Asm::BCode::MAX: result = minmax(cmd); break;
+/*
                 BSF,
                 BSR,
                 BT,
@@ -213,14 +206,7 @@ bool VirtualMachine::run()
             case Asm::BCode::LE:   result = logical(cmd); break;
             case Asm::BCode::TEST: result = logical(cmd); break;
 
-            case Asm::BCode::MOV:
-                //dst = getDestination(regDst);
-                //src = getSource(regSrc);
-                //if (dst)
-                //{
-                //    *dst = src;
-                //}
-                break;
+            case Asm::BCode::MOV:  result = arithmetic2(cmd); break;
 //                LEN,
 //                DIST,
             case Asm::BCode::EXIT:
@@ -281,13 +267,32 @@ void VirtualMachine::setRF(int16_t bit, bool value)
 }
 
 #define CHECK_PTR(x)            if (!(x).ptr) { return false; }
+#define CHECK_LVAL(x)           if (!(x).ptr && !checkLVal(x)) { return false; }
 
 bool VirtualMachine::arithmetic1(uint8_t cmd)
 {
     auto cmdPos = pos();
-    auto dst = getSource();
+    auto dst = getRegisterArgument();
 
-    CHECK_PTR(dst);
+    CHECK_LVAL(dst);
+
+    if (dst.pos)
+    {
+        Position* pos = (Position*)dst.ptr;
+
+        switch (cmd)
+        {
+        case Asm::BCode::DEC: pos->dec(); break;
+        case Asm::BCode::INC: pos->inc(); break;
+        case Asm::BCode::NEG: pos->neg(); break;
+        default:
+            LOGE("Command %02x (%04x): Undefined the position arithmetic command", (int)cmd, cmdPos);
+            SU_BREAKPOINT();
+            return false;
+        }
+
+        return true;
+    }
 
     int32_t tmp = *dst.ptr;
 
@@ -311,23 +316,64 @@ bool VirtualMachine::arithmetic1(uint8_t cmd)
 bool VirtualMachine::arithmetic2(uint8_t cmd)
 {
     auto cmdPos = pos();
-    auto dst = getSource();
-    auto src = getSource();
+    auto dst = getRegisterArgument();
+    auto src = getRegisterArgument();
 
-    CHECK_PTR(dst);
+    CHECK_LVAL(dst);
+
+    if (dst.pos)
+    {
+        Position* posDst = (Position*)dst.ptr;
+
+        if (src.pos)
+        {
+            Position* posSrc = (Position*)src.ptr;
+
+            switch (cmd)
+            {
+                case Asm::BCode::ADD: *posDst += *posSrc; break;
+                case Asm::BCode::DIV: *posDst /= *posSrc; break;
+                case Asm::BCode::MUL: *posDst *= *posSrc; break;
+                case Asm::BCode::SUB: *posDst -= *posSrc; break;
+                case Asm::BCode::MOV: *posDst  = *posSrc; break;
+                default:
+                    LOGE("Command %02x (%04x): Undefined the position arithmetic command", (int)cmd, cmdPos);
+                    SU_BREAKPOINT();
+                    return false;
+            }
+
+            return true;
+        }
+
+        int16_t* posSrc = src.ptr;
+        switch (cmd)
+        {
+            case Asm::BCode::ADD: *posDst += *posSrc; break;
+            case Asm::BCode::DIV: *posDst /= *posSrc; break;
+            case Asm::BCode::MUL: *posDst *= *posSrc; break;
+            case Asm::BCode::SUB: *posDst -= *posSrc; break;
+            case Asm::BCode::MOV: *posDst  = *posSrc; break;
+            default:
+                LOGE("Command %02x (%04x): Undefined the arithmetic command", (int)cmd, cmdPos);
+                SU_BREAKPOINT();
+                return false;
+        }
+
+        return true;
+    }
 
     int32_t tmp = *dst.ptr;
-
     switch (cmd)
     {
-        case Asm::BCode::ADD: tmp += src.val; break;
-        case Asm::BCode::AND: tmp &= src.val; break;
-        case Asm::BCode::DIV: tmp /= src.val; break;
-        case Asm::BCode::MOD: tmp %= src.val; break;
-        case Asm::BCode::MUL: tmp *= src.val; break;
-        case Asm::BCode::OR:  tmp |= src.val; break;
-        case Asm::BCode::SUB: tmp -= src.val; break;
-        case Asm::BCode::XOR: tmp ^= src.val; break;
+        case Asm::BCode::ADD: tmp += *src.ptr; break;
+        case Asm::BCode::AND: tmp &= *src.ptr; break;
+        case Asm::BCode::DIV: tmp /= *src.ptr; break;
+        case Asm::BCode::MOD: tmp %= *src.ptr; break;
+        case Asm::BCode::MUL: tmp *= *src.ptr; break;
+        case Asm::BCode::OR:  tmp |= *src.ptr; break;
+        case Asm::BCode::SUB: tmp -= *src.ptr; break;
+        case Asm::BCode::XOR: tmp ^= *src.ptr; break;
+        case Asm::BCode::MOV: tmp  = *src.ptr; break;
         default:
             LOGE("Command %02x (%04x): Undefined the arithmetic command", (int)cmd, cmdPos);
             SU_BREAKPOINT();
@@ -338,54 +384,103 @@ bool VirtualMachine::arithmetic2(uint8_t cmd)
     return true;
 }
 
-bool VirtualMachine::min(uint8_t cmd)
+bool VirtualMachine::minmax(uint8_t cmd)
 {
     auto cmdPos = pos();
-    auto dst = getSource();
-    auto src = getSource();
+    auto dst = getRegisterArgument();
+    auto src = getRegisterArgument();
 
-//    CHECK_DST;
-//
-//    if (regDst & Asm::Register::P0)
-//    {
-//        Position* posDest = (Position*)dst;
-////        Position* posdest = (Position*)dst;
-//    }
-//    else
-//    {
-//        *dst = *dst < *src ? *dst : *src;
-//    }
+    CHECK_LVAL(dst);
 
-    return true;
-}
+    if (dst.pos)
+    {
+        Position* dstPos = (Position*)dst.ptr;
 
-bool VirtualMachine::max(uint8_t cmd)
-{
+        if (src.pos)
+        {
+            Position* srcPos = (Position*)src.ptr;
+            switch (cmd)
+            {
+                case Asm::BCode::MIN: *dstPos = dstPos->min(*srcPos); break;
+                case Asm::BCode::MAX: *dstPos = dstPos->max(*srcPos); break;
+                default:
+                    LOGE("Command %02x (%04x): Undefined the position min/max command", (int)cmd, cmdPos);
+                    SU_BREAKPOINT();
+                    return false;
+            }
+            return true;
+        }
+
+        switch (cmd)
+        {
+            case Asm::BCode::MIN: *dstPos = dstPos->min(*src.ptr); break;
+            case Asm::BCode::MAX: *dstPos = dstPos->max(*src.ptr); break;
+            default:
+                LOGE("Command %02x (%04x): Undefined the position min/max command", (int)cmd, cmdPos);
+                SU_BREAKPOINT();
+                return false;
+        }
+        return true;
+    }
+
+    switch (cmd)
+    {
+        case Asm::BCode::MIN: *dst.ptr = *dst.ptr < *src.ptr ? *dst.ptr : *src.ptr; break;
+        case Asm::BCode::MAX: *dst.ptr = *dst.ptr > *src.ptr ? *dst.ptr : *src.ptr; break;
+        default:
+            LOGE("Command %02x (%04x): Undefined the min/max command", (int)cmd, cmdPos);
+            SU_BREAKPOINT();
+            return false;
+    }
+
     return true;
 }
 
 bool VirtualMachine::logical(uint8_t cmd)
 {
     auto cmdPos = pos();
-    auto left = getSource();
-    auto right = getSource();
+    auto left = getRegisterArgument();
+    auto right = getRegisterArgument();
+
+    if (left.pos != right.pos)
+    {
+        LOGE("Command %02x (%04x): Wrong arguments of the logical command", (int)cmd, cmdPos);
+        return false;
+    }
 
     int16_t fakeDst = 0;
     int32_t result = 0;
 
-    switch (cmd)
+    if (left.pos)
     {
-        case Asm::BCode::EQ:   result = left.val == right.val; break;
-        case Asm::BCode::NEQ:  result = left.val != right.val; break;
-        case Asm::BCode::GT:   result = left.val >  right.val; break;
-        case Asm::BCode::GE:   result = left.val >= right.val; break;
-        case Asm::BCode::LT:   result = left.val <  right.val; break;
-        case Asm::BCode::LE:   result = left.val <= right.val; break;
-        case Asm::BCode::TEST: result = (left.val & right.val) == right.val; break;
-        default:
-            LOGE("Command %02x (%04x): Undefined the logical command", (int)cmd, cmdPos);
-            SU_BREAKPOINT();
-            return false;
+        Position* leftPos = (Position*)left.ptr;
+        Position* rightPos = (Position*)right.ptr;
+        switch (cmd)
+        {
+            case Asm::BCode::EQ:  result = (*leftPos == *rightPos); break;
+            case Asm::BCode::NEQ: result = (*leftPos != *rightPos); break;
+            default:
+                LOGE("Command %02x (%04x): Undefined the position logical command", (int)cmd, cmdPos);
+                SU_BREAKPOINT();
+                return false;
+        }
+    }
+    else
+    {
+        switch (cmd)
+        {
+            case Asm::BCode::EQ:   result = *left.ptr == *right.ptr; break;
+            case Asm::BCode::NEQ:  result = *left.ptr != *right.ptr; break;
+            case Asm::BCode::GT:   result = *left.ptr >  *right.ptr; break;
+            case Asm::BCode::GE:   result = *left.ptr >= *right.ptr; break;
+            case Asm::BCode::LT:   result = *left.ptr <  *right.ptr; break;
+            case Asm::BCode::LE:   result = *left.ptr <= *right.ptr; break;
+            case Asm::BCode::TEST: result = (*left.ptr & *right.ptr) == *right.ptr; break;
+            default:
+                LOGE("Command %02x (%04x): Undefined the logical command", (int)cmd, cmdPos);
+                SU_BREAKPOINT();
+                return false;
+        }
     }
 
     setDstAndFlags(&fakeDst, result);
@@ -443,6 +538,17 @@ void VirtualMachine::setDstAndFlags(int16_t* dst, int32_t value)
     setRF(Asm::Register::ZF, *dst == 0);
     setRF(Asm::Register::OF, !!(value & 0xffff0000));
     setRF(Asm::Register::SF, !!(*dst & 0x8000));
+}
+
+bool VirtualMachine::checkLVal(const VirtualMachine::Argument& arg)
+{
+    if (arg.adr && m_registers[arg.reg] <= Memory::ReadOnly)
+    {
+        LOGE("Offset %04x: the address 0x04x is readonly", arg.offset, m_registers[arg.reg]);
+        return false;
+    }
+
+    return true;
 }
 
 };

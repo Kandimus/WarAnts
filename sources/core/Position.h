@@ -27,8 +27,13 @@ public:
     void addY(int16_t y) { m_y += y; }
     void subX(int16_t x) { m_x -= x; }
     void subY(int16_t y) { m_y -= y; }
+    void inc() { ++m_x; ++m_y; }
+    void dec() { --m_x; --m_y; }
+    void neg() { m_x = -m_x; m_y = -m_y; }
 
     bool operator==(const Position& p) const { return m_x == p.x() && m_y == p.y(); }
+    bool operator!=(const Position& p) const { return m_x != p.x() || m_y != p.y(); }
+
     Position operator+(const Position& p) const
     {
         Position out(*this);
@@ -66,26 +71,21 @@ public:
         return *this;
     }
 
-    void operator+=(const Position& p)
-    {
-        m_x += p.x();
-        m_y += p.y();
-    }
-    void operator-=(const Position& p)
-    {
-        m_x -= p.x();
-        m_y -= p.y();
-    }
-    void operator+=(int16_t val)
-    {
-        m_x += val;
-        m_y += val;
-    }
-    void operator-=(int16_t val)
-    {
-        m_x -= val;
-        m_y -= val;
-    }
+    void operator+=(const Position& p) { m_x += p.x(); m_y += p.y(); }
+    void operator-=(const Position& p) { m_x -= p.x(); m_y -= p.y(); }
+    void operator*=(const Position& p) { m_x *= p.x(); m_y *= p.y(); }
+    void operator/=(const Position& p) { m_x /= p.x(); m_y /= p.y(); }
+
+    void operator+=(int16_t val) { m_x += val; m_y += val; }
+    void operator-=(int16_t val) { m_x -= val; m_y -= val; }
+    void operator*=(int16_t val) { m_x *= val; m_y *= val; }
+    void operator/=(int16_t val) { m_x -= val; m_y -= val; }
+
+    Position min(const Position& p) const { return Position(m_x < p.m_x ? m_x : p.m_x, m_y < p.m_y ? m_y : p.m_y); }
+    Position max(const Position& p) const { return Position(m_x > p.m_x ? m_x : p.m_x, m_y > p.m_y ? m_y : p.m_y); }
+
+    Position min(int16_t v) const { return Position(m_x < v ? m_x : v, m_y < v ? m_y : v); }
+    Position max(int16_t v) const { return Position(m_x > v ? m_x : v, m_y > v ? m_y : v); }
 
     std::string toString() const
     {
