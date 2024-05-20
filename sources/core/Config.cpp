@@ -41,7 +41,7 @@ Config::Config(const std::string& filename) : m_filename(filename)
     m_height = getJsonValue2<uint32_t>(json, "map", "height", m_height);
     m_stoneOnMap = getJsonValue2<float>(json, "map", "stone", m_stoneOnMap);
     m_foodOnMap = getJsonValue2<float>(json, "map", "food", m_foodOnMap);
-    m_isBordered = getJsonValue2<bool>(json, "map", "borders", m_isBordered);
+    m_isBounded = getJsonValue2<bool>(json, "map", "borders", m_isBounded);
     m_workerCountOfStart = getJsonValue2<uint32_t>(json, "map", "worker_count", m_workerCountOfStart);
     m_solderCountOfStart = getJsonValue2<uint32_t>(json, "map", "solder_count", m_solderCountOfStart);
 

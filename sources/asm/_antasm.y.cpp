@@ -212,10 +212,10 @@ int  yylex();
      LEN = 336,
      DIST = 337,
      EXIT = 338,
-     LDTR = 339,
+     LDRC = 339,
      LDFD = 340,
      LDEN = 341,
-     LDFR = 342,
+     LDAL = 342,
      CIDL = 343,
      CMOV = 344,
      CATT = 345,
@@ -647,7 +647,7 @@ static const char *const yytname[] =
   "MAX", "BSF", "BSR", "BT", "BTR", "BTS", "BTC", "SHL", "SHR", "ROL",
   "ROR", "EQ", "NEQ", "GT", "GE", "LT", "LE", "TEST", "JMP", "JZ", "JNZ",
   "JT", "JF", "JO", "JNO", "JS", "JNS", "JCZ", "JCNZ", "LOOP", "CALL",
-  "MOV", "LEN", "DIST", "EXIT", "LDTR", "LDFD", "LDEN", "LDFR", "CIDL",
+  "MOV", "LEN", "DIST", "EXIT", "LDRC", "LDFD", "LDEN", "LDAL", "CIDL",
   "CMOV", "CATT", "CTKF", "CGVF", "CEAT", "CPS", "CPW", "$accept",
   "asm_file", "asm_code", "$@1", "list_of_pragmas", "pragma_definition",
   "$@2", "pragma", "define_declaration", "list_of_defines",
@@ -2346,7 +2346,7 @@ yyreduce:
 
   case 125:
 
-    { (yyval.TSTATETMENT) = new WarAnts::Asm::Statement(WarAnts::Asm::AsmCommand::LDTR, nullptr, (yyvsp[(3) - (3)].TEXPR), yy_code.get()); ;}
+    { (yyval.TSTATETMENT) = new WarAnts::Asm::Statement(WarAnts::Asm::AsmCommand::LDRC, nullptr, (yyvsp[(3) - (3)].TEXPR), yy_code.get()); ;}
     break;
 
   case 126:
@@ -2376,7 +2376,7 @@ yyreduce:
 
   case 131:
 
-    { (yyval.TSTATETMENT) = new WarAnts::Asm::Statement(WarAnts::Asm::AsmCommand::LDFR, nullptr, (yyvsp[(3) - (3)].TEXPR), yy_code.get()); ;}
+    { (yyval.TSTATETMENT) = new WarAnts::Asm::Statement(WarAnts::Asm::AsmCommand::LDAL, nullptr, (yyvsp[(3) - (3)].TEXPR), yy_code.get()); ;}
     break;
 
   case 132:

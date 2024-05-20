@@ -22,7 +22,7 @@ public:
     CONFIG_PARAMETER(uint32_t, height, 25)
     CONFIG_PARAMETER(float, stoneOnMap, 10.0f)
     CONFIG_PARAMETER(float, foodOnMap, 10.0f)
-    CONFIG_PARAMETER(bool, isBordered, true)
+    CONFIG_PARAMETER(bool, isBounded, true)
     CONFIG_PARAMETER(uint32_t, workerCountOfStart, 5)
     CONFIG_PARAMETER(uint32_t, solderCountOfStart, 3)
 

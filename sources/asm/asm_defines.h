@@ -162,10 +162,10 @@ enum class AsmCommand
     DIST,
     EXIT,
 
-    LDTR,
+    LDRC,
     LDFD,
     LDEN,
-    LDFR,
+    LDAL,
 
     CIDL,
     CMOV,
@@ -284,10 +284,10 @@ enum Command : uint8_t
     CALL = 0x54,
     // max 0x5e (5 free)
 
-    LDTR = 0x60,
+    LDRC = 0x60,
     LDFD = 0x64,
     LDEN = 0x68,
-    LDFR = 0x6c,
+    LDAL = 0x6c,
     CIDL = 0x70,
     CEAT = 0x74,
     // max 0x7c (2 free)

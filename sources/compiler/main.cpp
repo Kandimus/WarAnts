@@ -26,7 +26,7 @@ int main(int argc, const char **argv)
     uint16_t coreVer = WarAnts::Asm::compileVersion();
     printf("WarAnt compiler ver 1.0, core %04x\n", coreVer);
 
-    printf("Build started...\n");
+    printf("----- Build started... -----\n");
 
     for (size_t ii = 0; ii < cl.getCountArgument(); ++ii)
     {
@@ -63,7 +63,7 @@ int main(int argc, const char **argv)
         }
     }
 
-    printf("Build finished...\n");
+    printf("===== Build finished... =====\n");
 
     return true;
 }

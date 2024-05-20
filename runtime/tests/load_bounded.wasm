@@ -1,0 +1,139 @@
+%core "0100"
+%name "Test load food"
+%version "1"
+%class "black"
+
+; Ant visible set to 5
+; Border is true
+;
+;   0123456789ABCDE
+;  +---------------+
+; 0|·S··F···       |
+; 1|········       |
+; 2|··¤·····     f |
+; 3|·······W       |
+; 4|········       |
+; 5|F······     Q  |
+; 6|·······        |
+; 7| ···Ff         |
+; 8|               |
+; 9|               |
+; A|         w     |
+; B|               |
+; C|  f         f  |
+; D|               |
+; E|               |
+;  +---------------+
+;
+;
+; 0x40..0x4f position of food
+; 0x50..0x5f position of allies
+; 0x60..0x6f position of enemies
+
+.Test_FOOD
+    inc   [30h]
+    ; food on <4, 0>
+    mov   [40h], 4
+    mov   [41h], 0
+    ; food on <0, 5>
+    mov   [42h], 0
+    mov   [43h], 5
+    ; food on <5, 7>
+    mov   [44h], 4
+    mov   [45h], 7
+    
+    ; count of food
+    mov   rc, [07h]
+    jf    abort
+    dec   rc
+    eq    rc, 2
+    jf    abort
+    xor   r0, r0
+
+begin_loop:
+    ldfd  rc
+    eq    <1Ch>, <40h>
+    jf    check_2
+    or    r0, 1
+    jmp   end_loop
+check_2:
+    eq    <1Ch>, <42h>
+    jf    check_3
+    or    r0, 2
+    jmp   end_loop
+check_3:
+    eq    <1Ch>, <44h>
+    jf    abort
+    or    r0, 4
+end_loop:
+    loop  begin_loop
+    
+    eq    r0, 07h
+    jf    abort
+    exit
+    
+abort:
+    mov   [31h], 0
+    exit
+
+
+.Test_ALLY
+    inc   [30h]
+    ; ally solder on <1, 1>
+    mov   [50h], 1
+    mov   [51h], 0
+    ; ally worker on <7, 3>
+    mov   [52h], 7
+    mov   [53h], 3
+    
+    ; count of allies
+    mov   rc, [05h]
+    jf    abort
+    dec   rc
+    eq    rc, 1
+    jf    abort
+    xor   r0, r0
+
+begin_loop:
+    ldal  rc
+    eq    <19h>, <50h>
+    jf    check_2
+    eq    [18h], 11F4h  ; Solder 1000h + half health 01F4h
+    jf    abort
+    or    r0, 1
+    jmp   end_loop
+check_2:
+    eq    <19h>, <52h>
+    jf    abort
+    eq    [18h], 23E8h ; Worker 2000h + full health 03E8h
+    jf    abort
+    or    r0, 2
+end_loop:
+    loop  begin_loop
+    
+    eq    r0, 03h
+    jf    abort
+    exit
+    
+abort:
+    mov   [31h], 0
+    exit
+
+.worker
+    mov   [30h], 0
+    mov   [31h], 1
+    call  Test_FOOD
+    eq    [31h], 0
+    jt    abort
+    call  Test_ALLY
+    eq    [31h], 0
+    jt    abort
+    
+abort:
+    exit
+
+.solder
+    EXIT
+
+.queen
+    EXIT

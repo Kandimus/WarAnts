@@ -53,6 +53,7 @@ protected:
     bool bit(uint8_t cmd);
     bool logical(uint8_t cmd);
     bool jump(uint8_t cmd, uint16_t offset, uint8_t offsetType);
+    bool value1(uint8_t cmd, uint16_t offset, uint8_t offsetType);
     void setDstAndFlags(int16_t* dst, int32_t value);
     bool checkLVal(const Argument& arg);
     bool bsf(int16_t* bitno, int16_t src);
@@ -61,6 +62,8 @@ protected:
     bool shiftLeft(bool restore, int16_t* dst, int16_t src);
     bool shiftRight(bool restore, int16_t* dst, int16_t src);
     bool loadFood(int16_t value);
+    bool loadAlly(int16_t value);
+    bool loadEnemy(int16_t value);
 
 protected:
     const std::vector<int8_t>& m_bcode;

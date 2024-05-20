@@ -14,17 +14,40 @@
 #include "Player.h"
 #include "VirtualMachine.h"
 
+class TestConfig : public WarAnts::Config
+{
+public:
+    TestConfig() : WarAnts::Config()
+    {
+    }
+
+    void setBounded(bool bounded) { m_isBounded = bounded; }
+};
+
 class PublicMap : public WarAnts::Map
 {
 public:
-    PublicMap() : WarAnts::Map(std::make_shared<WarAnts::Config>())
+    PublicMap() : WarAnts::Map(std::make_shared<TestConfig>())
     {
         createMap(15, 15);
+    }
+
+    inline void setBounded(bool bounded)
+    {
+        return dynamic_cast<TestConfig*>(m_conf.get())->setBounded(bounded);
     }
 
     inline WarAnts::Cell* getCell(int x, int y)
     {
         return m_map[absPosition(WarAnts::Position(x, y))].get();
+    }
+
+    inline void setAnt(std::shared_ptr<WarAnts::Ant> ant)
+    {
+        REQUIRE(isValidPosition(ant->position()));
+        
+        auto cell = m_map[absPosition(ant->position())];
+        cell->setAnt(ant);
     }
 };
 
@@ -43,10 +66,15 @@ public:
     TestAnt(const std::shared_ptr<TestPlayer>& plr) : WarAnts::Ant()
     {
         m_type = WarAnts::AntType::Worker;
-        m_visibility = 1;
+        m_maxHealth = 100;
+        m_health = 100;
+        m_visibility = 5;
         m_player = plr;
         m_memory.resize(WarAnts::Memory::UserData + 256);
     }
+
+    void setType(WarAnts::AntType type) { m_type = type; }
+    void setHealth(int16_t health) { m_health = health; }
 };
 
 int main(int argc, char* argv[])
@@ -76,7 +104,7 @@ void PrintVisibleArr(const WarAnts::VectorPosition& arr, const WarAnts::Position
                 }
             }
 
-            out += (WarAnts::Position(x, y) == pos) ? '*' : (found ? 'X' : ' ');
+            out += (WarAnts::Position(x, y) == pos) ? '¤' : (found ? 'X' : '·');
         }
         out += "\n";
     }
@@ -89,7 +117,7 @@ void PrintVisibleArr(const WarAnts::VectorPosition& arr, const WarAnts::Position
     }
 }
 
-std::shared_ptr<TestAnt> runBCode(const std::string& filename)
+std::shared_ptr<TestAnt> runBCode(bool isBounded, const std::string& filename)
 {
     WarAnts::Asm::WacFile wac;
     StringArray errors;
@@ -101,6 +129,44 @@ std::shared_ptr<TestAnt> runBCode(const std::string& filename)
     std::shared_ptr<TestPlayer> plr = std::make_shared<TestPlayer>(wac);
     std::shared_ptr<TestAnt> ant = std::make_shared<TestAnt>(plr);
     std::shared_ptr<PublicMap> map = std::make_shared<PublicMap>();
+
+    std::shared_ptr<TestAnt> q_1 = std::make_shared<TestAnt>(plr);
+    std::shared_ptr<TestAnt> s_1 = std::make_shared<TestAnt>(plr);
+    std::shared_ptr<TestAnt> w_1 = std::make_shared<TestAnt>(plr);
+    std::shared_ptr<TestAnt> w_2 = std::make_shared<TestAnt>(plr);
+
+    // The ant!
+    ant->setPosition(WarAnts::Position(2, 2));
+
+    // Allies
+    q_1->setType(WarAnts::AntType::Queen);
+    q_1->setPosition(WarAnts::Position(12, 5));
+
+    s_1->setType(WarAnts::AntType::Solder);
+    s_1->setPosition(WarAnts::Position(1, 0));
+    s_1->setHealth(50);
+
+    w_1->setType(WarAnts::AntType::Worker);
+    w_1->setPosition(WarAnts::Position(7, 3));
+
+    w_1->setType(WarAnts::AntType::Worker);
+    w_2->setPosition(WarAnts::Position(9, 10));
+
+    map->setBounded(isBounded);
+
+    map->getCell( 4,  0)->setFood(100);
+    map->getCell(13,  2)->setFood(50);
+    map->getCell( 0,  5)->setFood(75);
+    map->getCell( 5,  7)->setFood(10);
+    map->getCell( 4,  7)->setFood(20);
+    map->getCell( 2, 12)->setFood(250);
+    map->getCell(12, 12)->setFood(1000);
+
+    map->setAnt(ant);
+    map->setAnt(q_1);
+    map->setAnt(s_1);
+    map->setAnt(w_1);
+    map->setAnt(w_2);
 
     WarAnts::VirtualMachine vm(map, ant);
 
@@ -204,7 +270,7 @@ TEST_CASE("nearAvaliblePosition", "[Map]")
 
 TEST_CASE("basic", "[VM]")
 {
-    auto ant = runBCode("basic.wasm");
+    auto ant = runBCode(true, "basic.wasm");
     CHECK(ant->getValue(48) == 48);
     CHECK(ant->getValue(49) == 49);
     CHECK(ant->getValue(50) == 50);
@@ -212,30 +278,37 @@ TEST_CASE("basic", "[VM]")
 
 TEST_CASE("arithmetic", "[VM]")
 {
-    auto ant = runBCode("arithmetic.wasm");
+    auto ant = runBCode(true, "arithmetic.wasm");
     CHECK(ant->getValue(48) == 11);
     CHECK(ant->getValue(49) == 1);
 }
 
 TEST_CASE("min", "[VM]")
 {
-    auto ant = runBCode("min.wasm");
+    auto ant = runBCode(true, "min.wasm");
     CHECK(ant->getValue(48) == 7);
     CHECK(ant->getValue(49) == 1);
 }
 
 TEST_CASE("max", "[VM]")
 {
-    auto ant = runBCode("max.wasm");
+    auto ant = runBCode(true, "max.wasm");
     CHECK(ant->getValue(48) == 7);
     CHECK(ant->getValue(49) == 1);
 }
 
 TEST_CASE("bit", "[VM]")
 {
-    auto ant = runBCode("bit.wasm");
+    auto ant = runBCode(true, "bit.wasm");
     CHECK(ant->getValue(48) == 16);
     CHECK(ant->getValue(49) == 1);
     CHECK(ant->getValue(50) == 0x0170);
+}
+
+TEST_CASE("load", "[VM]")
+{
+    auto ant = runBCode(true, "load_bounded.wasm");
+    CHECK(ant->getValue(48) == 2);
+    CHECK(ant->getValue(49) == 1);
 }
 

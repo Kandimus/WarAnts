@@ -57,7 +57,7 @@ int  yylex();
 %token EQ NEQ GT GE LT LE TEST
 %token JMP JZ JNZ JT JF JO JNO JS JNS JCZ JCNZ LOOP CALL
 %token MOV LEN DIST EXIT
-%token LDTR LDFD LDEN LDFR
+%token LDRC LDFD LDEN LDAL
 %token CIDL CMOV CATT CTKF CGVF CEAT CPS CPW
 
 %type <TPRAGMATYPE> pragma
@@ -198,10 +198,10 @@ asm_command
     | EXIT { UPD_LINENO }                               { $$ = new WarAnts::Asm::Statement(WarAnts::Asm::AsmCommand::EXIT,         yy_code.get()); }
 
     // Load data to memory
-    | LDTR { UPD_LINENO } address                       { $$ = new WarAnts::Asm::Statement(WarAnts::Asm::AsmCommand::LDTR, nullptr, $3, yy_code.get()); }
+    | LDRC { UPD_LINENO } address                       { $$ = new WarAnts::Asm::Statement(WarAnts::Asm::AsmCommand::LDRC, nullptr, $3, yy_code.get()); }
     | LDFD { UPD_LINENO } address                       { $$ = new WarAnts::Asm::Statement(WarAnts::Asm::AsmCommand::LDFD, nullptr, $3, yy_code.get()); }
     | LDEN { UPD_LINENO } address                       { $$ = new WarAnts::Asm::Statement(WarAnts::Asm::AsmCommand::LDEN, nullptr, $3, yy_code.get()); }
-    | LDFR { UPD_LINENO } address                       { $$ = new WarAnts::Asm::Statement(WarAnts::Asm::AsmCommand::LDFR, nullptr, $3, yy_code.get()); }
+    | LDAL { UPD_LINENO } address                       { $$ = new WarAnts::Asm::Statement(WarAnts::Asm::AsmCommand::LDAL, nullptr, $3, yy_code.get()); }
 
     // Commands
     | CIDL { UPD_LINENO } address                       { $$ = new WarAnts::Asm::Statement(WarAnts::Asm::AsmCommand::CIDL , nullptr, $3, yy_code.get()); }

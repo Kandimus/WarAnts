@@ -58,7 +58,6 @@ void VirtualMachine::prepare()
 
         if (cell->food())
         {
-            m_ant->incValue(Memory::CountOfFood);
             m_foods.push_back(pos);
             continue;
         }
@@ -66,22 +65,26 @@ void VirtualMachine::prepare()
         auto cellAnt = cell->ant();
         if (cellAnt.get())
         {
-            if (cellAnt->player() == m_ant->player())
+            if (cellAnt->player() == m_ant->player() && m_ant != cellAnt)
             {
-                m_ant->incValue(Memory::CountOfAllies);
                 m_allies.push_back(cellAnt);
             }
             else
             {
-                m_ant->incValue(Memory::CountOfEnemy);
                 m_enemies.push_back(cellAnt);
             }
         }
     }
 
+    // Clear system data
+    memset(m_memory.data(), 0, sizeof(int16_t) * Memory::UserData);
+
     m_ant->setValue(Memory::SatietyPercent, int16_t(m_ant->satietyPercent() * 10));
     m_ant->setValue(Memory::HealthPercent, int16_t(m_ant->healthPercent() * 10));
     m_ant->setValue(Memory::Cargo, m_ant->cargo());
+    m_ant->setValue(Memory::CountOfAllies, m_allies.size());
+    m_ant->setValue(Memory::CountOfEnemies, m_enemies.size());
+    m_ant->setValue(Memory::CountOfFoods, m_foods.size());
 }
 
 VirtualMachine::Argument VirtualMachine::getRegisterArgument()
@@ -127,16 +130,14 @@ bool VirtualMachine::run()
     uint8_t cmd = 0;
     int16_t* dst = 0;
     int16_t src = 0;
-    int16_t value = 0;
     uint8_t valType = 0;
-    bool usingValue = false;
+    UniInt16 value = { 0 };
     bool result = true;
     
     m_callstack.clear();
 
     while (true)
     {
-        usingValue = false;
         cmd = getNextChar();
 
         if ((cmd & Asm::BCode::TYPE_VALUE) == Asm::BCode::TYPE_VALUE)
@@ -144,36 +145,30 @@ bool VirtualMachine::run()
             valType = cmd & Asm::BCode::VALUE_MASK;
             cmd &= ~Asm::BCode::VALUE_MASK;
 
-            if (valType == Asm::BCode::VALUE_CHAR)
+            if (valType == Asm::BCode::VALUE_SHORT)
             {
-                usingValue = true;
-                value = getNextChar();
+                value.i8[0] = getNextChar();
+                value.i8[1] = getNextChar();
             }
-            else if (valType == Asm::BCode::VALUE_SHORT)
+            else if (valType == Asm::BCode::VALUE_CHAR)
             {
-                usingValue = true;
-                value = getNextChar();
-                value |= getNextChar() << 8;
+                value.i16 = getNextChar();
             }
         }
         else if ((cmd & Asm::BCode::TYPE_JUMP) == Asm::BCode::TYPE_JUMP)
         {
-            UniInt16 offset = { 0 };
-
             valType = cmd & Asm::BCode::JUMP_MASK;
             cmd &= ~Asm::BCode::JUMP_MASK;
             
-
             if (valType == Asm::BCode::JUMP_SHORT)
             {
-                offset.i8[0] = getNextChar();
-                offset.i8[1] = getNextChar();
+                value.i8[0] = getNextChar();
+                value.i8[1] = getNextChar();
             }
             else
             {
-                offset.i16 = getNextChar();
+                value.i16 = getNextChar();
             }
-            value = offset.i16;
         }
 
         switch (cmd)
@@ -231,25 +226,26 @@ bool VirtualMachine::run()
                 CPS,
                 CPW,
 */
-            case Asm::BCode::JMP:  result = jump(cmd, value, valType); break;
-            case Asm::BCode::JZ:   result = jump(cmd, value, valType); break;
-            case Asm::BCode::JNZ:  result = jump(cmd, value, valType); break;
-            case Asm::BCode::JO:   result = jump(cmd, value, valType); break;
-            case Asm::BCode::JNO:  result = jump(cmd, value, valType); break;
-            case Asm::BCode::JS:   result = jump(cmd, value, valType); break;
-            case Asm::BCode::JNS:  result = jump(cmd, value, valType); break;
-            case Asm::BCode::JCZ:  result = jump(cmd, value, valType); break;
-            case Asm::BCode::JCNZ: result = jump(cmd, value, valType); break;
-            case Asm::BCode::LOOP: result = jump(cmd, value, valType); break;
-            case Asm::BCode::CALL: result = jump(cmd, value, valType); break;
+            case Asm::BCode::JMP:  result = jump(cmd, value.i16, valType); break;
+            case Asm::BCode::JZ:   result = jump(cmd, value.i16, valType); break;
+            case Asm::BCode::JNZ:  result = jump(cmd, value.i16, valType); break;
+            case Asm::BCode::JO:   result = jump(cmd, value.i16, valType); break;
+            case Asm::BCode::JNO:  result = jump(cmd, value.i16, valType); break;
+            case Asm::BCode::JS:   result = jump(cmd, value.i16, valType); break;
+            case Asm::BCode::JNS:  result = jump(cmd, value.i16, valType); break;
+            case Asm::BCode::JCZ:  result = jump(cmd, value.i16, valType); break;
+            case Asm::BCode::JCNZ: result = jump(cmd, value.i16, valType); break;
+            case Asm::BCode::LOOP: result = jump(cmd, value.i16, valType); break;
+            case Asm::BCode::CALL: result = jump(cmd, value.i16, valType); break;
 
-//                LDTR = 0x60,
-            case Asm::BCode::LDFD: result = loadFood(value); break;
-//                LDEN = 0x68,
-//                LDFR = 0x6c,
-//                CIDL = 0x70,
-//                CEAT = 0x74,
+            case Asm::BCode::LDRC: result = value1(cmd, value.i16, valType); break;
+            case Asm::BCode::LDFD: result = value1(cmd, value.i16, valType); break;
+            case Asm::BCode::LDEN: result = value1(cmd, value.i16, valType); break;
+            case Asm::BCode::LDAL: result = value1(cmd, value.i16, valType); break;
+            case Asm::BCode::CIDL: result = value1(cmd, value.i16, valType); break;
+            case Asm::BCode::CEAT: result = value1(cmd, value.i16, valType); break;
         }
+
         if (!result)
         {
             return false;
@@ -540,6 +536,32 @@ bool VirtualMachine::jump(uint8_t cmd, uint16_t offset, uint8_t offsetType)
     return true;
 }
 
+bool VirtualMachine::value1(uint8_t cmd, uint16_t value, uint8_t valueType)
+{
+    auto cmdPos = pos() - (valueType == Asm::BCode::VALUE_CHAR || valueType == Asm::BCode::VALUE_SHORT) ? (valueType == Asm::BCode::VALUE_SHORT ? 2 : 1) : 0;
+
+    if (valueType != Asm::BCode::VALUE_CHAR && valueType != Asm::BCode::VALUE_SHORT)
+    {
+        auto arg = getRegisterArgument();
+        value = *arg.ptr;
+    }
+
+    bool result = true;
+    switch (cmd)
+    {
+//        case Asm::BCode::LDTR: result = loadReceivedData(value);
+        case Asm::BCode::LDFD: result = loadFood(value); break;
+        case Asm::BCode::LDEN: result = loadEnemy(value); break;
+        case Asm::BCode::LDAL: result = loadAlly(value); break;
+//        case Asm::BCode::CIDL: result = commandIdle(value); break;
+//        case Asm::BCode::CEAT: result = commandEat(value); break;
+        default:
+            LOGE("Command %02x (%04x): Undefined the logical command", (int)cmd, cmdPos);
+            SU_BREAKPOINT();
+            return false;
+    }
+}
+
 void VirtualMachine::setDstAndFlags(int16_t* dst, int32_t value)
 {
     *dst = value & 0xffff;
@@ -674,8 +696,46 @@ bool VirtualMachine::loadFood(int16_t value)
         return true;
     }
 
-    m_memory[Memory::FoodCoord_X] = m_foods[value].x();
-    m_memory[Memory::FoodCoord_Y] = m_foods[value].y();
+    m_memory[Memory::FoodCoordX] = m_foods[value].x();
+    m_memory[Memory::FoodCoordY] = m_foods[value].y();
+
+    return true;
+}
+
+bool VirtualMachine::loadAlly(int16_t value)
+{
+    bool error = value < 0 || value >= m_allies.size();
+
+    setRF(Asm::Register::ZF, error);
+
+    if (error)
+    {
+        return true;
+    }
+
+    int16_t type = ((int16_t)m_allies[value]->type()) << 12;
+    m_memory[Memory::AllyType] = (int16_t(m_allies[value]->healthPercent() * 10)) | type;
+    m_memory[Memory::AllyCoordX] = m_allies[value]->position().x();
+    m_memory[Memory::AllyCoordY] = m_allies[value]->position().y();
+
+    return true;
+}
+
+bool VirtualMachine::loadEnemy(int16_t value)
+{
+    bool error = value < 0 || value >= m_enemies.size();
+
+    setRF(Asm::Register::ZF, error);
+
+    if (error)
+    {
+        return true;
+    }
+
+    int16_t type = (int16_t)m_enemies[value]->type();
+    m_memory[Memory::EnemyType] = (int16_t)(m_enemies[value]->healthPercent() * 10) | (type << 24);
+    m_memory[Memory::EnemyCoordX] = m_enemies[value]->position().x();
+    m_memory[Memory::EnemyCoordY] = m_enemies[value]->position().y();
 
     return true;
 }

@@ -118,10 +118,10 @@ comment   ";"[^\n\r]*
 "dist"                      { return DIST; }
 "exit"                      { return EXIT; }
 
-"ldtr"                      { return LDTR; }
+"ldrc"                      { return LDRC; }
 "ldfd"                      { return LDFD; }
 "lden"                      { return LDEN; }
-"ldfr"                      { return LDFR; }
+"ldal"                      { return LDAL; }
 
 "cidl"                      { return CIDL; }
 "cmov"                      { return CMOV; }

@@ -106,7 +106,7 @@ bool Map::isCellEmpty(const Position& pos) const
 {
     int32_t idx = -1;
 
-    if (m_conf->isBordered())
+    if (m_conf->isBounded())
     {
         if (0 > pos.x() || pos.x() >= m_size.x() ||
             0 > pos.y() || pos.y() >= m_size.y())
@@ -269,7 +269,7 @@ void Map::incPosition(Position& pos, uint32_t x) const
 
 int32_t Map::absPosition(const Position& pos) const
 {
-    if (m_conf->isBordered())
+    if (m_conf->isBounded())
     {
         return (pos.x() >= 0 && pos.x() < m_size.x() && pos.y() >= 0 && pos.y() < m_size.y()) ? pos.x() + pos.y() * m_size.x() : 0xffffffff;
     }

@@ -277,10 +277,10 @@ bool Statement::compile(Code* code)
         case AsmCommand::DIST: compile2Args(BCode::DIST, Table::LValAndP, code); break;
         case AsmCommand::EXIT: compileNoArgs(BCode::EXIT, code); break;
 
-        case AsmCommand::LDTR: compile1Args(BCode::LDTR, Table::RValNP, code); break;
+        case AsmCommand::LDRC: compile1Args(BCode::LDRC, Table::RValNP, code); break;
         case AsmCommand::LDFD: compile1Args(BCode::LDFD, Table::RValNP, code); break;
         case AsmCommand::LDEN: compile1Args(BCode::LDEN, Table::RValNP, code); break;
-        case AsmCommand::LDFR: compile1Args(BCode::LDFR, Table::RValNP, code); break;
+        case AsmCommand::LDAL: compile1Args(BCode::LDAL, Table::RValNP, code); break;
 
         case AsmCommand::CIDL: compile1Args(BCode::CIDL, Table::RValNP,   code); break;
         case AsmCommand::CMOV: compile1Args(BCode::CMOV, Table::Position, code); break;
@@ -464,10 +464,10 @@ void Statement::print(std::ofstream& file) const
         case AsmCommand::DIST: print2Expr(file, "DIST", m_dst, m_src); break;
         case AsmCommand::EXIT: print0Expr(file, "EXIT"); break;
 
-        case AsmCommand::LDTR: print1Expr(file, "LDTR", m_src); break;
+        case AsmCommand::LDRC: print1Expr(file, "LDRC", m_src); break;
         case AsmCommand::LDFD: print1Expr(file, "LDFD", m_src); break;
         case AsmCommand::LDEN: print1Expr(file, "LDEN", m_src); break;
-        case AsmCommand::LDFR: print1Expr(file, "LDFR", m_src); break;
+        case AsmCommand::LDAL: print1Expr(file, "LDAL", m_src); break;
 
         case AsmCommand::CIDL: print1Expr(file, "CIDL", m_src); break;
         case AsmCommand::CMOV: print1Expr(file, "CMOV", m_dst); break;
@@ -546,7 +546,7 @@ void Statement::compile2Args(BCode::Command cmd, const Table::CheckTable& table,
 void Statement::compile1Args(BCode::Command cmd, const Table::CheckTable& table, Code* code)
 {
     m_bcode.push_back((int8_t)cmd);
-    Register::Type dst = (Register::Type)compileExpr(m_dst, code);
+    Register::Type dst = (Register::Type)compileExpr(m_dst ? m_dst : m_src, code);
 
     if (!Table::check(dst, dst, table))
     {

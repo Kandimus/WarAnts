@@ -47,11 +47,11 @@ public:
     Ant& operator=(const Ant& ant) = default;
 
 public:
-    uint32_t maxSatiety() const { return m_maxSatiety; }
-    uint32_t satiety() const { return m_satiety; }
-    uint32_t health() const { return m_health; }
-    uint32_t attack() const { return m_attack; }
-    uint32_t visibility() const { return m_visibility; }
+    uint16_t maxSatiety() const { return m_maxSatiety; }
+    uint16_t satiety() const { return m_satiety; }
+    uint16_t health() const { return m_health; }
+    uint16_t attack() const { return m_attack; }
+    uint16_t visibility() const { return m_visibility; }
     uint16_t maxCargo() const { return m_maxCargo; }
     uint16_t cargo() const { return m_cargo; }
     AntType type() const { return m_type; }
