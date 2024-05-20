@@ -123,9 +123,8 @@ bool Statement::isCall() const
 
 int16_t Statement::jumpValue() const
 {
-    Int16And8 out;
+    UniInt16 out = { 0 };
 
-    out.i16 = 0;
     if (!isJump())
     {
         return out.i16;
@@ -370,10 +369,16 @@ bool Statement::resolveLabels(bool& recalc, Code* code)
         m_bcode.pop_back();
     }
 
-    m_bcode[1] = curDelta & 0xff;
-    if (isFar)
+    if (!isFar)
     {
-        m_bcode[2] = (curDelta & 0xff00) >> 8;
+        m_bcode[1] = (int8_t)curDelta;
+    }
+    else
+    {
+        UniInt16 offset = { curDelta };
+        
+        m_bcode[1] = offset.i8[0];
+        m_bcode[2] = offset.i8[1];
     }
     return true;
 }
@@ -496,7 +501,7 @@ void Statement::print(std::ofstream& file) const
 
 uint8_t Statement::compileExpr(Expression* expr, Code* code)
 {
-    Int16And8 val;
+    UniInt16 val = { 0 };
     uint8_t reg = expr->compile(val.i16, code);
     
     if (code->hasError())

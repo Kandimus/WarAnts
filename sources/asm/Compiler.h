@@ -8,7 +8,6 @@
 #include "wacfile.h"
 
 using StringArray = std::vector<std::string>;
-//using PragmaMap = std::unordered_map<WarAnts::Asm::PragmaType, std::string>;
 
 namespace WarAnts
 {

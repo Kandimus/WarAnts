@@ -84,6 +84,7 @@ comment   ";"[^\n\r]*
 "bsr"                       { return BSR; }
 "bt"                        { return BT; }
 "btr"                       { return BTR; }
+"bts"                       { return BTR; }
 "btc"                       { return BTC; }
 "shl"                       { return SHL; }
 "shr"                       { return SHR; }

@@ -57,6 +57,10 @@ protected:
     bool checkLVal(const Argument& arg);
     bool bsf(int16_t* bitno, int16_t src);
     bool bsr(int16_t* bitno, int16_t src);
+    bool bitTest(uint8_t cmd, int16_t* dst, int16_t src);
+    bool shiftLeft(bool restore, int16_t* dst, int16_t src);
+    bool shiftRight(bool restore, int16_t* dst, int16_t src);
+    bool loadFood(int16_t value);
 
 protected:
     const std::vector<int8_t>& m_bcode;

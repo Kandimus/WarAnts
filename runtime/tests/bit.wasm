@@ -9,7 +9,7 @@
     mov   [49], 1
 
     ; 1
-    ; 1st bit of 0001000010001000b == 3
+    ; 1st bit of 0001 0000 1000 1000b == 3
     inc   [48]
     bsf   R0, 1088h
     eq    r0, 3
@@ -30,26 +30,96 @@
     jf    abort
 
     ; 4
-    ; lastest bit of 0001000010001000b == 12
+    ; lastest bit of 0001 0000 1000 1000b == 12
     inc   [48]
-    bsf   R0, 1088h
+    bsr   R0, 1088h
     eq    r0, 12
     jf    abort
 
     ; 5
     ; lastest bit of 1001000010001000b == 15
     inc   [48]
-    bsf   R0, 9088h
+    bsr   R0, 9088h
     eq    r0, 15
     jf    abort
 
     ; 6
     ; 1st bit of 0000000000000001b == 0
     inc   [48]
-    bsf   R0, 0001h
-    eq    r0, 15
+    bsr   R0, 0001h
+    eq    r0, 0
     jf    abort
 
+    ; 7
+    ; 8st bit of 0000 1110 1111 0000b == 0
+    inc   [48]
+    bt    r0, 8
+    jt    abort
+    
+    ; 8 bt
+    ; 5st bit of 0000 1110 1111 0000b == 1
+    inc   [48]
+    mov   R0, 0ef0h
+    bt    r0, 5
+    jf    abort
+
+    ; 9 btr
+    ; 8st bit of 0000 1110 1111 0000b == 0
+    inc   [48]
+    btr   r0, 5
+    jf    abort
+
+    ; 10 bts
+    ; 8st bit of 0000 1110 1101 0000b == 0
+    inc   [48]
+    bts   r0, 5
+    jt    abort
+
+    ; 11 btc
+    ; 8st bit of 0000 1111 1111 0000b == 0
+    inc   [48]
+    btc   r0, 5
+    jt    abort
+
+    ; 12 bt
+    ; 8st bit of 0000 1110 1111 0000b == 0
+    inc   [48]
+    bt    r0, 5
+    jf    abort
+
+    ; 13 shl
+    ; 0000 1110 1111 0000b << 6 == 1011 1100 0000 0000b
+    inc   [48]
+    shl   r0, 6
+    jf    abort
+    eq    r0, bc00h
+    jf    abort
+
+    ; 14 shr
+    ; 1011 1100 0000 0000b >> 11 == 0000 0000 0001 0111b
+    inc   [48]
+    shr   r0, 0bh
+    jf    abort
+    eq    r0, 0017h
+    jf    abort
+
+    ; 15 rol
+    ; 0000 0000 0001 0111b rol 14 == 1100 0000 0000 0101b
+    inc   [48]
+    rol   r0, 14
+    jf    abort
+    eq    r0, c005h
+    jf    abort
+
+    ; 16 ror
+    ; 1100 0000 0000 0101b ror 10 == 0000 0001 0111 0000b
+    inc   [48]
+    ror   r0, 10
+    jt    abort
+    eq    r0, 0170h
+    jf    abort
+
+    mov   [50], r0
     exit
     
 abort:
@@ -57,7 +127,7 @@ abort:
     exit
 
 .worker
-    call Test_MAX
+    call Test_BIT
     EXIT
 
 .solder

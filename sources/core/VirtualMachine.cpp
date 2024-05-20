@@ -101,8 +101,10 @@ VirtualMachine::Argument VirtualMachine::getRegisterArgument()
     }
     else if (out.reg == Asm::Register::SHORT)
     {
-        m_registers[Asm::Register::SHORT] = m_bcode[m_pos++];
-        m_registers[Asm::Register::SHORT] |= (m_bcode[m_pos++] << 8);
+        UniInt16 val = { 0 };
+        val.i8[0] = m_bcode[m_pos++];
+        val.i8[1] = m_bcode[m_pos++];
+        m_registers[Asm::Register::SHORT] = val.i16;
     }
 
     if (out.adr)
@@ -156,44 +158,52 @@ bool VirtualMachine::run()
         }
         else if ((cmd & Asm::BCode::TYPE_JUMP) == Asm::BCode::TYPE_JUMP)
         {
+            UniInt16 offset = { 0 };
+
             valType = cmd & Asm::BCode::JUMP_MASK;
             cmd &= ~Asm::BCode::JUMP_MASK;
-            value = getNextChar();
+            
 
             if (valType == Asm::BCode::JUMP_SHORT)
             {
-                value |= getNextChar() << 8;
+                offset.i8[0] = getNextChar();
+                offset.i8[1] = getNextChar();
             }
+            else
+            {
+                offset.i16 = getNextChar();
+            }
+            value = offset.i16;
         }
 
         switch (cmd)
         {
-            case Asm::BCode::ADD: result = arithmetic2(cmd); break;
-            case Asm::BCode::AND: result = arithmetic2(cmd); break;
-            case Asm::BCode::DEC: result = arithmetic1(cmd); break;
-            case Asm::BCode::DIV: result = arithmetic2(cmd); break;
-            case Asm::BCode::INC: result = arithmetic1(cmd); break;
-            case Asm::BCode::MOD: result = arithmetic2(cmd); break;
-            case Asm::BCode::MUL: result = arithmetic2(cmd); break;
-            case Asm::BCode::NEG: result = arithmetic1(cmd); break;
-            case Asm::BCode::NOT: result = arithmetic1(cmd); break;
-            case Asm::BCode::OR:  result = arithmetic2(cmd); break;
-            case Asm::BCode::SUB: result = arithmetic2(cmd); break;
-            case Asm::BCode::XOR: result = arithmetic2(cmd); break;
-            case Asm::BCode::MIN: result = minmax(cmd); break;
-            case Asm::BCode::MAX: result = minmax(cmd); break;
-/*
-                BSF,
-                BSR,
-                BT,
-                BTR,
-                BTS,
-                BTC,
-                SHL,
-                SHR,
-                ROL,
-                ROR,
-*/
+            case Asm::BCode::ADD:  result = arithmetic2(cmd); break;
+            case Asm::BCode::AND:  result = arithmetic2(cmd); break;
+            case Asm::BCode::DEC:  result = arithmetic1(cmd); break;
+            case Asm::BCode::DIV:  result = arithmetic2(cmd); break;
+            case Asm::BCode::INC:  result = arithmetic1(cmd); break;
+            case Asm::BCode::MOD:  result = arithmetic2(cmd); break;
+            case Asm::BCode::MUL:  result = arithmetic2(cmd); break;
+            case Asm::BCode::NEG:  result = arithmetic1(cmd); break;
+            case Asm::BCode::NOT:  result = arithmetic1(cmd); break;
+            case Asm::BCode::OR:   result = arithmetic2(cmd); break;
+            case Asm::BCode::SUB:  result = arithmetic2(cmd); break;
+            case Asm::BCode::XOR:  result = arithmetic2(cmd); break;
+            case Asm::BCode::MIN:  result = minmax(cmd); break;
+            case Asm::BCode::MAX:  result = minmax(cmd); break;
+
+            case Asm::BCode::BSF:  result = bit(cmd); break;
+            case Asm::BCode::BSR:  result = bit(cmd); break;
+            case Asm::BCode::BT:   result = bit(cmd); break;
+            case Asm::BCode::BTR:  result = bit(cmd); break;
+            case Asm::BCode::BTS:  result = bit(cmd); break;
+            case Asm::BCode::BTC:  result = bit(cmd); break;
+            case Asm::BCode::SHL:  result = bit(cmd); break;
+            case Asm::BCode::SHR:  result = bit(cmd); break;
+            case Asm::BCode::ROL:  result = bit(cmd); break;
+            case Asm::BCode::ROR:  result = bit(cmd); break;
+
             case Asm::BCode::EQ:   result = logical(cmd); break;
             case Asm::BCode::NEQ:  result = logical(cmd); break;
             case Asm::BCode::GT:   result = logical(cmd); break;
@@ -232,14 +242,13 @@ bool VirtualMachine::run()
             case Asm::BCode::JCNZ: result = jump(cmd, value, valType); break;
             case Asm::BCode::LOOP: result = jump(cmd, value, valType); break;
             case Asm::BCode::CALL: result = jump(cmd, value, valType); break;
-/*
-                LDTR = 0x60,
-                LDFD = 0x64,
-                LDEN = 0x68,
-                LDFR = 0x6c,
-                CIDL = 0x70,
-                CEAT = 0x74,
-*/
+
+//                LDTR = 0x60,
+            case Asm::BCode::LDFD: result = loadFood(value); break;
+//                LDEN = 0x68,
+//                LDFR = 0x6c,
+//                CIDL = 0x70,
+//                CEAT = 0x74,
         }
         if (!result)
         {
@@ -407,32 +416,32 @@ bool VirtualMachine::bit(uint8_t cmd)
     auto dst = getRegisterArgument();
     auto src = getRegisterArgument();
 
+    CHECK_LVAL(dst);
+
     if (dst.pos || src.pos)
     {
         LOGE("Command %02x (%04x): Wrong arguments of the bit command", (int)cmd, cmdPos);
         return false;
     }
 
-    int32_t tmp = *dst.ptr;
     switch (cmd)
     {
         case Asm::BCode::BSF: setRF(Asm::Register::ZF, bsf(dst.ptr, *src.ptr)); break;
         case Asm::BCode::BSR: setRF(Asm::Register::ZF, bsr(dst.ptr, *src.ptr)); break;
-        case Asm::BCode::BT:  tmp /= *src.ptr; break;
-        case Asm::BCode::BTR: tmp %= *src.ptr; break;
-        case Asm::BCode::BTS: tmp *= *src.ptr; break;
-        case Asm::BCode::BTC: tmp |= *src.ptr; break;
-        case Asm::BCode::SHL: tmp <<= *src.ptr; break;
-        case Asm::BCode::SHR: tmp >>= *src.ptr; break;
-        case Asm::BCode::ROL: tmp = *src.ptr; break;
-        case Asm::BCode::ROR: tmp = *src.ptr; break;
+        case Asm::BCode::BT:  setRF(Asm::Register::ZF, bitTest(cmd, dst.ptr, *src.ptr)); break;
+        case Asm::BCode::BTR: setRF(Asm::Register::ZF, bitTest(cmd, dst.ptr, *src.ptr)); break;
+        case Asm::BCode::BTS: setRF(Asm::Register::ZF, bitTest(cmd, dst.ptr, *src.ptr)); break;
+        case Asm::BCode::BTC: setRF(Asm::Register::ZF, bitTest(cmd, dst.ptr, *src.ptr)); break;
+        case Asm::BCode::SHL: setRF(Asm::Register::ZF, shiftLeft(false, dst.ptr, *src.ptr)); break;
+        case Asm::BCode::SHR: setRF(Asm::Register::ZF, shiftRight(false, dst.ptr, *src.ptr)); break;
+        case Asm::BCode::ROL: setRF(Asm::Register::ZF, shiftLeft(true, dst.ptr, *src.ptr)); break;
+        case Asm::BCode::ROR: setRF(Asm::Register::ZF, shiftRight(true, dst.ptr, *src.ptr)); break;
         default:
             LOGE("Command %02x (%04x): Undefined the bit command", (int)cmd, cmdPos);
             SU_BREAKPOINT();
             return false;
     }
 
-    setDstAndFlags(dst.ptr, tmp);
     return true;
 }
 
@@ -591,6 +600,84 @@ bool VirtualMachine::bsr(int16_t* bitno, int16_t src)
     SU_BREAKPOINT();
     *bitno = 17;
     return false;
+}
+
+bool VirtualMachine::bitTest(uint8_t cmd, int16_t* dst, int16_t src)
+{
+    uint16_t mask = 1 << (src & 0x0f);
+    bool out = !(*dst & mask);
+
+    switch (cmd)
+    {
+        case Asm::BCode::BT: break;
+        case Asm::BCode::BTR: *dst &= ~mask; break;
+        case Asm::BCode::BTS: *dst |=  mask; break;
+        case Asm::BCode::BTC: *dst ^=  mask; break;
+    }
+
+    return out;
+}
+
+bool VirtualMachine::shiftLeft(bool restore, int16_t* dst, int16_t src)
+{
+    src = src & 0x0f;
+
+    if (!src)
+    {
+        *dst = restore ? *dst : 0;
+        return false;
+    }
+
+    UniInt32 tmp = { 0 };
+    tmp.i16[0] = *dst;
+    tmp.u32 <<= src;
+    *dst = tmp.i16[0];
+
+    if (restore)
+    {
+        *dst |= tmp.i16[1];
+    }
+    return !(tmp.i32 & 0x00010000);
+}
+
+bool VirtualMachine::shiftRight(bool restore, int16_t* dst, int16_t src)
+{
+    src = src & 0x0f;
+
+    if (!src)
+    {
+        *dst = restore ? *dst : 0;
+        return false;
+    }
+
+    UniInt32 tmp = { 0 };
+    tmp.i16[1] = *dst;
+    tmp.u32 >>= src; // for signed integers, the right shift fills the bits to the right as the sign bit
+                     // Therefore we using the unsigned integers
+    *dst = tmp.i16[1];
+
+    if (restore)
+    {
+        *dst |= tmp.i16[0];
+    }
+    return !(tmp.i32 & 0x00008000);
+}
+
+bool VirtualMachine::loadFood(int16_t value)
+{
+    bool error = value < 0 || value >= m_foods.size();
+
+    setRF(Asm::Register::ZF, error);
+
+    if (error)
+    {
+        return true;
+    }
+
+    m_memory[Memory::FoodCoord_X] = m_foods[value].x();
+    m_memory[Memory::FoodCoord_Y] = m_foods[value].y();
+
+    return true;
 }
 
 };

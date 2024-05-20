@@ -1,4 +1,5 @@
-#define CATCH_CONFIG_MAIN
+﻿//#define CATCH_CONFIG_MAIN
+#define CATCH_CONFIG_RUNNER
 #include "catch.hpp"
 
 #include <fstream>
@@ -47,6 +48,15 @@ public:
         m_memory.resize(WarAnts::Memory::UserData + 256);
     }
 };
+
+int main(int argc, char* argv[])
+{
+    su::Log::instance().setFile(false);
+    su::Log::instance().setTerminal(false);
+
+    return Catch::Session().run(argc, argv);
+}
+
 
 void PrintVisibleArr(const WarAnts::VectorPosition& arr, const WarAnts::Position& pos, const std::string& filename)
 {
@@ -220,3 +230,12 @@ TEST_CASE("max", "[VM]")
     CHECK(ant->getValue(48) == 7);
     CHECK(ant->getValue(49) == 1);
 }
+
+TEST_CASE("bit", "[VM]")
+{
+    auto ant = runBCode("bit.wasm");
+    CHECK(ant->getValue(48) == 16);
+    CHECK(ant->getValue(49) == 1);
+    CHECK(ant->getValue(50) == 0x0170);
+}
+

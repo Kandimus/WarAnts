@@ -8,18 +8,32 @@
 
 namespace WarAnts
 {
+
+union UniInt16
+{
+    int16_t  i16;
+    uint16_t u16;
+    uint8_t  u8[2];
+    int8_t   i8[2];
+};
+
+union UniInt32
+{
+    int32_t  i32;
+    uint32_t u32;
+    uint16_t u16[2];
+    int16_t  i16[2];
+    uint8_t  u8[4];
+    int8_t   i8[4];
+};
+
+
 namespace Asm
 {
 
 enum Version : uint16_t
 {
     Core = 0x0100,
-};
-
-union Int16And8
-{
-    int16_t i16;
-    int8_t i8[2];
 };
 
 enum class PragmaType
@@ -47,6 +61,18 @@ enum class OperandType
 
 namespace Register
 {
+/*
++-----+---+---+-----------+
+| 0 0 | 0 | 0 | X X X X X |
++-----+---+---+-----------+
+  ^     ^   ^   ^
+  |     |   |   |
+  |     |   |   +------ register
+  |     |   +---------- is a position register
+  |     +-------------- is an address
+  +-------------------- next argument (not implemented)
+*/
+
 enum Type : uint8_t
 {
     R0 = 0,

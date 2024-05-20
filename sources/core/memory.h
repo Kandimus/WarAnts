@@ -21,6 +21,10 @@ enum Memory
     LastCommand_X = 0x0c,
     LastCommand_Y = 0x0d,
 
+    FoodCoord = 0x1c,
+    FoodCoord_X = 0x1c,
+    FoodCoord_Y = 0x1d,
+
     ReadOnly = 0x1f,
     UserData = 0x30,
 };
