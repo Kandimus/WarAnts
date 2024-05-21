@@ -31,7 +31,7 @@ public:
     bool checkFunctionsAndNames();
     bool removeUnusedFunctions();
     bool extrudeExpression();
-    bool checkExitStatement();
+    bool checkReturnStatement();
     bool compile();
     bool optimizeValueStatement();
     bool calculationJumpsAndCalls();

@@ -100,8 +100,8 @@ bool compileFile(const std::string& filename,
 
     // Step 4. Optimize statements
 
-    // Step 5. Add EXIT on end of function
-    if (!code->checkExitStatement())
+    // Step 5. Add RET on end of function
+    if (!code->checkReturnStatement())
     {
         return false;
     }

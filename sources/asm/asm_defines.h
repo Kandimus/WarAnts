@@ -160,7 +160,7 @@ enum class AsmCommand
     MOV,
     LEN,
     DIST,
-    EXIT,
+    RET,
 
     LDRC,
     LDFD,
@@ -262,7 +262,7 @@ enum Command : uint8_t
     MOV,
     LEN,
     DIST,
-    EXIT,
+    RET,
 
     CMOV,
     CATT,

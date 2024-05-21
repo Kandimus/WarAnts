@@ -5,11 +5,11 @@
 
 .Test_MIN
     mov   [49], 49
-    exit
+    RET
     
 abort:
     mov   [49], 0
-    exit
+    RET
 
 .worker
     mov   [48], 48
@@ -20,10 +20,10 @@ abort:
     jt    end
     mov   [50], 55
 end:
-    EXIT
+    RET
 
 .solder
-    EXIT
+    RET
 
 .queen
-    EXIT
+    RET

@@ -85,18 +85,18 @@
     eq    [51], 20
     jf    abort
 
-    exit
+    RET
     
 abort:
     mov   [49], 0
-    exit
+    RET
 
 .worker
     call Test_MIN
-    EXIT
+    RET
 
 .solder
-    EXIT
+    RET
 
 .queen
-    EXIT
+    RET

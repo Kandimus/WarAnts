@@ -73,12 +73,6 @@ CheckTable Position = { {0, 0, 0, 0, 0},   // value
                         {0, 0, 0, 0, 0},   // []
                         {0, 0, 1, 0, 1} }; // <>
 
-CheckTable LValAndP = { {0, 0, 0, 0, 0},   // value   L
-                        {0, 0, 1, 0, 1},   // reg     e
-                        {0, 0, 0, 0, 0},   // pos     f
-                        {0, 0, 1, 0, 1},   // []      t
-                        {0, 0, 0, 0, 0} }; // <>
-
 static uint8_t regToIndex(uint8_t reg)
 {
     if (reg & Register::ADDRESS)
@@ -155,9 +149,9 @@ bool Statement::checkUnusedJump() const
     return false;
 }
 
-bool Statement::isExit() const
+bool Statement::isReturn() const
 {
-    return type() == StatementType::Command && m_cmd == AsmCommand::EXIT;
+    return type() == StatementType::Command && m_cmd == AsmCommand::RET;
 }
 
 bool Statement::isValueCommand() const
@@ -274,8 +268,8 @@ bool Statement::compile(Code* code)
 
         case AsmCommand::MOV:  compile2Args(BCode::MOV,  Table::LVal,     code); break;
         case AsmCommand::LEN:  compile2Args(BCode::LEN,  Table::Position, code); break;
-        case AsmCommand::DIST: compile2Args(BCode::DIST, Table::LValAndP, code); break;
-        case AsmCommand::EXIT: compileNoArgs(BCode::EXIT, code); break;
+        case AsmCommand::DIST: compile1Args(BCode::DIST, Table::Position, code); break;
+        case AsmCommand::RET:  compileNoArgs(BCode::RET, code); break;
 
         case AsmCommand::LDRC: compile1Args(BCode::LDRC, Table::RValNP, code); break;
         case AsmCommand::LDFD: compile1Args(BCode::LDFD, Table::RValNP, code); break;
@@ -461,8 +455,8 @@ void Statement::print(std::ofstream& file) const
 
         case AsmCommand::MOV:  print2Expr(file, "MOV ", m_dst, m_src); break;
         case AsmCommand::LEN:  print2Expr(file, "LEN ", m_dst, m_src); break;
-        case AsmCommand::DIST: print2Expr(file, "DIST", m_dst, m_src); break;
-        case AsmCommand::EXIT: print0Expr(file, "EXIT"); break;
+        case AsmCommand::DIST: print1Expr(file, "DIST", m_dst       ); break;
+        case AsmCommand::RET:  print0Expr(file, "RET"); break;
 
         case AsmCommand::LDRC: print1Expr(file, "LDRC", m_src); break;
         case AsmCommand::LDFD: print1Expr(file, "LDFD", m_src); break;

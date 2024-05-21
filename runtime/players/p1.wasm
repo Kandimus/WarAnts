@@ -17,8 +17,8 @@
     mov   RC, [enemy_count]
     ; Если кол-во видимых противников равно нулю, то выходим
     jz    return
-    dec   RC
-    mov   R1, 7fffh ; max len
+    dec   rc
+    mov   r1, 7fffh ; max len
     
     ; Цикл поиска ближайшего врага
 beg_loop:
@@ -38,12 +38,12 @@ return:
 .unused_func
     MOV RC, [enemy_count]
     DEC RC
-    EXIT
+    RET
 
 
 ;-----------------------------------------------
 ; Main algorithm of the WORKER ant
-.worker
+.Worker
     MOV  R0, 48
     MOV  [R0 + 4], 33
 ;    MOV  RF, [1 * 2 + 3]
@@ -77,7 +77,7 @@ attack_enemy:
     CATT [enemy_pos]
     JMP finish
 finish:
-    EXIT
+    RET
 
 
 ;------------------------------
@@ -91,7 +91,7 @@ finish:
 attack_enemy:
     LDEN R0
     CATT [enemy_pos]
-    EXIT
+    RET
 
 
 ;------------------------------

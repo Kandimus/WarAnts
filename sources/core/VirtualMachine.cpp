@@ -215,7 +215,7 @@ bool VirtualMachine::run()
             case Asm::BCode::MOV:  result = arithmetic2(cmd); break;
 //                LEN,
 //                DIST,
-            case Asm::BCode::EXIT:
+            case Asm::BCode::RET:
                 if (m_callstack.empty())
                 {
                     return true;
@@ -273,7 +273,7 @@ void VirtualMachine::setRF(int16_t bit, bool value)
 }
 
 #define CHECK_PTR(x)            if (!(x).ptr) { return false; }
-#define CHECK_LVAL(x)           if (!(x).ptr && !checkLVal(x)) { return false; }
+#define CHECK_LVAL(x)           if (!(x).ptr || !checkLVal(x)) { return false; }
 
 bool VirtualMachine::arithmetic1(uint8_t cmd)
 {
@@ -579,6 +579,13 @@ void VirtualMachine::setDstAndFlags(int16_t* dst, int32_t value)
 
 bool VirtualMachine::checkLVal(const VirtualMachine::Argument& arg)
 {
+    sdfgsdfgsd
+    if (!arg.adr)
+    {
+        LOGE("Offset %04x: the address 0x04x is null", arg.offset, m_registers[arg.reg]);
+        return false;
+    }
+
     if (arg.adr && m_registers[arg.reg] <= Memory::ReadOnly)
     {
         LOGE("Offset %04x: the address 0x04x is readonly", arg.offset, m_registers[arg.reg]);

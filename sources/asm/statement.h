@@ -96,7 +96,7 @@ public:
     int16_t jumpValue() const;
     bool checkUnusedJump() const;
 
-    bool isExit() const;
+    bool isReturn() const;
 
     bool isValueCommand() const;
 

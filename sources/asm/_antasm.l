@@ -116,7 +116,7 @@ comment   ";"[^\n\r]*
 "call"                      { return CALL; }
 "len"                       { return LEN; }
 "dist"                      { return DIST; }
-"exit"                      { return EXIT; }
+"ret"                       { return RET; }
 
 "ldrc"                      { return LDRC; }
 "ldfd"                      { return LDFD; }

@@ -127,7 +127,7 @@ bool Function::optimizeValueStatement(Code* code)
     return true;
 }
 
-bool Function::checkExitStatement(Code* code)
+bool Function::checkReturnStatement(Code* code)
 {
     Statement* stat = m_stat;
 
@@ -141,9 +141,9 @@ bool Function::checkExitStatement(Code* code)
         stat = stat->next();
     }
 
-    if (!stat->isExit())
+    if (!stat->isReturn())
     {
-        stat->m_next = new Statement(AsmCommand::EXIT, parent());
+        stat->m_next = new Statement(AsmCommand::RET, parent());
     }
 
     return true;

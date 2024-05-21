@@ -217,13 +217,13 @@ std::string Code::getPragma(PragmaType type) const
     return "";
 }
 
-bool Code::checkExitStatement()
+bool Code::checkReturnStatement()
 {
     auto func = m_function;
 
     while (func)
     {
-        if (!func->checkExitStatement(this))
+        if (!func->checkReturnStatement(this))
         {
             return false;
         }

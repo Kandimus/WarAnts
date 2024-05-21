@@ -29,7 +29,7 @@
 ; 0x40..0x4f position of food/allies/enemies
 
 .Test_FOOD
-    inc   [30h]
+    inc   [3D0h]
     ; food on <4, 0>
     mov   [40h], 4
     mov   [41h], 0
@@ -68,11 +68,11 @@ end_loop:
     
     eq    r0, 07h
     jf    abort
-    exit
+    RET
     
 abort:
     mov   [31h], 0
-    exit
+    RET
 
 
 .Test_ALLY
@@ -111,11 +111,11 @@ end_loop:
     
     eq    r0, 03h
     jf    abort
-    exit
+    RET
     
 abort:
     mov   [31h], 0
-    exit
+    RET
 
 
 .Test_ENEMY
@@ -174,14 +174,14 @@ end_loop:
     
     eq    r0, 0fh
     jf    abort
-    exit
+    RET
     
 abort:
     mov   [31h], 0
-    exit
+    RET
 
 
-.worker
+.Worker
     mov   [30h], 0
     mov   [31h], 1
     call  Test_FOOD
@@ -194,10 +194,10 @@ abort:
     eq    [31h], 0
     jt    abort
 abort:
-    exit
+    RET
 
-.solder
-    EXIT
+.Solder
+    RET
 
-.queen
-    EXIT
+.Queen
+    RET

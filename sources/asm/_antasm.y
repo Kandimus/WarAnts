@@ -56,7 +56,7 @@ int  yylex();
 %token BSF BSR BT BTR BTS BTC SHL SHR ROL ROR
 %token EQ NEQ GT GE LT LE TEST
 %token JMP JZ JNZ JT JF JO JNO JS JNS JCZ JCNZ LOOP CALL
-%token MOV LEN DIST EXIT
+%token MOV LEN DIST RET
 %token LDRC LDFD LDEN LDAL
 %token CIDL CMOV CATT CTKF CGVF CEAT CPS CPW
 
@@ -194,8 +194,8 @@ asm_command
     // Other
     | MOV  { UPD_LINENO } address COMMA address         { $$ = new WarAnts::Asm::Statement(WarAnts::Asm::AsmCommand::MOV , $3, $5, yy_code.get()); }
     | LEN  { UPD_LINENO } address COMMA address         { $$ = new WarAnts::Asm::Statement(WarAnts::Asm::AsmCommand::LEN , $3, $5, yy_code.get()); }
-    | DIST { UPD_LINENO } address COMMA address         { $$ = new WarAnts::Asm::Statement(WarAnts::Asm::AsmCommand::DIST, $3, $5, yy_code.get()); }
-    | EXIT { UPD_LINENO }                               { $$ = new WarAnts::Asm::Statement(WarAnts::Asm::AsmCommand::EXIT,         yy_code.get()); }
+    | DIST { UPD_LINENO } address                       { $$ = new WarAnts::Asm::Statement(WarAnts::Asm::AsmCommand::DIST, $3, nullptr, yy_code.get()); }
+    | RET  { UPD_LINENO }                               { $$ = new WarAnts::Asm::Statement(WarAnts::Asm::AsmCommand::RET ,         yy_code.get()); }
 
     // Load data to memory
     | LDRC { UPD_LINENO } address                       { $$ = new WarAnts::Asm::Statement(WarAnts::Asm::AsmCommand::LDRC, nullptr, $3, yy_code.get()); }

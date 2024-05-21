@@ -51,7 +51,7 @@ public:
     bool extrudeExpression(Code* code);
     bool compile(Code* code);
     bool optimizeValueStatement(Code* code);
-    bool checkExitStatement(Code* code);
+    bool checkReturnStatement(Code* code);
     bool assignOffsets(Code* code);
     bool resolveLabels(bool& recalc, Code* code);
     bool save(Code* code);

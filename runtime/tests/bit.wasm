@@ -120,18 +120,18 @@
     jf    abort
 
     mov   [50], r0
-    exit
+    RET
     
 abort:
     mov   [49], 0
-    exit
+    RET
 
 .worker
     call Test_BIT
-    EXIT
+    RET
 
 .solder
-    EXIT
+    RET
 
 .queen
-    EXIT
+    RET
