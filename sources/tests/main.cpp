@@ -63,14 +63,15 @@ public:
 class TestAnt : public WarAnts::Ant
 {
 public:
-    TestAnt(const std::shared_ptr<TestPlayer>& plr) : WarAnts::Ant()
+    TestAnt(WarAnts::AntType type, int16_t x, int16_t y, const std::shared_ptr<TestPlayer>& plr) : WarAnts::Ant()
     {
-        m_type = WarAnts::AntType::Worker;
+        m_pos = WarAnts::Position(x, y);
+        m_type = type;
         m_maxHealth = 100;
         m_health = 100;
         m_visibility = 5;
         m_player = plr;
-        m_memory.resize(WarAnts::Memory::UserData + 256);
+        m_memory.resize(WarAnts::Memory::UserData + 0x70);
     }
 
     void setType(WarAnts::AntType type) { m_type = type; }
@@ -117,41 +118,64 @@ void PrintVisibleArr(const WarAnts::VectorPosition& arr, const WarAnts::Position
     }
 }
 
+/*
+
+   0123456789ABCDE
+  +---------------+
+ 0|·S··F··X       |
+ 1|··C·····       |
+ 2|··¤·····     f |
+ 3|··X····W      x|
+ 4|········       |
+ 5|F······     Q  |
+ 6|···Z···        |
+ 7| ···Ff         |
+ 8|               |
+ 9|   x           |
+ A|         w     |
+ B|               |
+ C|  f         f  |
+ D|               |
+ E|     C         |
+  +---------------+
+
+*/
+
 std::shared_ptr<TestAnt> runBCode(bool isBounded, const std::string& filename)
 {
     WarAnts::Asm::WacFile wac;
+    WarAnts::Asm::WacFile wacEnemy;
     StringArray errors;
     StringArray warnings;
     auto result = WarAnts::Asm::compileFile("./tests/" + filename, warnings, errors, wac);
 
     REQUIRE(errors.empty());
 
+    // Allies
     std::shared_ptr<TestPlayer> plr = std::make_shared<TestPlayer>(wac);
-    std::shared_ptr<TestAnt> ant = std::make_shared<TestAnt>(plr);
-    std::shared_ptr<PublicMap> map = std::make_shared<PublicMap>();
+    std::shared_ptr<TestAnt> qAlly_1 = std::make_shared<TestAnt>(WarAnts::AntType::Queen, 12, 5, plr);
+    std::shared_ptr<TestAnt> sAlly_1 = std::make_shared<TestAnt>(WarAnts::AntType::Solder, 1, 0, plr);
+    std::shared_ptr<TestAnt> wAlly_1 = std::make_shared<TestAnt>(WarAnts::AntType::Worker, 7, 3, plr);
+    std::shared_ptr<TestAnt> wAlly_2 = std::make_shared<TestAnt>(WarAnts::AntType::Worker, 9, 10, plr);
+    sAlly_1->setHealth(50);
 
-    std::shared_ptr<TestAnt> q_1 = std::make_shared<TestAnt>(plr);
-    std::shared_ptr<TestAnt> s_1 = std::make_shared<TestAnt>(plr);
-    std::shared_ptr<TestAnt> w_1 = std::make_shared<TestAnt>(plr);
-    std::shared_ptr<TestAnt> w_2 = std::make_shared<TestAnt>(plr);
+    // Enemies
+    std::shared_ptr<TestPlayer> plrEnemy = std::make_shared<TestPlayer>(wacEnemy);
+    std::shared_ptr<TestAnt> qEnemy_1 = std::make_shared<TestAnt>(WarAnts::AntType::Queen, 3, 6, plrEnemy);
+    std::shared_ptr<TestAnt> sEnemy_1 = std::make_shared<TestAnt>(WarAnts::AntType::Solder, 7, 0, plrEnemy);
+    std::shared_ptr<TestAnt> sEnemy_2 = std::make_shared<TestAnt>(WarAnts::AntType::Solder, 14, 3, plrEnemy);
+    std::shared_ptr<TestAnt> sEnemy_3 = std::make_shared<TestAnt>(WarAnts::AntType::Solder, 2, 3, plrEnemy);
+    std::shared_ptr<TestAnt> sEnemy_4 = std::make_shared<TestAnt>(WarAnts::AntType::Solder, 3, 9, plrEnemy);
+    std::shared_ptr<TestAnt> wEnemy_1 = std::make_shared<TestAnt>(WarAnts::AntType::Worker, 2, 1, plrEnemy);
+    std::shared_ptr<TestAnt> wEnemy_2 = std::make_shared<TestAnt>(WarAnts::AntType::Worker, 5, 14, plrEnemy);
+    qEnemy_1->setHealth(75);
+    sEnemy_3->setHealth(25);
 
     // The ant!
-    ant->setPosition(WarAnts::Position(2, 2));
+    std::shared_ptr<TestAnt> ant = std::make_shared<TestAnt>(WarAnts::AntType::Worker, 2, 2, plr);
 
-    // Allies
-    q_1->setType(WarAnts::AntType::Queen);
-    q_1->setPosition(WarAnts::Position(12, 5));
-
-    s_1->setType(WarAnts::AntType::Solder);
-    s_1->setPosition(WarAnts::Position(1, 0));
-    s_1->setHealth(50);
-
-    w_1->setType(WarAnts::AntType::Worker);
-    w_1->setPosition(WarAnts::Position(7, 3));
-
-    w_1->setType(WarAnts::AntType::Worker);
-    w_2->setPosition(WarAnts::Position(9, 10));
-
+    // Map
+    std::shared_ptr<PublicMap> map = std::make_shared<PublicMap>();
     map->setBounded(isBounded);
 
     map->getCell( 4,  0)->setFood(100);
@@ -163,10 +187,18 @@ std::shared_ptr<TestAnt> runBCode(bool isBounded, const std::string& filename)
     map->getCell(12, 12)->setFood(1000);
 
     map->setAnt(ant);
-    map->setAnt(q_1);
-    map->setAnt(s_1);
-    map->setAnt(w_1);
-    map->setAnt(w_2);
+    map->setAnt(qAlly_1);
+    map->setAnt(sAlly_1);
+    map->setAnt(wAlly_1);
+    map->setAnt(wAlly_2);
+
+    map->setAnt(qEnemy_1);
+    map->setAnt(sEnemy_1);
+    map->setAnt(sEnemy_2);
+    map->setAnt(sEnemy_3);
+    map->setAnt(sEnemy_4);
+    map->setAnt(wEnemy_1);
+    map->setAnt(wEnemy_2);
 
     WarAnts::VirtualMachine vm(map, ant);
 
@@ -308,7 +340,7 @@ TEST_CASE("bit", "[VM]")
 TEST_CASE("load", "[VM]")
 {
     auto ant = runBCode(true, "load_bounded.wasm");
-    CHECK(ant->getValue(48) == 2);
+    CHECK(ant->getValue(48) == 3);
     CHECK(ant->getValue(49) == 1);
 }
 

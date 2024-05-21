@@ -8,27 +8,25 @@
 ;
 ;   0123456789ABCDE
 ;  +---------------+
-; 0|·S··F···       |
-; 1|········       |
+; 0|·S··F··X       |
+; 1|··C·····       |
 ; 2|··¤·····     f |
-; 3|·······W       |
+; 3|··X····W      x|
 ; 4|········       |
 ; 5|F······     Q  |
-; 6|·······        |
+; 6|···Z···        |
 ; 7| ···Ff         |
 ; 8|               |
-; 9|               |
+; 9|   x           |
 ; A|         w     |
 ; B|               |
 ; C|  f         f  |
 ; D|               |
-; E|               |
+; E|     C         |
 ;  +---------------+
 ;
 ;
-; 0x40..0x4f position of food
-; 0x50..0x5f position of allies
-; 0x60..0x6f position of enemies
+; 0x40..0x4f position of food/allies/enemies
 
 .Test_FOOD
     inc   [30h]
@@ -80,11 +78,11 @@ abort:
 .Test_ALLY
     inc   [30h]
     ; ally solder on <1, 1>
-    mov   [50h], 1
-    mov   [51h], 0
+    mov   [40h], 1
+    mov   [41h], 0
     ; ally worker on <7, 3>
-    mov   [52h], 7
-    mov   [53h], 3
+    mov   [42h], 7
+    mov   [43h], 3
     
     ; count of allies
     mov   rc, [05h]
@@ -96,14 +94,14 @@ abort:
 
 begin_loop:
     ldal  rc
-    eq    <19h>, <50h>
+    eq    <19h>, <40h>
     jf    check_2
     eq    [18h], 11F4h  ; Solder 1000h + half health 01F4h
     jf    abort
     or    r0, 1
     jmp   end_loop
 check_2:
-    eq    <19h>, <52h>
+    eq    <19h>, <42h>
     jf    abort
     eq    [18h], 23E8h ; Worker 2000h + full health 03E8h
     jf    abort
@@ -119,6 +117,70 @@ abort:
     mov   [31h], 0
     exit
 
+
+.Test_ENEMY
+    inc   [30h]
+    ; enemy solder on <7, 0>
+    mov   [40h], 7
+    mov   [41h], 0
+    ; enemy worker on <2, 1>
+    mov   [42h], 2
+    mov   [43h], 1
+    ; enemy solder on <2, 3>
+    mov   [44h], 2
+    mov   [45h], 3
+    ; enemy queen on <3, 6>
+    mov   [46h], 3
+    mov   [47h], 6
+    
+    ; count of enemies
+    mov   rc, [06h]
+    jf    abort
+    dec   rc
+    eq    rc, 3
+    jf    abort
+    xor   r0, r0
+
+begin_loop:
+    lden  rc
+    eq    <15h>, <40h>
+    jf    check_2
+    eq    [14h], 13E8h  ; Solder 1000h + full health 03E8h
+    jf    abort
+    or    r0, 1
+    jmp   end_loop
+check_2:
+    eq    <15h>, <42h>
+    jf    check_3
+    eq    [14h], 23E8h  ; Worker 2000h + full health 03E8h
+    jf    abort
+    or    r0, 2
+    jmp   end_loop
+check_3:
+    eq    <15h>, <44h>
+    jf    check_4
+    eq    [14h], 10FAh  ; Solder 1000h + quarte health 00FAh
+    jf    abort
+    or    r0, 4
+    jmp   end_loop
+check_4:
+    eq    <15h>, <46h>
+    jf    abort
+    eq    [14h], 02EEh ; Quuen 0000h + three quarters health 02EEh
+    jf    abort
+    or    r0, 8
+end_loop:
+    loop  begin_loop
+    
+    eq    r0, 0fh
+    jf    abort
+    exit
+    
+abort:
+    mov   [31h], 0
+    exit
+
+
 .worker
     mov   [30h], 0
     mov   [31h], 1
@@ -128,7 +190,9 @@ abort:
     call  Test_ALLY
     eq    [31h], 0
     jt    abort
-    
+    call  Test_ENEMY
+    eq    [31h], 0
+    jt    abort
 abort:
     exit
 

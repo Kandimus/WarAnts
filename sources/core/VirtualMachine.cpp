@@ -65,7 +65,12 @@ void VirtualMachine::prepare()
         auto cellAnt = cell->ant();
         if (cellAnt.get())
         {
-            if (cellAnt->player() == m_ant->player() && m_ant != cellAnt)
+            if (m_ant == cellAnt)
+            {
+                continue;
+            }
+
+            if (cellAnt->player() == m_ant->player())
             {
                 m_allies.push_back(cellAnt);
             }
@@ -82,9 +87,9 @@ void VirtualMachine::prepare()
     m_ant->setValue(Memory::SatietyPercent, int16_t(m_ant->satietyPercent() * 10));
     m_ant->setValue(Memory::HealthPercent, int16_t(m_ant->healthPercent() * 10));
     m_ant->setValue(Memory::Cargo, m_ant->cargo());
-    m_ant->setValue(Memory::CountOfAllies, m_allies.size());
-    m_ant->setValue(Memory::CountOfEnemies, m_enemies.size());
-    m_ant->setValue(Memory::CountOfFoods, m_foods.size());
+    m_ant->setValue(Memory::CountOfAllies, (int16_t)m_allies.size());
+    m_ant->setValue(Memory::CountOfEnemies, (int16_t)m_enemies.size());
+    m_ant->setValue(Memory::CountOfFoods, (int16_t)m_foods.size());
 }
 
 VirtualMachine::Argument VirtualMachine::getRegisterArgument()
@@ -112,7 +117,7 @@ VirtualMachine::Argument VirtualMachine::getRegisterArgument()
 
     if (out.adr)
     {
-        if (m_registers[out.reg] >= m_memory.size())
+        if ((size_t)m_registers[out.reg] >= m_memory.size())
         {
             LOGE("Command %02x (%04x): invalide address 0x04x",
                 m_bcode[m_pos - 2], m_pos - 1, m_registers[out.reg]);
@@ -549,7 +554,7 @@ bool VirtualMachine::value1(uint8_t cmd, uint16_t value, uint8_t valueType)
     bool result = true;
     switch (cmd)
     {
-//        case Asm::BCode::LDTR: result = loadReceivedData(value);
+//        case Asm::BCode::LDRC: result = loadReceivedData(value);
         case Asm::BCode::LDFD: result = loadFood(value); break;
         case Asm::BCode::LDEN: result = loadEnemy(value); break;
         case Asm::BCode::LDAL: result = loadAlly(value); break;
@@ -560,6 +565,7 @@ bool VirtualMachine::value1(uint8_t cmd, uint16_t value, uint8_t valueType)
             SU_BREAKPOINT();
             return false;
     }
+    return true;
 }
 
 void VirtualMachine::setDstAndFlags(int16_t* dst, int32_t value)
@@ -732,8 +738,8 @@ bool VirtualMachine::loadEnemy(int16_t value)
         return true;
     }
 
-    int16_t type = (int16_t)m_enemies[value]->type();
-    m_memory[Memory::EnemyType] = (int16_t)(m_enemies[value]->healthPercent() * 10) | (type << 24);
+    int16_t type = ((int16_t)m_enemies[value]->type()) << 12;
+    m_memory[Memory::EnemyType] = (int16_t)(m_enemies[value]->healthPercent() * 10) | type;
     m_memory[Memory::EnemyCoordX] = m_enemies[value]->position().x();
     m_memory[Memory::EnemyCoordY] = m_enemies[value]->position().y();
 
