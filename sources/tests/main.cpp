@@ -80,7 +80,10 @@ public:
 
 int main(int argc, char* argv[])
 {
-    su::Log::instance().setFile(false);
+    su::Log::instance().setFile(true);
+    su::Log::instance().setDir("logs");
+    su::Log::instance().setFilename("test");
+    su::Log::instance().setLevel(su::Log::Level::Error);
     su::Log::instance().setTerminal(false);
 
     return Catch::Session().run(argc, argv);

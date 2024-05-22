@@ -10,6 +10,8 @@
 #include "memory.h"
 #include "Player.h"
 
+#pragma warning(disable:6385)
+
 namespace WarAnts
 {
 
@@ -117,6 +119,14 @@ VirtualMachine::Argument VirtualMachine::getRegisterArgument()
 
     if (out.adr)
     {
+        if (m_registers[out.reg] < 0)
+        {
+            LOGE("Command %02x (%04x): invalide address 0x04x",
+                m_bcode[m_pos - 2], m_pos - 1, m_registers[out.reg]);
+            out.ptr = nullptr;
+            return out;
+        }
+
         if ((size_t)m_registers[out.reg] >= m_memory.size())
         {
             LOGE("Command %02x (%04x): invalide address 0x04x",
@@ -579,17 +589,31 @@ void VirtualMachine::setDstAndFlags(int16_t* dst, int32_t value)
 
 bool VirtualMachine::checkLVal(const VirtualMachine::Argument& arg)
 {
-    sdfgsdfgsd
-    if (!arg.adr)
+    if (!arg.ptr)
     {
-        LOGE("Offset %04x: the address 0x04x is null", arg.offset, m_registers[arg.reg]);
+        LOGE("Offset %04x: the pointer is null (reg 0x%02x)", arg.offset, arg.reg);
         return false;
     }
 
-    if (arg.adr && m_registers[arg.reg] <= Memory::ReadOnly)
+    if (arg.ptr)
     {
-        LOGE("Offset %04x: the address 0x04x is readonly", arg.offset, m_registers[arg.reg]);
-        return false;
+        if (arg.ptr <= m_memory.data())
+        {
+            LOGE("Offset %04x: the address 0x04x is fault", arg.offset, m_registers[arg.reg]);
+            return false;
+        }
+
+        if (arg.ptr <= &m_memory[Memory::ReadOnly])
+        {
+            LOGE("Offset %04x: the address 0x04x is readonly", arg.offset, m_registers[arg.reg]);
+            return false;
+        }
+
+        if (arg.ptr >= m_memory.data() + m_memory.size())
+        {
+            LOGE("Offset %04x: the address 0x04x is readonly", arg.offset, m_registers[arg.reg]);
+            return false;
+        }
     }
 
     return true;
