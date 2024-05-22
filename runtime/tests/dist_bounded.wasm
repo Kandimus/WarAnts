@@ -1,0 +1,86 @@
+%core "0100"
+%name "Lenght calculation test. Map is bounded"
+%version "1"
+%class "black"
+
+; Ant on <2, 2>
+
+.Test_LEN
+    ; init
+    mov   [30h], 0
+    mov   [31h], 1
+
+    ; 1
+    ; dist to <0, 2> = 2
+    inc   [30h]
+    mov   p0:x, 0 
+    mov   p0:y, 2
+    dist  p0
+    eq    r2, 2
+    jf    abort
+    
+    ; 2
+    ; dist to <2, 5> = 3
+    inc   [30h]
+    mov   p0:x, 2 
+    mov   p0:y, 5
+    dist  p0
+    eq    r2, 3
+    jf    abort
+    
+    ; 3
+    ; dist to <6, 12> = 11
+    inc   [30h]
+    mov   p0:x, 6
+    mov   p0:y, 12
+    dist  p0
+    eq    r2, 11
+    jf    abort
+    
+    ; 4
+    ; len from <0, 0> to <0, 2> = 2
+    inc   [30h]
+    mov   p0:x, 0
+    mov   p0:y, 0
+    mov   p1:x, 0
+    mov   p1:y, 2
+    len   p1, p0
+    eq    r2, 2
+    jf    abort
+    
+    ; 5
+    ; len from <0, 14> to <14, 0> = 20
+    inc   [30h]
+    mov   p0:x, 0
+    mov   p0:y, 14
+    mov   p1:x, 14
+    mov   p1:y, 0
+    len   p1, p0
+    eq    r2, 20
+    jf    abort
+    
+    ; 6
+    ; len from <-2, -5> to <4, 8> = 14
+    inc   [30h]
+    mov   p0:x, -2
+    mov   p0:y, -5
+    mov   p1:x, 4
+    mov   p1:y, 8
+    len   p1, p0
+    eq    r2, 14
+    jf    abort
+    RET
+    
+abort:
+    mov   [49], 0
+    RET
+
+.worker
+    call Test_LEN
+    RET
+
+.solder
+    RET
+
+.queen
+    RET

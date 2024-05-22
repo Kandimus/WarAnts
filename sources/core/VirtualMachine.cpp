@@ -121,16 +121,16 @@ VirtualMachine::Argument VirtualMachine::getRegisterArgument()
     {
         if (m_registers[out.reg] < 0)
         {
-            LOGE("Command %02x (%04x): invalide address 0x04x",
-                m_bcode[m_pos - 2], m_pos - 1, m_registers[out.reg]);
+            LOGE("Command %02x (%04x): invalide address 0x04x", m_bcode[m_pos - 2],
+                m_pos - 1, m_registers[out.reg]);
             out.ptr = nullptr;
             return out;
         }
 
         if ((size_t)m_registers[out.reg] >= m_memory.size())
         {
-            LOGE("Command %02x (%04x): invalide address 0x04x",
-                m_bcode[m_pos - 2], m_pos - 1, m_registers[out.reg]);
+            LOGE("Command %02x (%04x): invalide address 0x04x", m_bcode[m_pos - 2],
+                m_pos - 1, m_registers[out.reg]);
             out.ptr = nullptr;
             return out;
         }
@@ -223,8 +223,8 @@ bool VirtualMachine::run()
             case Asm::BCode::TEST: result = logical(cmd); break;
 
             case Asm::BCode::MOV:  result = arithmetic2(cmd); break;
-//                LEN,
-//                DIST,
+            case Asm::BCode::LEN:  result = length(cmd); break;
+            case Asm::BCode::DIST: result = length(cmd); break;
             case Asm::BCode::RET:
                 if (m_callstack.empty())
                 {
@@ -578,6 +578,39 @@ bool VirtualMachine::value1(uint8_t cmd, uint16_t value, uint8_t valueType)
     return true;
 }
 
+bool VirtualMachine::length(int8_t cmd)
+{
+    auto argTo   = getRegisterArgument();
+    
+    if (!argTo.pos)
+    {
+        LOGE("Offset %04x: is not a position (reg 0x%02x)", argTo.offset, argTo.reg);
+        return false;
+    }
+    Position posTo(argTo.ptr[0], argTo.ptr[1]);
+
+    Position posFrom = m_ant->position();
+    if (cmd == Asm::BCode::LEN)
+    {
+        auto argFrom = getRegisterArgument();
+
+        if (!argFrom.pos)
+        {
+            LOGE("Offset %04x: is not a position (reg 0x%02x)", argFrom.offset, argFrom.reg);
+            return false;
+        }
+
+        posFrom.init(argFrom.ptr[0], argFrom.ptr[1]);
+    }
+
+    m_registers[Asm::Register::R2] = static_cast<int16_t>(Math::distanceTo(posFrom, posTo));
+
+    int16_t fakeDst = 0;
+    setDstAndFlags(&fakeDst, m_registers[Asm::Register::R2]);
+
+    return true;
+}
+
 void VirtualMachine::setDstAndFlags(int16_t* dst, int32_t value)
 {
     *dst = value & 0xffff;
@@ -597,21 +630,9 @@ bool VirtualMachine::checkLVal(const VirtualMachine::Argument& arg)
 
     if (arg.ptr)
     {
-        if (arg.ptr <= m_memory.data())
+        if (arg.adr && arg.ptr <= m_memory.data())
         {
-            LOGE("Offset %04x: the address 0x04x is fault", arg.offset, m_registers[arg.reg]);
-            return false;
-        }
-
-        if (arg.ptr <= &m_memory[Memory::ReadOnly])
-        {
-            LOGE("Offset %04x: the address 0x04x is readonly", arg.offset, m_registers[arg.reg]);
-            return false;
-        }
-
-        if (arg.ptr >= m_memory.data() + m_memory.size())
-        {
-            LOGE("Offset %04x: the address 0x04x is readonly", arg.offset, m_registers[arg.reg]);
+            LOGE("Offset %04x: the address 0x%04x is fault", arg.offset, m_registers[arg.reg]);
             return false;
         }
     }

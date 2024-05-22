@@ -29,7 +29,7 @@
 ; 0x40..0x4f position of food/allies/enemies
 
 .Test_FOOD
-    inc   [3D0h]
+    inc   [30h]
     ; food on <4, 0>
     mov   [40h], 4
     mov   [41h], 0
@@ -47,7 +47,7 @@
     eq    rc, 2
     jf    abort
     xor   r0, r0
-
+    
 begin_loop:
     ldfd  rc
     eq    <1Ch>, <40h>
@@ -91,7 +91,7 @@ abort:
     eq    rc, 1
     jf    abort
     xor   r0, r0
-
+    
 begin_loop:
     ldal  rc
     eq    <19h>, <40h>
@@ -140,7 +140,7 @@ abort:
     eq    rc, 3
     jf    abort
     xor   r0, r0
-
+    
 begin_loop:
     lden  rc
     eq    <15h>, <40h>

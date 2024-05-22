@@ -54,6 +54,7 @@ protected:
     bool logical(uint8_t cmd);
     bool jump(uint8_t cmd, uint16_t offset, uint8_t offsetType);
     bool value1(uint8_t cmd, uint16_t offset, uint8_t offsetType);
+    bool length(int8_t cmd);
     void setDstAndFlags(int16_t* dst, int32_t value);
     bool checkLVal(const Argument& arg);
     bool bsf(int16_t* bitno, int16_t src);

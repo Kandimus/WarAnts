@@ -347,3 +347,10 @@ TEST_CASE("load", "[VM]")
     CHECK(ant->getValue(49) == 1);
 }
 
+TEST_CASE("dist", "[VM]")
+{
+    auto ant = runBCode(true, "dist_bounded.wasm");
+    CHECK(ant->getValue(48) == 6);
+    CHECK(ant->getValue(49) == 1);
+}
+
