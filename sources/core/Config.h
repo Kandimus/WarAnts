@@ -1,7 +1,6 @@
 #pragma once
 
 #include <string>
-#include "nlohmann/json.hpp"
 
 #define CONFIG_PARAMETER(t, x, d) public: t x() const { return m_##x; } protected: t m_##x = d;
 
@@ -25,6 +24,8 @@ public:
     CONFIG_PARAMETER(bool, isBounded, true)
     CONFIG_PARAMETER(uint32_t, workerCountOfStart, 5)
     CONFIG_PARAMETER(uint32_t, solderCountOfStart, 3)
+
+    CONFIG_PARAMETER(uint16_t, commandRadius, 3)
 
     CONFIG_PARAMETER(std::string, antsFileSettings, "ants/default.json")
 

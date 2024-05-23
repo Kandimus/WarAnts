@@ -47,6 +47,7 @@
     <ClInclude Include="Config.h" />
     <ClInclude Include="Direction.h" />
     <ClInclude Include="Hardware.h" />
+    <ClInclude Include="jsonhelper.h" />
     <ClInclude Include="Map.h" />
     <ClInclude Include="MapMath.h" />
     <ClInclude Include="memory.h" />
@@ -63,6 +64,7 @@
     <ClCompile Include="battlelog\TextScreenProvider.cpp" />
     <ClCompile Include="Cell.cpp" />
     <ClCompile Include="Config.cpp" />
+    <ClCompile Include="jsonhelper.cpp" />
     <ClCompile Include="Map.cpp" />
     <ClCompile Include="MapMath.cpp" />
     <ClCompile Include="Player.cpp" />

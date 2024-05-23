@@ -238,11 +238,11 @@ void Battle::doAntCommand(AntPtr ant)
 
     switch(cmd.m_type)
     {
-        case CommandType::Idle: break;
-        case CommandType::Move: commandMove(ant); break;
-        case CommandType::Attack: commandAttack(ant); break;
-        case CommandType::MoveAndIdle: commandMoveAndIdle(ant); break;
-        case CommandType::MoveAndAttack: commandMoveAndAttack(ant);break;
+        case CommandType::Idle: commandIdle(*ant); break;
+        //case CommandType::MovePos: commandMove(ant); break;
+        //case CommandType::Attack: commandAttack(ant); break;
+        //case CommandType::MoveAndIdle: commandMoveAndIdle(ant); break;
+        //case CommandType::MoveAndAttack: commandMoveAndAttack(ant);break;
 //		case CommandType::MoveToFood: doAntMoveToFood(ant); break;
 //		case CommandType::Attack: doAntAttack(ant); break;
 //		case CommandType::MoveAndAttack: doAntMoveAndAttack(ant); break;
@@ -260,6 +260,13 @@ void Battle::doAntCommand(AntPtr ant)
     //}
 }
 
+bool Battle::commandIdle(Ant& ant)
+{
+    if (ant.command().m_value >= 0)
+    {
+        --ant.command().m_value;
+    }
+}
 
 //void Battle::commandAntExplore(AntSharedPtr& ant)
 //{
@@ -275,6 +282,7 @@ void Battle::doAntCommand(AntPtr ant)
 //	--ant->command().count;
 //}
 
+/*
 bool Battle::commandMove(AntPtr ant)
 {
     auto dirToPoint = Math::directionTo(ant->position(), ant->command().m_pos);
@@ -325,13 +333,12 @@ bool Battle::commandMoveAndAttack(AntPtr ant)
 {
     if (commandMove(ant))
     {
-        int16_t userdata = ant->command().m_userData;
-        ant->clearCommand();
-        ant->setCommand(CommandType::Attack, 0, 0, userdata);
-        LOGD("ant new command Attack");
+        //ant->setCommand(CommandType::Attack, 0, 0);
+        LOGD("The ant got the new command: Attack");
     }
     return false;
 }
+*/
 
 /// \brief Moving the ant to the nearest food and do eating it
 ///

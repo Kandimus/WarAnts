@@ -1,5 +1,6 @@
 #include "Ant.h"
 
+#include "jsonhelper.h"
 #include "memory.h"
 
 namespace WarAnts
@@ -19,15 +20,17 @@ std::string AntTypeToString(AntType type)
 Ant::Ant(const nlohmann::json& json, AntType type)
 {
     m_type = type;
-    m_maxHealth = json.contains("health") ? static_cast<int16_t>(json["health"]) : 1;
-    m_attack = json["attack"];
-    m_visibility = json.contains("visibility") ? static_cast<int16_t>(json["visibility"]) : m_visibility;
-    m_maxSatiety = json["satiety"];
-    m_eatPerTurn = json.contains("ept") ? static_cast<int16_t>(json["ept"]) : m_eatPerTurn;
-    m_maxCargo = json.contains("cargo") ? static_cast<int16_t>(json["cargo"]) : m_maxCargo;
-    m_sizeOfMemory = json.contains("memory") ? static_cast<int16_t>(json["memory"]) : m_sizeOfMemory;
-    m_turnToSolder = json.contains("solder") ? static_cast<int16_t>(json["solder"]) : m_turnToSolder;
-    m_turnToWorker = json.contains("worker") ? static_cast<int16_t>(json["worker"]) : m_turnToWorker;
+    m_maxHealth = JsonHelper::getValue1<int16_t>(json, "health", m_maxHealth, 1, 0x7fff);
+    m_attack = JsonHelper::getValue1<int16_t>(json, "attack", m_attack, 1, 0x7fff);
+    m_visibility = JsonHelper::getValue1<int16_t>(json, "visibility", m_visibility, 1, 0x7fff);
+    m_maxSatiety = JsonHelper::getValue1<int16_t>(json, "satiety", m_maxSatiety, 1, 0x7fff);
+    m_redicedSatiety = JsonHelper::getValue1<int16_t>(json, "RedicedSatiety", m_redicedSatiety, 1, 0x7fff);
+    m_foodPerTurn = JsonHelper::getValue1<int16_t>(json, "FoodPerTurn", m_foodPerTurn, 0, 0x7fff);
+    m_hungerDamage = JsonHelper::getValue1<int16_t>(json, "HungerDamage", m_hungerDamage, 1, 0x7fff);
+    m_maxCargo = JsonHelper::getValue1<int16_t>(json, "cargo", m_maxCargo, 0, 0x7fff);
+    m_sizeOfMemory = JsonHelper::getValue1<int16_t>(json, "memory", m_sizeOfMemory, 0, 256);
+    m_turnToSolder = JsonHelper::getValue1<int16_t>(json, "solder", m_turnToSolder, 0, 0x7fff);
+    m_turnToWorker = JsonHelper::getValue1<int16_t>(json, "worker", m_turnToWorker, 0, 0x7fff);
 
     m_memory.clear();
     m_memory.resize(Memory::UserData + m_sizeOfMemory);
@@ -57,12 +60,12 @@ bool Ant::beginTurn()
 
 bool Ant::endTurn()
 {
-    m_satiety -= m_eatPerTurn;
+    m_satiety -= m_redicedSatiety;
 
-    if (m_satiety <= 0)
+    if (m_satiety < 0)
     {
         m_satiety = 0;
-        --m_health;
+        m_health -= m_hungerDamage;
     }
 
     return checkDie();

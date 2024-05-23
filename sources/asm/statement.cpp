@@ -283,8 +283,8 @@ bool Statement::compile(Code* code)
         case AsmCommand::CTKF: compile1Args(BCode::CTKF, Table::Position, code); break;
         case AsmCommand::CGVF: compile1Args(BCode::CGVF, Table::Position, code); break;
         case AsmCommand::CEAT: compile1Args(BCode::CEAT, Table::RValNP,   code); break;
-        case AsmCommand::CPS:  compileNoArgs(BCode::CPS, code); break;
-        case AsmCommand::CPW:  compileNoArgs(BCode::CPW, code); break;
+        case AsmCommand::CCSL: compileNoArgs(BCode::CCSL, code); break;
+        case AsmCommand::CCWR: compileNoArgs(BCode::CCWR, code); break;
 
         case AsmCommand::NOP:  compileNoArgs(BCode::NOP, code); break;
 
@@ -470,8 +470,8 @@ void Statement::print(std::ofstream& file) const
         case AsmCommand::CTKF: print1Expr(file, "CTKF", m_dst); break;
         case AsmCommand::CGVF: print1Expr(file, "CGVF", m_dst); break;
         case AsmCommand::CEAT: print1Expr(file, "CEAT", m_src); break;
-        case AsmCommand::CPS:  print0Expr(file, "CPS"); break;
-        case AsmCommand::CPW:  print0Expr(file, "CPW"); break;
+        case AsmCommand::CCSL: print0Expr(file, "CCSL"); break;
+        case AsmCommand::CCWR: print0Expr(file, "CCWR"); break;
 
         case AsmCommand::NOP:  print0Expr(file, "NOP"); break;
         default:

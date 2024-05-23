@@ -222,8 +222,8 @@ int  yylex();
      CTKF = 346,
      CGVF = 347,
      CEAT = 348,
-     CPS = 349,
-     CPW = 350
+     CCSL = 349,
+     CCWR = 350
    };
 #endif
 
@@ -648,7 +648,7 @@ static const char *const yytname[] =
   "ROR", "EQ", "NEQ", "GT", "GE", "LT", "LE", "TEST", "JMP", "JZ", "JNZ",
   "JT", "JF", "JO", "JNO", "JS", "JNS", "JCZ", "JCNZ", "LOOP", "CALL",
   "MOV", "LEN", "DIST", "RET", "LDRC", "LDFD", "LDEN", "LDAL", "CIDL",
-  "CMOV", "CATT", "CTKF", "CGVF", "CEAT", "CPS", "CPW", "$accept",
+  "CMOV", "CATT", "CTKF", "CGVF", "CEAT", "CCSL", "CCWR", "$accept",
   "asm_file", "asm_code", "$@1", "list_of_pragmas", "pragma_definition",
   "$@2", "pragma", "define_declaration", "list_of_defines",
   "define_definition", "list_of_asm_functions", "asm_function",
@@ -2454,7 +2454,7 @@ yyreduce:
 
   case 145:
 
-    { (yyval.TSTATETMENT) = new WarAnts::Asm::Statement(WarAnts::Asm::AsmCommand::CPS  ,              yy_code.get()); ;}
+    { (yyval.TSTATETMENT) = new WarAnts::Asm::Statement(WarAnts::Asm::AsmCommand::CCSL ,              yy_code.get()); ;}
     break;
 
   case 146:
@@ -2464,7 +2464,7 @@ yyreduce:
 
   case 147:
 
-    { (yyval.TSTATETMENT) = new WarAnts::Asm::Statement(WarAnts::Asm::AsmCommand::CPW  ,              yy_code.get()); ;}
+    { (yyval.TSTATETMENT) = new WarAnts::Asm::Statement(WarAnts::Asm::AsmCommand::CCWR ,              yy_code.get()); ;}
     break;
 
   case 148:

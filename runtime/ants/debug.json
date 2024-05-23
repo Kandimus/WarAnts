@@ -5,7 +5,9 @@
       "attack": 5,
       "visibility": 5,
       "satiety": 15,
-      "ept": 1,
+      "RedicedSatiety": 1,
+      "HungerDamage": 1,
+      "FoodPerTurn": 10,
       "cargo": 20,
       "memory":  16
     },
@@ -14,7 +16,8 @@
       "attack": 7,
       "visibility": 5,
       "satiety": 10,
-      "ept": 1,
+      "RedicedSatiety": 1,
+      "HungerDamage": 1,
       "memory": 8
     },
     "queen": {
@@ -22,7 +25,8 @@
       "attack": 8,
       "visibility": 10,
       "satiety": 40,
-      "ept": 1,
+      "RedicedSatiety": 1,
+      "HungerDamage": 1,
       "solder": 1,
       "worker": 1,
       "memory": 32

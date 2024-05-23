@@ -34,6 +34,19 @@ enum class AntStatus
     Dead,
 };
 
+
+namespace Interrupt
+{
+
+enum Type : int16_t
+{
+    CommandAbort = 0x0001,
+    CommandFinished = 0x0002,
+    Attack = 0x0004,
+};
+
+}
+
 std::string AntTypeToString(AntType type);
 
 class Ant
@@ -92,6 +105,11 @@ public:
     PlayerPtr player() const { return m_player; }
     void setPlayer(PlayerPtr player) { m_player = player; }
 
+    inline int16_t interruptFlags() const { return m_interruptFlags; }
+    inline void setInterruptFlags(int16_t val) { m_interruptFlags = val; }
+    inline int16_t interruptReason() const { return m_interruptReason; }
+    inline void setInterruptReason(int16_t val) { m_interruptReason = val; }
+
     bool damage(int16_t damage);
 
     bool beginTurn();
@@ -99,10 +117,7 @@ public:
 
     uint32_t lifeCount() const { return m_lifeCount; }
 
-    std::string getString() const
-    {
-        return su::String_format("#%i");
-    }
+    std::string getString() const { return su::String_format("#%i"); }
 
 protected:
     bool checkDie();
@@ -112,7 +127,6 @@ protected:
     AntType m_type = AntType::Worker;
     Position m_pos = 0;
     AntStatus m_status = AntStatus::Life;
-    //    bool m_isFight;
     int16_t m_maxSatiety = 0;
     int16_t m_satiety = 0;
     int16_t m_maxHealth = 0;
@@ -121,11 +135,15 @@ protected:
     int16_t m_visibility = 25;
     int16_t m_maxCargo = 0;
     int16_t m_cargo = 0;
-    int8_t m_eatPerTurn = 1;
-    int8_t m_turnToWorker = 0;
-    int8_t m_turnToSolder = 0;
-    int8_t m_sizeOfMemory = 8;
+    int16_t m_redicedSatiety = 1;
+    int16_t m_hungerDamage = 1;
+    int16_t m_foodPerTurn = 10; // How much food can the ant eat/take/feed per turn
+    int16_t m_turnToWorker = 0;
+    int16_t m_turnToSolder = 0;
+    int16_t m_sizeOfMemory = 8;
     std::vector<su::UniInt64> m_received; //TODO clear up after calling vm.run
+    int16_t m_interruptFlags = 0;
+    int16_t m_interruptReason = Interrupt::CommandAbort | Interrupt::CommandFinished;
 
     AntCommand m_command;
     PlayerPtr m_player;

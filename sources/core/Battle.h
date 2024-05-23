@@ -35,6 +35,7 @@ protected:
     void runBcode(const AntPtr& ant);
 
     void doAntCommand(AntPtr ant);
+    bool commandIdle(Ant& ant);
     bool commandMove(AntPtr ant);
     bool commandAttack(AntPtr ant);
     bool commandMoveAndIdle(AntPtr ant);

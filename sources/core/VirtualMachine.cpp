@@ -86,12 +86,20 @@ void VirtualMachine::prepare()
     // Clear system data
     memset(m_memory.data(), 0, sizeof(int16_t) * Memory::UserData);
 
-    m_ant->setValue(Memory::SatietyPercent, int16_t(m_ant->satietyPercent() * 10));
-    m_ant->setValue(Memory::HealthPercent, int16_t(m_ant->healthPercent() * 10));
-    m_ant->setValue(Memory::Cargo, m_ant->cargo());
-    m_ant->setValue(Memory::CountOfAllies, (int16_t)m_allies.size());
-    m_ant->setValue(Memory::CountOfEnemies, (int16_t)m_enemies.size());
-    m_ant->setValue(Memory::CountOfFoods, (int16_t)m_foods.size());
+    m_memory[Memory::SatietyPercent] = int16_t(m_ant->satietyPercent() * 10);
+    m_memory[Memory::HealthPercent] = int16_t(m_ant->healthPercent() * 10);
+    m_memory[Memory::Cargo] = m_ant->cargo();
+    m_memory[Memory::CountOfAllies] = (int16_t)m_allies.size();
+    m_memory[Memory::CountOfEnemies] = (int16_t)m_enemies.size();
+    m_memory[Memory::CountOfFoods] = (int16_t)m_foods.size();
+    m_memory[Memory::CountOfReceivedData] = (int16_t)m_ant->receivedData().size();
+    //CountOfWorkers = 0x09,
+    //CountOfSolders = 0x0a,
+    //InterruptReason = 0x0b,
+    m_memory[Memory::CommandId] = (int16_t)m_ant->command().m_type;
+    m_memory[Memory::CommandX] = (int16_t)m_ant->command().m_pos.x();
+    m_memory[Memory::CommandY] = (int16_t)m_ant->command().m_pos.y();
+    m_memory[Memory::CommandValue] = (int16_t)m_ant->command().m_value;
 }
 
 VirtualMachine::Argument VirtualMachine::getRegisterArgument()
@@ -152,7 +160,7 @@ bool VirtualMachine::run()
     
     m_callstack.clear();
 
-    while (true)
+    while (!exit)
     {
         cmd = getNextChar();
 
@@ -232,8 +240,8 @@ bool VirtualMachine::run()
             case Asm::BCode::CATT: result = commandPositionArg(cmd); break;
             case Asm::BCode::CTKF: result = commandPositionArg(cmd); break;
             case Asm::BCode::CGVF: result = commandPositionArg(cmd); break;
-//                CPS,
-//                CP
+            case Asm::BCode::CCSL: result = commandNoArgs(cmd); break;
+            case Asm::BCode::CCWR: result = commandNoArgs(cmd); break;
 
             case Asm::BCode::JMP:  result = jump(cmd, value.i16, valType); break;
             case Asm::BCode::JZ:   result = jump(cmd, value.i16, valType); break;
@@ -255,16 +263,14 @@ bool VirtualMachine::run()
             case Asm::BCode::CEAT: result = value1(cmd, value.i16, valType); break;
         }
 
-        if (exit)
-        {
-            return result;
-        }
-
         if (!result)
         {
             return false;
         }
     }
+
+    m_ant->setInterruptFlags(m_memory[Memory::InterruptFlags]);
+    
 
     SU_BREAKPOINT();
     LOGE("Unexpected return");
@@ -569,8 +575,8 @@ bool VirtualMachine::value1(uint8_t cmd, uint16_t value, uint8_t valueType)
         case Asm::BCode::LDFD: result = loadFood(value); break;
         case Asm::BCode::LDEN: result = loadEnemy(value); break;
         case Asm::BCode::LDAL: result = loadAlly(value); break;
-//        case Asm::BCode::CIDL: result = commandIdle(value); break;
-//        case Asm::BCode::CEAT: result = commandEat(value); break;
+        case Asm::BCode::CIDL: result = true; m_ant->setCommand(AntCommand(CommandType::Idle, value)); break;
+        case Asm::BCode::CEAT: result = true; m_ant->setCommand(AntCommand(CommandType::Eat, value)); break;
         default:
             LOGE("Command %02x (%04x): Undefined the logical command", (int)cmd, cmdPos);
             SU_BREAKPOINT();
@@ -641,10 +647,10 @@ bool VirtualMachine::commandPositionArg(int8_t cmd)
 
     switch (cmd)
     {
-        case Asm::BCode::CMOV: m_ant->setCommand(AntCommand(CommandType::MoveAndIdle, pos)); break;
-        case Asm::BCode::CATT: m_ant->setCommand(AntCommand(CommandType::MoveAndAttack, pos)); break;
-        case Asm::BCode::CTKF: m_ant->setCommand(AntCommand(CommandType::MoveAndTakeFood, pos)); break;
-        case Asm::BCode::CGVF: m_ant->setCommand(AntCommand(CommandType::MoveAndFeed, pos)); break;
+        case Asm::BCode::CMOV: m_ant->setCommand(AntCommand(CommandType::MovePos, pos)); break;
+        case Asm::BCode::CATT: m_ant->setCommand(AntCommand(CommandType::Attack, pos)); break;
+        case Asm::BCode::CTKF: m_ant->setCommand(AntCommand(CommandType::TakeFood, pos)); break;
+        case Asm::BCode::CGVF: m_ant->setCommand(AntCommand(CommandType::Feed, pos)); break;
         default:
             LOGE("Command %02x (%04x): Undefined the position command", (int)cmd, cmdPos);
             SU_BREAKPOINT();
@@ -656,6 +662,18 @@ bool VirtualMachine::commandPositionArg(int8_t cmd)
 
 bool VirtualMachine::commandNoArgs(int8_t cmd)
 {
+    auto cmdPos = pos() - 1;
+
+    switch (cmd)
+    {
+        case Asm::BCode::CCSL: m_ant->setCommand(AntCommand(CommandType::CreateSolder)); break;
+        case Asm::BCode::CCWR: m_ant->setCommand(AntCommand(CommandType::CreateWorker)); break;
+        default:
+            LOGE("Command %02x (%04x): Undefined the command", (int)cmd, cmdPos);
+            SU_BREAKPOINT();
+            return false;
+    }
+    return true;
 }
 
 void VirtualMachine::setDstAndFlags(int16_t* dst, int32_t value)

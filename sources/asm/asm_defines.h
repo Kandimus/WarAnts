@@ -250,7 +250,7 @@ enum Command : uint8_t
     CTKF,
     CGVF,
     CCSL,
-    CSWR,
+    CCWR,
 
     JMP = 0x40,
     JZ = 0x42,

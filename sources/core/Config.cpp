@@ -1,24 +1,10 @@
 #include "Config.h"
 #include <fstream>
 
+#include "jsonhelper.h"
+
 namespace WarAnts
 {
-
-template<typename T>
-static T getJsonValue1(const nlohmann::json& json, const std::string& param, const T& defval)
-{
-    return json.contains(param)
-        ? static_cast<T>(json[param])
-        : defval;
-}
-
-template<typename T>
-static T getJsonValue2(const nlohmann::json& json, const std::string& folder, const std::string& param, const T& defval)
-{
-    return (json.contains(folder) && json[folder].contains(param))
-        ? static_cast<T>(json[folder][param])
-        : defval;
-}
 
 Config::Config()
 {
@@ -37,15 +23,17 @@ Config::Config(const std::string& filename) : m_filename(filename)
 
     file >> json;
 
-    m_width = getJsonValue2<uint32_t>(json, "map", "width", m_width);
-    m_height = getJsonValue2<uint32_t>(json, "map", "height", m_height);
-    m_stoneOnMap = getJsonValue2<float>(json, "map", "stone", m_stoneOnMap);
-    m_foodOnMap = getJsonValue2<float>(json, "map", "food", m_foodOnMap);
-    m_isBounded = getJsonValue2<bool>(json, "map", "borders", m_isBounded);
-    m_workerCountOfStart = getJsonValue2<uint32_t>(json, "map", "worker_count", m_workerCountOfStart);
-    m_solderCountOfStart = getJsonValue2<uint32_t>(json, "map", "solder_count", m_solderCountOfStart);
+    m_width = JsonHelper::getValue2<uint32_t>(json, "map", "width", m_width, 15, 1000);
+    m_height = JsonHelper::getValue2<uint32_t>(json, "map", "height", m_height, 15, 1000);
+    m_stoneOnMap = JsonHelper::getValue2<float>(json, "map", "stone", m_stoneOnMap, 0, 50);
+    m_foodOnMap = JsonHelper::getValue2<float>(json, "map", "food", m_foodOnMap, 0, 45);
+    m_isBounded = JsonHelper::getValue2<bool>(json, "map", "borders", m_isBounded, false, true);
+    m_workerCountOfStart = JsonHelper::getValue2<uint32_t>(json, "map", "worker_count", m_workerCountOfStart, 1, 0x7fff);
+    m_solderCountOfStart = JsonHelper::getValue2<uint32_t>(json, "map", "solder_count", m_solderCountOfStart, 1, 0x7fff);
 
-    m_antsFileSettings = getJsonValue1<std::string>(json, "ants", m_antsFileSettings);
+    m_antsFileSettings = JsonHelper::getValue1<std::string>(json, "ants", m_antsFileSettings);
+
+    m_commandRadius = JsonHelper::getValue2<int16_t>(json, "bcode", "CommandRadius", m_commandRadius, 1, 0x7fff);
 
     m_isInit = true;
 }
