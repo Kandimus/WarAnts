@@ -8,6 +8,7 @@
 
 #include "nlohmann/json.hpp"
 #include "stringex.h"
+#include "uniint.h"
 
 #include "AntCommand.h"
 
@@ -79,6 +80,9 @@ public:
     void incValue(size_t idx) { if (idx < m_memory.size()) ++m_memory[idx]; }
     std::vector<int16_t>& memory() { return m_memory; }
 
+    su::UniInt64 getReceivedData(size_t val) const { return val < m_received.size() ? m_received[val] : su::UniInt64(0); }
+    const std::vector<su::UniInt64>& receivedData() const { return m_received; }
+
     uint32_t id() const { return m_id; }
     void setId(uint32_t id) { m_id = id; }
 
@@ -121,6 +125,7 @@ protected:
     int8_t m_turnToWorker = 0;
     int8_t m_turnToSolder = 0;
     int8_t m_sizeOfMemory = 8;
+    std::vector<su::UniInt64> m_received; //TODO clear up after calling vm.run
 
     AntCommand m_command;
     PlayerPtr m_player;

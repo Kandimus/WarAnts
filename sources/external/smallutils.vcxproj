@@ -46,6 +46,7 @@
     <ClInclude Include="smallUtils\threadpool.h" />
     <ClInclude Include="smallUtils\translator.h" />
     <ClInclude Include="smallUtils\translatorManager.h" />
+    <ClInclude Include="smallUtils\uniint.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="smallUtils\filesystem.cpp" />

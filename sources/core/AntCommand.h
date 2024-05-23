@@ -15,13 +15,23 @@ enum class CommandType
     MoveAndIdle,
     MoveAndEat,
     MoveAndAttack,
+    MoveAndTakeFood,
     MoveAndFeed,
+
+    CreateSolder,
+    CreateWorker,
 };
 
 class AntCommand
 {
 public:
     AntCommand() = default;
+    AntCommand(CommandType cmd, const Position& pos)
+        : m_type(cmd), m_pos(pos)
+    {}
+    AntCommand(CommandType cmd, int16_t x, int16_t y)
+        : m_type(cmd), m_pos(x, y)
+    {}
 
     void set(CommandType cmd, int16_t x, int16_t y, int16_t userdata)
     {

@@ -129,8 +129,8 @@ comment   ";"[^\n\r]*
 "ctkf"                      { return CTKF; }
 "cgvf"                      { return CGVF; }
 "ceat"                      { return CEAT; }
-"cps"                       { return CPS; }
-"spw"                       { return CPW; }
+"ccsl"                      { return CCSL; }
+"ccwr"                      { return CCWR; }
 
 {id}                        { return ID; }
 

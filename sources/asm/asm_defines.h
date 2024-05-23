@@ -9,25 +9,6 @@
 namespace WarAnts
 {
 
-union UniInt16
-{
-    int16_t  i16;
-    uint16_t u16;
-    uint8_t  u8[2];
-    int8_t   i8[2];
-};
-
-union UniInt32
-{
-    int32_t  i32;
-    uint32_t u32;
-    uint16_t u16[2];
-    int16_t  i16[2];
-    uint8_t  u8[4];
-    int8_t   i8[4];
-};
-
-
 namespace Asm
 {
 
@@ -173,8 +154,8 @@ enum class AsmCommand
     CTKF,
     CGVF,
     CEAT,
-    CPS,
-    CPW,
+    CCSL,
+    CCWR,
 
     NOP
 };
@@ -268,8 +249,8 @@ enum Command : uint8_t
     CATT,
     CTKF,
     CGVF,
-    CPS,
-    CPW,
+    CCSL,
+    CSWR,
 
     JMP = 0x40,
     JZ = 0x42,

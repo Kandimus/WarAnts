@@ -111,7 +111,7 @@ VirtualMachine::Argument VirtualMachine::getRegisterArgument()
     }
     else if (out.reg == Asm::Register::SHORT)
     {
-        UniInt16 val = { 0 };
+        su::UniInt16 val = { 0 };
         val.i8[0] = m_bcode[m_pos++];
         val.i8[1] = m_bcode[m_pos++];
         m_registers[Asm::Register::SHORT] = val.i16;
@@ -146,8 +146,9 @@ bool VirtualMachine::run()
     int16_t* dst = 0;
     int16_t src = 0;
     uint8_t valType = 0;
-    UniInt16 value = { 0 };
+    su::UniInt16 value = { 0 };
     bool result = true;
+    bool exit = false;
     
     m_callstack.clear();
 
@@ -225,22 +226,15 @@ bool VirtualMachine::run()
             case Asm::BCode::MOV:  result = arithmetic2(cmd); break;
             case Asm::BCode::LEN:  result = length(cmd); break;
             case Asm::BCode::DIST: result = length(cmd); break;
-            case Asm::BCode::RET:
-                if (m_callstack.empty())
-                {
-                    return true;
-                }
-                setPos(m_callstack.back());
-                m_callstack.pop_back();
-                break;
-/*
-                CMOV,
-                CATT,
-                CTKF,
-                CGVF,
-                CPS,
-                CPW,
-*/
+            case Asm::BCode::RET:  result = ret(exit); break;
+
+            case Asm::BCode::CMOV: result = commandPositionArg(cmd); break;
+            case Asm::BCode::CATT: result = commandPositionArg(cmd); break;
+            case Asm::BCode::CTKF: result = commandPositionArg(cmd); break;
+            case Asm::BCode::CGVF: result = commandPositionArg(cmd); break;
+//                CPS,
+//                CP
+
             case Asm::BCode::JMP:  result = jump(cmd, value.i16, valType); break;
             case Asm::BCode::JZ:   result = jump(cmd, value.i16, valType); break;
             case Asm::BCode::JNZ:  result = jump(cmd, value.i16, valType); break;
@@ -261,12 +255,19 @@ bool VirtualMachine::run()
             case Asm::BCode::CEAT: result = value1(cmd, value.i16, valType); break;
         }
 
+        if (exit)
+        {
+            return result;
+        }
+
         if (!result)
         {
             return false;
         }
     }
 
+    SU_BREAKPOINT();
+    LOGE("Unexpected return");
     return true;
 }
 
@@ -287,7 +288,7 @@ void VirtualMachine::setRF(int16_t bit, bool value)
 
 bool VirtualMachine::arithmetic1(uint8_t cmd)
 {
-    auto cmdPos = pos();
+    auto cmdPos = pos() - 1;
     auto dst = getRegisterArgument();
 
     CHECK_LVAL(dst);
@@ -329,7 +330,7 @@ bool VirtualMachine::arithmetic1(uint8_t cmd)
 
 bool VirtualMachine::arithmetic2(uint8_t cmd)
 {
-    auto cmdPos = pos();
+    auto cmdPos = pos() - 1;
     auto dst = getRegisterArgument();
     auto src = getRegisterArgument();
 
@@ -381,7 +382,7 @@ bool VirtualMachine::arithmetic2(uint8_t cmd)
 
 bool VirtualMachine::minmax(uint8_t cmd)
 {
-    auto cmdPos = pos();
+    auto cmdPos = pos() - 1;
     auto dst = getRegisterArgument();
     auto src = getRegisterArgument();
 
@@ -422,7 +423,7 @@ bool VirtualMachine::minmax(uint8_t cmd)
 
 bool VirtualMachine::bit(uint8_t cmd)
 {
-    auto cmdPos = pos();
+    auto cmdPos = pos() - 1;
 
     auto dst = getRegisterArgument();
     auto src = getRegisterArgument();
@@ -458,7 +459,7 @@ bool VirtualMachine::bit(uint8_t cmd)
 
 bool VirtualMachine::logical(uint8_t cmd)
 {
-    auto cmdPos = pos();
+    auto cmdPos = pos() - 1;
     auto left = getRegisterArgument();
     auto right = getRegisterArgument();
 
@@ -553,7 +554,7 @@ bool VirtualMachine::jump(uint8_t cmd, uint16_t offset, uint8_t offsetType)
 
 bool VirtualMachine::value1(uint8_t cmd, uint16_t value, uint8_t valueType)
 {
-    auto cmdPos = pos() - (valueType == Asm::BCode::VALUE_CHAR || valueType == Asm::BCode::VALUE_SHORT) ? (valueType == Asm::BCode::VALUE_SHORT ? 2 : 1) : 0;
+    auto cmdPos = pos() - 1 -(valueType == Asm::BCode::VALUE_CHAR || valueType == Asm::BCode::VALUE_SHORT) ? (valueType == Asm::BCode::VALUE_SHORT ? 2 : 1) : 0;
 
     if (valueType != Asm::BCode::VALUE_CHAR && valueType != Asm::BCode::VALUE_SHORT)
     {
@@ -564,7 +565,7 @@ bool VirtualMachine::value1(uint8_t cmd, uint16_t value, uint8_t valueType)
     bool result = true;
     switch (cmd)
     {
-//        case Asm::BCode::LDRC: result = loadReceivedData(value);
+        case Asm::BCode::LDRC: result = loadReceivedData(value);
         case Asm::BCode::LDFD: result = loadFood(value); break;
         case Asm::BCode::LDEN: result = loadEnemy(value); break;
         case Asm::BCode::LDAL: result = loadAlly(value); break;
@@ -580,7 +581,7 @@ bool VirtualMachine::value1(uint8_t cmd, uint16_t value, uint8_t valueType)
 
 bool VirtualMachine::length(int8_t cmd)
 {
-    auto argTo   = getRegisterArgument();
+    auto argTo = getRegisterArgument();
     
     if (!argTo.pos)
     {
@@ -609,6 +610,52 @@ bool VirtualMachine::length(int8_t cmd)
     setDstAndFlags(&fakeDst, m_registers[Asm::Register::R2]);
 
     return true;
+}
+
+bool VirtualMachine::ret(bool& exit)
+{
+    if (m_callstack.empty())
+    {
+        exit = true;
+        return true;
+    }
+
+    exit = false;
+    setPos(m_callstack.back());
+    m_callstack.pop_back();
+    return true;
+}
+
+bool VirtualMachine::commandPositionArg(int8_t cmd)
+{
+    auto cmdPos = pos() - 1;
+    auto arg = getRegisterArgument();
+
+    if (!arg.pos)
+    {
+        LOGE("Offset %04x: the argument is not a position (reg 0x%02x)", arg.offset, arg.reg);
+        return false;
+    }
+
+    Position pos(arg.ptr[0], arg.ptr[1]);
+
+    switch (cmd)
+    {
+        case Asm::BCode::CMOV: m_ant->setCommand(AntCommand(CommandType::MoveAndIdle, pos)); break;
+        case Asm::BCode::CATT: m_ant->setCommand(AntCommand(CommandType::MoveAndAttack, pos)); break;
+        case Asm::BCode::CTKF: m_ant->setCommand(AntCommand(CommandType::MoveAndTakeFood, pos)); break;
+        case Asm::BCode::CGVF: m_ant->setCommand(AntCommand(CommandType::MoveAndFeed, pos)); break;
+        default:
+            LOGE("Command %02x (%04x): Undefined the position command", (int)cmd, cmdPos);
+            SU_BREAKPOINT();
+            return false;
+    }
+
+    return true;
+}
+
+bool VirtualMachine::commandNoArgs(int8_t cmd)
+{
 }
 
 void VirtualMachine::setDstAndFlags(int16_t* dst, int32_t value)
@@ -708,7 +755,7 @@ bool VirtualMachine::shiftLeft(bool restore, int16_t* dst, int16_t src)
         return false;
     }
 
-    UniInt32 tmp = { 0 };
+    su::UniInt32 tmp = { 0 };
     tmp.i16[0] = *dst;
     tmp.u32 <<= src;
     *dst = tmp.i16[0];
@@ -730,7 +777,7 @@ bool VirtualMachine::shiftRight(bool restore, int16_t* dst, int16_t src)
         return false;
     }
 
-    UniInt32 tmp = { 0 };
+    su::UniInt32 tmp = { 0 };
     tmp.i16[1] = *dst;
     tmp.u32 >>= src; // for signed integers, the right shift fills the bits to the right as the sign bit
                      // Therefore we using the unsigned integers
@@ -741,6 +788,25 @@ bool VirtualMachine::shiftRight(bool restore, int16_t* dst, int16_t src)
         *dst |= tmp.i16[0];
     }
     return !(tmp.i32 & 0x00008000);
+}
+
+bool VirtualMachine::loadReceivedData(int16_t value)
+{
+    bool error = value < 0 || value >= m_ant->receivedData().size();
+
+    setRF(Asm::Register::ZF, error);
+
+    if (error)
+    {
+        return true;
+    }
+
+    m_memory[Memory::ReceivedData0] = m_ant->receivedData()[value].i16[0];
+    m_memory[Memory::ReceivedData1] = m_ant->receivedData()[value].i16[1];
+    m_memory[Memory::ReceivedData2] = m_ant->receivedData()[value].i16[2];
+    //TODO m_memory[Memory::ReceivedData3] = m_ant->receivedData()[value].i16[3];
+
+    return true;
 }
 
 bool VirtualMachine::loadFood(int16_t value)

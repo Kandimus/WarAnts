@@ -58,7 +58,7 @@ int  yylex();
 %token JMP JZ JNZ JT JF JO JNO JS JNS JCZ JCNZ LOOP CALL
 %token MOV LEN DIST RET
 %token LDRC LDFD LDEN LDAL
-%token CIDL CMOV CATT CTKF CGVF CEAT CPS CPW
+%token CIDL CMOV CATT CTKF CGVF CEAT CCSL CCWR
 
 %type <TPRAGMATYPE> pragma
 %type <TPRAGMA> list_of_pragmas pragma_definition
@@ -210,8 +210,8 @@ asm_command
     | CTKF { UPD_LINENO } address                       { $$ = new WarAnts::Asm::Statement(WarAnts::Asm::AsmCommand::CTKF , $3, nullptr, yy_code.get()); }
     | CGVF { UPD_LINENO } address                       { $$ = new WarAnts::Asm::Statement(WarAnts::Asm::AsmCommand::CGVF , $3, nullptr, yy_code.get()); }
     | CEAT { UPD_LINENO } address                       { $$ = new WarAnts::Asm::Statement(WarAnts::Asm::AsmCommand::CEAT , nullptr, $3, yy_code.get()); }
-    | CPS  { UPD_LINENO }                               { $$ = new WarAnts::Asm::Statement(WarAnts::Asm::AsmCommand::CPS  ,              yy_code.get()); }
-    | CPW  { UPD_LINENO }                               { $$ = new WarAnts::Asm::Statement(WarAnts::Asm::AsmCommand::CPW  ,              yy_code.get()); }
+    | CCSL { UPD_LINENO }                               { $$ = new WarAnts::Asm::Statement(WarAnts::Asm::AsmCommand::CCSL ,              yy_code.get()); }
+    | CCWR { UPD_LINENO }                               { $$ = new WarAnts::Asm::Statement(WarAnts::Asm::AsmCommand::CCWR ,              yy_code.get()); }
     ;
 
 //------------------------------------------------------

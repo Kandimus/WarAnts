@@ -1,6 +1,7 @@
 #include "Statement.h"
 
 #include "stringex.h"
+#include "uniint.h"
 
 #include "defines.h"
 
@@ -117,7 +118,7 @@ bool Statement::isCall() const
 
 int16_t Statement::jumpValue() const
 {
-    UniInt16 out = { 0 };
+    su::UniInt16 out = { 0 };
 
     if (!isJump())
     {
@@ -369,7 +370,7 @@ bool Statement::resolveLabels(bool& recalc, Code* code)
     }
     else
     {
-        UniInt16 offset = { curDelta };
+        su::UniInt16 offset = { curDelta };
         
         m_bcode[1] = offset.i8[0];
         m_bcode[2] = offset.i8[1];
@@ -495,7 +496,7 @@ void Statement::print(std::ofstream& file) const
 
 uint8_t Statement::compileExpr(Expression* expr, Code* code)
 {
-    UniInt16 val = { 0 };
+    su::UniInt16 val = { 0 };
     uint8_t reg = expr->compile(val.i16, code);
     
     if (code->hasError())

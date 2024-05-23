@@ -42,6 +42,9 @@
     <ClInclude Include="smallUtils\scopeexit.h">
       <Filter>Headers</Filter>
     </ClInclude>
+    <ClInclude Include="smallUtils\uniint.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="smallUtils\log.cpp">

@@ -55,6 +55,9 @@ protected:
     bool jump(uint8_t cmd, uint16_t offset, uint8_t offsetType);
     bool value1(uint8_t cmd, uint16_t offset, uint8_t offsetType);
     bool length(int8_t cmd);
+    bool ret(bool& exit);
+    bool commandPositionArg(int8_t cmd);
+    bool commandNoArgs(int8_t cmd);
     void setDstAndFlags(int16_t* dst, int32_t value);
     bool checkLVal(const Argument& arg);
     bool bsf(int16_t* bitno, int16_t src);
@@ -62,6 +65,7 @@ protected:
     bool bitTest(uint8_t cmd, int16_t* dst, int16_t src);
     bool shiftLeft(bool restore, int16_t* dst, int16_t src);
     bool shiftRight(bool restore, int16_t* dst, int16_t src);
+    bool loadReceivedData(int16_t value);
     bool loadFood(int16_t value);
     bool loadAlly(int16_t value);
     bool loadEnemy(int16_t value);
