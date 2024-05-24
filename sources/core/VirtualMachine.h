@@ -77,8 +77,8 @@ protected:
     std::shared_ptr<Ant> m_ant;
     std::shared_ptr<Map> m_map;
 
-    VectorAnts m_allies;
-    VectorAnts m_enemies;
+    std::vector<Ant*> m_allies;
+    std::vector<Ant*> m_enemies;
     VectorPosition m_foods;
     std::vector<uint16_t> m_callstack;
     

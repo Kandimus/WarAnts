@@ -91,7 +91,7 @@ AntPtr Map::createAnt(const PlayerPtr& player, AntType antType, const Position& 
     ant->setPosition(calc_pos);
     ant->reset();
 
-    m_map[absPosition(calc_pos)]->setAnt(ant);
+    m_map[absPosition(calc_pos)]->setAnt(ant.get());
 
     return ant;
 }
@@ -231,14 +231,14 @@ Position Map::nearestFood(const Position& pos, uint32_t visible) const
     return *arrMinDist[idx];
 }
 
-void Map::moveAnt(const AntPtr& ant, const Position& pos)
+void Map::moveAnt(Ant& ant, const Position& pos)
 {
-    int32_t old_idx = absPosition(ant->position());
+    int32_t old_idx = absPosition(ant.position());
     int32_t new_idx = absPosition(pos);
 
-    m_map[new_idx]->setAnt(ant);
+    m_map[new_idx]->setAnt(&ant);
     m_map[old_idx]->removeAnt();
-    ant->setPosition(pos);
+    ant.setPosition(pos);
 }
 
 void Map::createMap(uint32_t w, uint32_t h)

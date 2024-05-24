@@ -5,7 +5,7 @@
 namespace WarAnts
 {
 
-void Cell::setAnt(const std::shared_ptr<Ant>& ant)
+void Cell::setAnt(Ant* ant)
 {
     if (isEmpty())
     {

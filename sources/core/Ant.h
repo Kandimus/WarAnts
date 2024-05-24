@@ -38,11 +38,20 @@ enum class AntStatus
 namespace Interrupt
 {
 
-enum Type : int16_t
+enum Type : uint16_t
 {
-    CommandAbort = 0x0001,
-    CommandFinished = 0x0002,
-    Attack = 0x0004,
+    CommandAborted = 0x0001,
+    CommandCompleted = 0x0002,
+    WasAttacked = 0x0004,
+    CloseEnemy = 0x0008,
+    FarEnemy = 0x0010,
+    CloseFood = 0x0020,
+    FarFood = 0x0040,
+    LowSatiety = 0x0080,
+    MiddleSatiety = 0x0100,
+    LowHealth = 0x0200,
+    MiddleHealth = 0x0400,
+    Queen = 0x0800,
 };
 
 }
@@ -85,8 +94,7 @@ public:
     bool hasCommand() const { return m_command.m_type != CommandType::Idle; }
     void setCommand(const AntCommand& cmd) { m_command = cmd; }
     void setCommand(CommandType cmd, int16_t x, int16_t y, int16_t userdata) { m_command.set(cmd, x, y, userdata); }
-    const AntCommand& command() const { return m_command; }
-    void clearCommand() { m_command.clear(); }
+    AntCommand& command() { return m_command; }
 
     int16_t getValue(size_t idx) const { return idx < m_memory.size() ? m_memory[idx] : 0; }
     void setValue(size_t idx, int16_t val) { if (idx < m_memory.size()) m_memory[idx] = val; }
@@ -105,10 +113,11 @@ public:
     PlayerPtr player() const { return m_player; }
     void setPlayer(PlayerPtr player) { m_player = player; }
 
+    // Interrupt
     inline int16_t interruptFlags() const { return m_interruptFlags; }
     inline void setInterruptFlags(int16_t val) { m_interruptFlags = val; }
     inline int16_t interruptReason() const { return m_interruptReason; }
-    inline void setInterruptReason(int16_t val) { m_interruptReason = val; }
+    inline void setInterruptReason(Interrupt::Type bit, bool reason) { m_interruptReason |= ((m_interruptFlags & bit) && reason) ? bit : 0; }
 
     bool damage(int16_t damage);
 
@@ -121,6 +130,11 @@ public:
 
 protected:
     bool checkDie();
+
+
+public:
+    const float INTERRUPT_LOW = 25.0f;
+    const float INTERRUPT_MIDDLE = 50.0f;
 
 protected:
     uint32_t m_id = 0;

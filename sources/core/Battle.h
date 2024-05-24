@@ -32,18 +32,18 @@ public:
 protected:
     //std::vector<std::weak_ptr<Ant>> sortAnts();
 
-    void runBcode(const AntPtr& ant);
+    void processingInterrupt(Ant& ant);
 
-    void doAntCommand(AntPtr ant);
+    void doAntCommand(Ant& ant);
     bool commandIdle(Ant& ant);
-    bool commandMove(AntPtr ant);
+    bool commandMove(Ant& ant);
     bool commandAttack(AntPtr ant);
     bool commandMoveAndIdle(AntPtr ant);
     bool commandMoveAndAttack(AntPtr ant);
     
     //void commandAntEat(AntSharedPtr& ant);
 
-    bool moveAnt(AntPtr ant, const Direction& dir);
+    int16_t moveAnt(Ant& ant, const Direction& dir);
     bool killAnt(AntPtr ant);
 
     //void generateAntInfo(AntSharedPtr& ant, AntInfo& ai);

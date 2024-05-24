@@ -49,7 +49,12 @@ bool Ant::damage(int16_t damage)
 {
     m_health -= damage;
 
-    return checkDie();
+    if (checkDie())
+    {
+        return false;
+    }
+
+    setInterruptReason(Interrupt::WasAttacked, true);
 }
 
 bool Ant::beginTurn()
@@ -68,7 +73,25 @@ bool Ant::endTurn()
         m_health -= m_hungerDamage;
     }
 
-    return checkDie();
+    if (checkDie())
+    {
+        return false;
+    }
+
+    // Clear received data
+    m_received.clear();
+    // Clear IR
+    m_interruptReason = 0;
+    // Copy IF form memory to variable
+    m_interruptFlags = m_memory[Memory::InterruptFlags];
+
+    // Attack
+    setInterruptReason(Interrupt::LowSatiety, satietyPercent() < INTERRUPT_LOW);
+    setInterruptReason(Interrupt::MiddleSatiety, satietyPercent() < INTERRUPT_MIDDLE);
+    setInterruptReason(Interrupt::LowSatiety, healthPercent() < INTERRUPT_LOW);
+    setInterruptReason(Interrupt::MiddleSatiety, healthPercent() < INTERRUPT_MIDDLE);
+
+    return true;
 }
 
 bool Ant::checkDie()
@@ -78,7 +101,7 @@ bool Ant::checkDie()
         m_status = AntStatus::Dead;
     }
 
-    return (m_status == AntStatus::Life);
+    return (m_status == AntStatus::Dead);
 }
 
 };

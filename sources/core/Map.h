@@ -56,7 +56,7 @@ public:
     VectorAnts nearestEnemies(const Position& pos, int16_t radius) const;
     Position nearestFood(const Position& pos, uint32_t visible) const;
 
-    void moveAnt(const AntPtr& ant, const Position& pos);
+    void moveAnt(Ant& ant, const Position& pos);
     void removeAnt(const Position& pos);
     AntPtr createAnt(const PlayerPtr& player, AntType antType, const Position& pos, uint16_t r);
 

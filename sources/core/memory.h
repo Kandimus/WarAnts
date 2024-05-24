@@ -5,7 +5,9 @@
 namespace WarAnts
 {
 
-enum Memory
+namespace Memory
+{
+enum Addess : uint16_t
 {
     // Readonly data
     Iteration = 0x00,
@@ -67,4 +69,5 @@ enum Memory
     UserData = 0x30,
 };
 
-};
+} //namespace Memory
+} //namespace WarAnts

@@ -65,9 +65,9 @@ void VirtualMachine::prepare()
         }
 
         auto cellAnt = cell->ant();
-        if (cellAnt.get())
+        if (cellAnt)
         {
-            if (m_ant == cellAnt)
+            if (m_ant.get() == cellAnt)
             {
                 continue;
             }
@@ -88,7 +88,7 @@ void VirtualMachine::prepare()
 
     m_memory[Memory::SatietyPercent] = int16_t(m_ant->satietyPercent() * 10);
     m_memory[Memory::HealthPercent] = int16_t(m_ant->healthPercent() * 10);
-    m_memory[Memory::Cargo] = m_ant->cargo();
+    m_memory[Memory::Cargo] = m_ant->cargo(); //TODO может тут нужно в процентах?
     m_memory[Memory::CountOfAllies] = (int16_t)m_allies.size();
     m_memory[Memory::CountOfEnemies] = (int16_t)m_enemies.size();
     m_memory[Memory::CountOfFoods] = (int16_t)m_foods.size();
@@ -97,9 +97,11 @@ void VirtualMachine::prepare()
     //CountOfSolders = 0x0a,
     //InterruptReason = 0x0b,
     m_memory[Memory::CommandId] = (int16_t)m_ant->command().m_type;
-    m_memory[Memory::CommandX] = (int16_t)m_ant->command().m_pos.x();
-    m_memory[Memory::CommandY] = (int16_t)m_ant->command().m_pos.y();
-    m_memory[Memory::CommandValue] = (int16_t)m_ant->command().m_value;
+    m_memory[Memory::CommandX] = m_ant->command().m_pos.x();
+    m_memory[Memory::CommandY] = m_ant->command().m_pos.y();
+    m_memory[Memory::CommandValue] = m_ant->command().m_value;
+
+    m_memory[Memory::InterruptFlags] = m_ant->interruptFlags();
 }
 
 VirtualMachine::Argument VirtualMachine::getRegisterArgument()
@@ -269,11 +271,6 @@ bool VirtualMachine::run()
         }
     }
 
-    m_ant->setInterruptFlags(m_memory[Memory::InterruptFlags]);
-    
-
-    SU_BREAKPOINT();
-    LOGE("Unexpected return");
     return true;
 }
 
