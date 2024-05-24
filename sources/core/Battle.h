@@ -16,6 +16,7 @@ class BattleLogService;
 class Config;
 class Map;
 class Player;
+class Position;
 
 using AntPtr = std::shared_ptr<Ant>;
 using ListAnts = std::list<AntPtr>;
@@ -37,14 +38,15 @@ protected:
     void doAntCommand(Ant& ant);
     bool commandIdle(Ant& ant);
     bool commandMove(Ant& ant);
-    bool commandAttack(AntPtr ant);
+    bool commandAttack(Ant& ant);
     bool commandMoveAndIdle(AntPtr ant);
     bool commandMoveAndAttack(AntPtr ant);
     
     //void commandAntEat(AntSharedPtr& ant);
 
-    int16_t moveAnt(Ant& ant, const Direction& dir);
-    bool killAnt(AntPtr ant);
+    int16_t moveAntToPoint(Ant& ant, const Position& pos);
+    int16_t moveAntToDirection(Ant& ant, const Direction& dir);
+    bool killAnt(Ant& ant);
 
     //void generateAntInfo(AntSharedPtr& ant, AntInfo& ai);
 

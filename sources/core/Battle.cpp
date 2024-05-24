@@ -3,6 +3,7 @@
 #include "Log.h"
 
 #include "AntFabric.h"
+#include "constants.h"
 #include "Cell.h"
 #include "Config.h"
 #include "Map.h"
@@ -180,7 +181,7 @@ int Battle::run()
             // Ant has been died
             if (!ant->endTurn())
             {
-                killAnt(ant);
+                killAnt(*ant.get());
             }
         }
 
@@ -242,11 +243,18 @@ void Battle::doAntCommand(Ant& ant)
 {
     auto cmd = ant.command();
 
+    // If the last command is completed, but player doesn't set a new command,
+    // then the Idle command is temporarily forced for 1 turn
+    if (cmd.isCompleted())
+    {
+        cmd.set(Command::Idle, Position(0, 0), 1);
+    }
+
     switch(cmd.m_type)
     {
-        case CommandType::Idle: commandIdle(ant); break;
-        case CommandType::MovePos: commandMove(ant); break;
-        //case CommandType::Attack: commandAttack(ant); break;
+        case Command::Idle: commandIdle(ant); break;
+        case Command::MovePos: commandMove(ant); break;
+        case Command::Attack: commandAttack(ant); break;
         //case CommandType::MoveAndIdle: commandMoveAndIdle(ant); break;
         //case CommandType::MoveAndAttack: commandMoveAndAttack(ant);break;
 //		case CommandType::MoveToFood: doAntMoveToFood(ant); break;
@@ -260,10 +268,7 @@ void Battle::doAntCommand(Ant& ant)
         default: break;
     }
 
-    //if (!cmd.count)
-    //{
-    //    ant->clearCommand();
-    //}
+    ant.command().setCompleted(ant.interruptReason() & (Interrupt::CommandAborted | Interrupt::CommandCompleted));
 }
 
 bool Battle::commandIdle(Ant& ant)
@@ -279,20 +284,95 @@ bool Battle::commandIdle(Ant& ant)
 
 bool Battle::commandMove(Ant& ant)
 {
-    auto dirToPoint = Math::directionTo(ant.position(), ant.command().m_pos);
-    auto dir = Math::probabilisticDirection(dirToPoint);
-
-    auto oldPos = ant.position();
-    LOGD("ant %s ---> %s: %s", ant.position().toString().c_str(), ant.command().m_pos.toString().c_str(), directionToString(dirToPoint, true).c_str());
-    LOGD("dir %s changed to %s", directionToString(dirToPoint, true).c_str(), directionToString(dir, true).c_str());
-    LOGD("ant %s move to %s: %s", oldPos.toString().c_str(), ant.position().toString().c_str());
-
-    auto dist = moveAnt(ant, dir);
+    auto dist = moveAntToPoint(ant, ant.command().m_pos);
 
     ant.setInterruptReason(Interrupt::CommandAborted, dist < 0);
     ant.setInterruptReason(Interrupt::CommandCompleted, dist >= 0 || dist <= 1);
+
+    return true;
 }
 
+bool Battle::commandAttack(Ant& ant)
+{
+    auto cmd = ant.command();
+
+    switch(cmd.m_value)
+    {
+        case Command::StageMovingToPoint:
+        {
+            auto dist = moveAntToPoint(ant, ant.command().m_pos);
+            ant.setInterruptReason(Interrupt::CommandAborted, dist < 0);
+            cmd.m_value = (dist >= 0 || dist <= 1) ? Command::StageMovingToAttack : cmd.m_value;
+        }
+        break;
+
+        case Command::StageMovingToAttack:
+        {
+            Ant* enemy = nullptr;
+            int16_t minDist = 0x7fff;
+
+            auto result = m_map->processingRadius(ant.command().m_pos, Constant::CommandRadius, [&enemy, &minDist, &ant](const Cell* cell)
+                {
+                    auto cellAnt = cell->ant();
+                    if (!cellAnt)
+                    {
+                        return;
+                    }
+
+                    if (cellAnt->player() != ant.player())
+                    {
+                        auto dist = Math::distanceTo(ant.position(), cellAnt->position());
+                        if (dist < minDist)
+                        {
+                            minDist = dist;
+                            enemy = cellAnt;
+                        }
+                    }
+                });
+            
+            if (!result)
+            {
+                ant.setInterruptReason(Interrupt::CommandAborted, true);
+                return true;
+            }
+
+            if (minDist == 1)
+            {
+                if (!enemy->damage(ant.attack()))
+                {
+                    killAnt(*enemy);
+                }
+            }
+            else
+            {
+                auto dist = moveAntToPoint(ant, enemy->position());
+                ant.setInterruptReason(Interrupt::CommandAborted, dist < 0);
+            }
+        }
+        break;
+    }
+
+/*
+    auto arrayOfEnemy = m_map->nearestEnemies(ant.position(), 1);
+
+    if (arrayOfEnemy.empty())
+    {
+        ant.clearCommand();
+        return true;
+    }
+
+    int index = (int)Math::random(0, arrayOfEnemy.size() - 1);
+    auto enemy = arrayOfEnemy[index];
+
+    //TODO Нужно ли тут проверять, что атакуемый муравей умер? и соответственно вызывать player->antIsDied()
+    //     или же дать муравью ответить на удар или другое действие и убить его в его фазу хода?
+    if (!enemy->damage(ant.attack()))
+    {
+        killAnt(enemy);
+    }
+*/
+    return false;
+}
 
 //void Battle::commandAntExplore(AntSharedPtr& ant)
 //{
@@ -309,30 +389,6 @@ bool Battle::commandMove(Ant& ant)
 //}
 
 /*
-
-bool Battle::commandAttack(AntPtr ant)
-{
-    auto arrayOfEnemy = m_map->nearestEnemies(ant->position(), 1);
-
-    if (arrayOfEnemy.empty())
-    {
-        ant->clearCommand();
-        return true;
-    }
-
-    int index = (int)Math::random(0, arrayOfEnemy.size() - 1);
-    auto enemy = arrayOfEnemy[index];
-
-    //TODO Нужно ли тут проверять, что атакуемый муравей умер? и соответственно вызывать player->antIsDied()
-    //     или же дать муравью ответить на удар или другое действие и убить его в его фазу хода?
-    if (!enemy->damage(ant->attack()))
-    {
-        killAnt(enemy);
-    }
-
-    return false;
-}
-
 bool Battle::commandMoveAndIdle(AntPtr ant)
 {
     if (commandMove(ant))
@@ -386,10 +442,23 @@ bool Battle::commandMoveAndAttack(AntPtr ant)
 //}
 
 
+int16_t Battle::moveAntToPoint(Ant& ant, const Position& pos)
+{
+    auto dirToPoint = Math::directionTo(ant.position(), pos);
+    auto dir = Math::probabilisticDirection(dirToPoint);
+
+    auto oldPos = ant.position();
+    LOGD("ant %s ---> %s: %s", ant.position().toString().c_str(), ant.command().m_pos.toString().c_str(), directionToString(dirToPoint, true).c_str());
+    LOGD("dir %s changed to %s", directionToString(dirToPoint, true).c_str(), directionToString(dir, true).c_str());
+    LOGD("ant %s move to %s: %s", oldPos.toString().c_str(), ant.position().toString().c_str());
+
+    return moveAntToDirection(ant, dir);
+}
+
 /// \brief Moving the ant to selected direction
 ///
 /// If we can not move the ant to selected direction then we move ant to direction near to selected
-int16_t Battle::moveAnt(Ant& ant, const Direction& dir)
+int16_t Battle::moveAntToDirection(Ant& ant, const Direction& dir)
 {
     // get odered directions
     std::vector<Direction> array_dir = Math::createDirectionArray(dir);
@@ -414,12 +483,11 @@ int16_t Battle::moveAnt(Ant& ant, const Direction& dir)
     return -1;
 }
 
-bool Battle::killAnt(AntPtr ant)
+bool Battle::killAnt(Ant& ant)
 {
-    auto player = ant->player();
+    auto player = ant.player();
     player->antIsDied(ant);
-
-    m_map->removeAnt(ant->position());
+    m_map->removeAnt(ant.position());
 
     return true;
 }

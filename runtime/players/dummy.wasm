@@ -1,0 +1,13 @@
+%core "0100"
+%name "dummy player"
+%version "1"
+%class "black"
+
+.Worker
+    ret
+
+.Solder
+    ret
+    
+.Queen
+    ret

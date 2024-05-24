@@ -42,12 +42,12 @@ public:
         return m_map[absPosition(WarAnts::Position(x, y))].get();
     }
 
-    inline void setAnt(std::shared_ptr<WarAnts::Ant> ant)
+    inline void setAnt(WarAnts::AntPtr ant)
     {
         REQUIRE(isValidPosition(ant->position()));
         
         auto cell = m_map[absPosition(ant->position())];
-        cell->setAnt(ant);
+        cell->setAnt(ant.get());
     }
 };
 

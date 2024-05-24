@@ -1,5 +1,6 @@
 #include "Ant.h"
 
+#include "constants.h"
 #include "jsonhelper.h"
 #include "memory.h"
 
@@ -55,6 +56,7 @@ bool Ant::damage(int16_t damage)
     }
 
     setInterruptReason(Interrupt::WasAttacked, true);
+    return true; // The ant is alive
 }
 
 bool Ant::beginTurn()
@@ -86,10 +88,10 @@ bool Ant::endTurn()
     m_interruptFlags = m_memory[Memory::InterruptFlags];
 
     // Attack
-    setInterruptReason(Interrupt::LowSatiety, satietyPercent() < INTERRUPT_LOW);
-    setInterruptReason(Interrupt::MiddleSatiety, satietyPercent() < INTERRUPT_MIDDLE);
-    setInterruptReason(Interrupt::LowSatiety, healthPercent() < INTERRUPT_LOW);
-    setInterruptReason(Interrupt::MiddleSatiety, healthPercent() < INTERRUPT_MIDDLE);
+    setInterruptReason(Interrupt::LowSatiety, satietyPercent() < Constant::InterruptValueLow);
+    setInterruptReason(Interrupt::MiddleSatiety, satietyPercent() < Constant::InterruptValueMiddle);
+    setInterruptReason(Interrupt::LowSatiety, healthPercent() < Constant::InterruptValueLow);
+    setInterruptReason(Interrupt::MiddleSatiety, healthPercent() < Constant::InterruptValueMiddle);
 
     return true;
 }

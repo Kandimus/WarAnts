@@ -73,35 +73,35 @@ void Player::antIsBorn(AntType type)
     }
 }
 
-void Player::antIsDied(AntPtr ant)
+void Player::antIsDied(Ant& ant)
 {
-    if (ant->player().get() != this)
+    if (ant.player().get() != this)
     {
         LOGE("Error: Ant owner is not current player!");
         return;
     }
 
-    switch (ant->type())
+    switch (ant.type())
     {
         case AntType::Queen:
             --m_curCount.m_all;
             --m_curCount.m_queens;
-            m_maxLifeCount.m_queens = std::max(m_maxLifeCount.m_queens, ant->lifeCount());
-            m_maxLifeCount.m_all = std::max(m_maxLifeCount.m_all, ant->lifeCount());
+            m_maxLifeCount.m_queens = std::max(m_maxLifeCount.m_queens, ant.lifeCount());
+            m_maxLifeCount.m_all = std::max(m_maxLifeCount.m_all, ant.lifeCount());
             break;
 
         case AntType::Solder:
             --m_curCount.m_all;
             --m_curCount.m_solders;
-            m_maxLifeCount.m_solders = std::max(m_maxLifeCount.m_solders, ant->lifeCount());
-            m_maxLifeCount.m_all = std::max(m_maxLifeCount.m_all, ant->lifeCount());
+            m_maxLifeCount.m_solders = std::max(m_maxLifeCount.m_solders, ant.lifeCount());
+            m_maxLifeCount.m_all = std::max(m_maxLifeCount.m_all, ant.lifeCount());
             break;
 
         case AntType::Worker:
             --m_curCount.m_all;
             --m_curCount.m_workers;
-            m_maxLifeCount.m_workers = std::max(m_maxLifeCount.m_workers, ant->lifeCount());
-            m_maxLifeCount.m_all = std::max(m_maxLifeCount.m_all, ant->lifeCount());
+            m_maxLifeCount.m_workers = std::max(m_maxLifeCount.m_workers, ant.lifeCount());
+            m_maxLifeCount.m_all = std::max(m_maxLifeCount.m_all, ant.lifeCount());
             break;
 
         default: break;

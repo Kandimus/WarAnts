@@ -14,6 +14,7 @@ enum class AntType;
 
 using AntPtr = std::shared_ptr<Ant>;
 
+//TODO может перейти на массивы?
 struct AntCount
 {
     uint32_t m_all = 0;
@@ -43,7 +44,7 @@ public:
     AntPtr antQueen() const { return m_antQueen; }
 
     void antIsBorn(AntType type);
-    void antIsDied(AntPtr ant);
+    void antIsDied(Ant& ant);
     const AntCount& curCounts() const { return m_curCount; }
     const AntCount& maxCounts() const { return m_maxCount; }
     const AntCount& maxLifeCount() const { return m_maxLifeCount; }

@@ -195,11 +195,6 @@ Position Map::nearAvaliblePosition(const Position& pos) const
     return pos + curPos;
 }
 
-VectorAnts Map::nearestEnemies(const Position& pos, int16_t radius) const
-{
-    return {};
-}
-
 Position Map::nearestFood(const Position& pos, uint32_t visible) const
 {
     std::vector<const Position*> arrMinDist;
