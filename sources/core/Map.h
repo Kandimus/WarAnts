@@ -6,6 +6,7 @@
 #include <list>
 
 #include "Ant.h"
+#include "MapMath.h"
 
 namespace WarAnts
 {
@@ -55,8 +56,30 @@ public:
     void forceCellChange(const Position& pos);
 
     Position nearAvaliblePosition(const Position& pos) const;
-    VectorAnts nearestEnemies(const Position& pos, int16_t radius) const;
     Position nearestFood(const Position& pos, uint32_t visible) const;
+    
+    template<typename F>
+    bool processingRadius(const Position& pos, int16_t radius, const F& f)
+    {
+        auto listPos = Math::visibleCells(pos, radius);
+        if (!listPos.empty())
+        {
+            return false;
+        }
+        
+        for (auto& pos : listPos)
+        {
+            auto pCell = cell(pos);
+            if (!pCell)
+            {
+                continue;
+            }
+            f(pCell);
+        }
+        return true;
+    }
+
+
 
     void moveAnt(Ant& ant, const Position& pos);
     void removeAnt(const Position& pos);

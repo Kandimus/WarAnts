@@ -92,9 +92,9 @@ public:
     
     void reset();
 
-    bool hasCommand() const { return m_command.m_type != CommandType::Idle; }
-    void setCommand(const AntCommand& cmd) { m_command = cmd; }
-    void setCommand(CommandType cmd, int16_t x, int16_t y, int16_t userdata) { m_command.set(cmd, x, y, userdata); }
+    void setCommand(Command::Type cmd, int16_t value) { m_command.set(cmd, Position(0, 0), value); }
+    void setCommand(Command::Type cmd, const Position& pos) { m_command.set(cmd, pos, 0); }
+    void setCommand(Command::Type cmd, const Position& pos, int16_t value) { m_command.set(cmd, pos, value); }
     AntCommand& command() { return m_command; }
 
     int16_t getValue(size_t idx) const { return idx < m_memory.size() ? m_memory[idx] : 0; }
@@ -118,7 +118,7 @@ public:
     inline int16_t interruptFlags() const { return m_interruptFlags; }
     inline void setInterruptFlags(int16_t val) { m_interruptFlags = val; }
     inline int16_t interruptReason() const { return m_interruptReason; }
-    inline void setInterruptReason(Interrupt::Type bit, bool reason) { m_interruptReason |= ((m_interruptFlags & bit) && reason) ? bit : 0; }
+    inline void setInterruptReason(int16_t bit, bool reason) { m_interruptReason |= ((m_interruptFlags & bit) && reason) ? bit : 0; }
 
     bool damage(int16_t damage);
 
@@ -131,11 +131,6 @@ public:
 
 protected:
     bool checkDie();
-
-
-public:
-    const float INTERRUPT_LOW = 25.0f;
-    const float INTERRUPT_MIDDLE = 50.0f;
 
 protected:
     uint32_t m_id = 0;

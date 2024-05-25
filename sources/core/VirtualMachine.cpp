@@ -577,8 +577,8 @@ bool VirtualMachine::value1(uint8_t cmd, uint16_t value, uint8_t valueType)
         case Asm::BCode::LDFD: result = loadFood(value); break;
         case Asm::BCode::LDEN: result = loadEnemy(value); break;
         case Asm::BCode::LDAL: result = loadAlly(value); break;
-        case Asm::BCode::CIDL: result = true; m_ant->setCommand(AntCommand(CommandType::Idle, value)); break;
-        case Asm::BCode::CEAT: result = true; m_ant->setCommand(AntCommand(CommandType::Eat, value)); break;
+        case Asm::BCode::CIDL: result = true; m_ant->setCommand(Command::Type::Idle, value); break;
+        case Asm::BCode::CEAT: result = true; m_ant->setCommand(Command::Type::Eat, value); break;
         case Asm::BCode::DBG:  result = printDebug(value); break;
         default:
             LOGE("Command %02x (%04x): Undefined the logical command", (int)cmd, cmdPos);
@@ -650,10 +650,10 @@ bool VirtualMachine::commandPositionArg(int8_t cmd)
 
     switch (cmd)
     {
-        case Asm::BCode::CMOV: m_ant->setCommand(AntCommand(CommandType::MovePos, pos)); break;
-        case Asm::BCode::CATT: m_ant->setCommand(AntCommand(CommandType::Attack, pos)); break;
-        case Asm::BCode::CTKF: m_ant->setCommand(AntCommand(CommandType::TakeFood, pos)); break;
-        case Asm::BCode::CGVF: m_ant->setCommand(AntCommand(CommandType::Feed, pos)); break;
+        case Asm::BCode::CMOV: m_ant->setCommand(Command::MovePos, pos); break;
+        case Asm::BCode::CATT: m_ant->setCommand(Command::Attack, pos, Command::StageMovingToPoint); break;
+        case Asm::BCode::CTKF: m_ant->setCommand(Command::TakeFood, pos); break;
+        case Asm::BCode::CGVF: m_ant->setCommand(Command::Feed, pos); break;
         default:
             LOGE("Command %02x (%04x): Undefined the position command", (int)cmd, cmdPos);
             SU_BREAKPOINT();
@@ -669,8 +669,8 @@ bool VirtualMachine::commandNoArgs(int8_t cmd)
 
     switch (cmd)
     {
-        case Asm::BCode::CCSL: m_ant->setCommand(AntCommand(CommandType::CreateSolder)); break;
-        case Asm::BCode::CCWR: m_ant->setCommand(AntCommand(CommandType::CreateWorker)); break;
+        case Asm::BCode::CCSL: m_ant->setCommand(Command::CreateSolder, 0); break;
+        case Asm::BCode::CCWR: m_ant->setCommand(Command::CreateWorker, 0); break;
         default:
             LOGE("Command %02x (%04x): Undefined the command", (int)cmd, cmdPos);
             SU_BREAKPOINT();
@@ -899,6 +899,7 @@ bool VirtualMachine::printDebug(int16_t value)
     if (!file.is_open())
     {
         LOGE("Error: Can't open file for debug output");
+        return false;
     }
 
     file << "-------------------------------------------------------------------------------" << std::endl;
@@ -910,8 +911,12 @@ bool VirtualMachine::printDebug(int16_t value)
         m_registers[Asm::Register::P0Y], m_registers[Asm::Register::P1X], m_registers[Asm::Register::P1Y],
         m_registers[Asm::Register::P2X], m_registers[Asm::Register::P2Y]) << std::endl;
     file << std::endl;
-    file << su::String_printfHexBuffer(m_memory.data(), m_memory.size(), "    ") << std::endl;
+    file << su::String_printfHexBuffer((const char *)m_memory.data(), m_memory.size(), "    ") << std::endl;
     file << std::endl;
+
+    file.close();
+
+    return true;
 }
 
 };

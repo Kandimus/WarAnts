@@ -7,12 +7,16 @@
 namespace WarAnts
 {
 
-enum class CommandType
+
+namespace Command
 {
-    Idle,
-    MovePos,
-    Attack, 
-    Eat,
+enum Type
+{
+                  // Position | Value
+    Idle,         //    -     | turn count, if it is 0, then the command will be completed
+    MovePos,      //    +     | -
+    Attack,       //    +     | 0 - movint to position, 1 - attack enemy
+    Eat,          //    -     | 
     TakeFood,
     Feed,
 
@@ -20,42 +24,62 @@ enum class CommandType
     CreateWorker,
 };
 
+enum Stage : int16_t
+{
+    StageMovingToPoint = 0,
+    StageMovingToAttack,
+    StageAttacking,
+};
+
+}
+
 class AntCommand
 {
 public:
     AntCommand() = default;
-    AntCommand(CommandType cmd)
+    AntCommand(Command::Type cmd)
         : m_type(cmd)
     {}
-    AntCommand(CommandType cmd, const Position& pos)
+    AntCommand(Command::Type cmd, const Position& pos)
         : m_type(cmd), m_pos(pos)
     {}
-    AntCommand(CommandType cmd, int16_t x, int16_t y)
+    AntCommand(Command::Type cmd, int16_t x, int16_t y)
         : m_type(cmd), m_pos(x, y)
     {}
 
-    AntCommand(CommandType cmd, int16_t value)
+    AntCommand(Command::Type cmd, int16_t value)
         : m_type(cmd), m_value(value)
     {}
 
-    void set(CommandType cmd, int16_t x, int16_t y, int16_t value)
+    void set(Command::Type cmd, int16_t x, int16_t y, int16_t value)
+    {
+        set(cmd, Position(x, y), value);
+    }
+
+    void set(Command::Type cmd, const Position& pos, int16_t value)
     {
         m_type = cmd;
-        m_pos = Position(x, y);
+        m_pos = pos;
         m_value = value;
+        m_isCompleted = false;
     }
 
     void clear()
     {
-        m_type = CommandType::Idle;
+        m_type = Command::Idle;
         m_pos = 0;
         m_value = 0;
+        m_isCompleted = false;
     }
 
+    void setCompleted(bool val) { m_isCompleted = val; }
+    bool isCompleted() const { return m_isCompleted; }
+
 public:
-    CommandType m_type = CommandType::Idle;
+    Command::Type m_type = Command::Idle;
     Position m_pos = 0;
     int16_t m_value = 0;
+    bool m_isCompleted = false;
 };
 
 
