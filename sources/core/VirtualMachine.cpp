@@ -906,23 +906,34 @@ bool VirtualMachine::printDebug(int16_t value)
 
     auto player = m_ant->player();
 
-    file << "-------------------------------------------------------------------------------" << std::endl;
+    std::time_t t = std::time(nullptr);
+    std::tm dt;
+
+    file << "----------------------------------------------------------------------------------------" << std::endl;
+
+    localtime_s(&dt, &t);
+    file << su::String_format2("%04i.%02i.%02i %02i:%02i:%02i Debug: %04x",
+            dt.tm_year + 1900, dt.tm_mon + 1, dt.tm_mday,
+            dt.tm_hour, dt.tm_min, dt.tm_sec, value)
+        << std::endl;
+    file << std::endl;
     file << su::String_format2("    Player: %02i, file: '%s', Ant: %s",
             player->index(),
             player->library().c_str(),
             m_ant->typeToString().c_str())
         << std::endl;
     file << std::endl;
-    file << su::String_format2("    r0: %04x, r1: %04x, r2: %04x, rc: %04x, rf: %04x, p0: <%04x:%04x>, p1: <%04x:%04x>, p2: <%04x:%04x>",
+    file << su::String_format2("    r0: %04x, r1: %04x, r2: %04x, rc: %04x, rf: %04x",
             m_registers[Asm::Register::R0], m_registers[Asm::Register::R1], m_registers[Asm::Register::R2],
-            m_registers[Asm::Register::RC], m_registers[Asm::Register::RF],
-            m_registers[Asm::Register::P0X], m_registers[Asm::Register::P0Y],
-            m_registers[Asm::Register::P1X], m_registers[Asm::Register::P1Y],
-            m_registers[Asm::Register::P2X], m_registers[Asm::Register::P2Y])
+            m_registers[Asm::Register::RC], m_registers[Asm::Register::RF])
+        << std::endl;
+    file << su::String_format2("    p0: <%04x:%04x>, p1: <%04x:%04x>, p2: <%04x:%04x>",
+        m_registers[Asm::Register::P0X], m_registers[Asm::Register::P0Y],
+        m_registers[Asm::Register::P1X], m_registers[Asm::Register::P1Y],
+        m_registers[Asm::Register::P2X], m_registers[Asm::Register::P2Y])
         << std::endl;
     file << std::endl;
     file << su::String_printfHexBuffer(m_memory.data(), m_memory.size(), sizeof(short), "    ") << std::endl;
-    file << std::endl;
 
     file.close();
 
