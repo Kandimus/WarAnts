@@ -22,6 +22,8 @@ public:
     Map(const std::shared_ptr<Config>& conf);
     virtual ~Map() = default;
 
+    inline std::shared_ptr<Config> config() const { return m_conf; }
+
     inline const Cell* cell(Position pos) const
     {
         uint32_t idx = absPosition(pos);

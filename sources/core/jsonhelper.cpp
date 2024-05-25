@@ -41,11 +41,16 @@ T getValue1(const nlohmann::json& json, const std::string& param, const T& defVa
 template<typename T>
 T getValue2(const nlohmann::json& json, const std::string& folder, const std::string& param, const T& defVal, const T& minVal, const T& maxVal)
 {
-    T val = (json.contains(folder) && json[folder].contains(param))
+    T val = getValue2<T>(json, folder, param, defVal);
+    return getBoundedValue<T>(val, defVal, minVal, maxVal);
+}
+
+template<typename T>
+T getValue2(const nlohmann::json& json, const std::string& folder, const std::string& param, const T& defVal)
+{
+    return (json.contains(folder) && json[folder].contains(param))
         ? static_cast<T>(json[folder][param])
         : defVal;
-
-    return getBoundedValue<T>(val, defVal, minVal, maxVal);
 }
 
 };

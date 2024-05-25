@@ -38,6 +38,11 @@ Ant::Ant(const nlohmann::json& json, AntType type)
     reset();
 }
 
+std::string Ant::typeToString() const
+{
+    return AntTypeToString(type());
+}
+
 void Ant::reset()
 {
     m_satiety = m_maxSatiety;

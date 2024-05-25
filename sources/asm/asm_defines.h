@@ -142,6 +142,7 @@ enum class AsmCommand
     LEN,
     DIST,
     RET,
+    DBG,
 
     LDRC,
     LDFD,
@@ -271,7 +272,8 @@ enum Command : uint8_t
     LDAL = 0x6c,
     CIDL = 0x70,
     CEAT = 0x74,
-    // max 0x7c (2 free)
+    DBG  = 0x78,
+    // max 0x7c (1 free)
 };
 }; // namespace BCode
 

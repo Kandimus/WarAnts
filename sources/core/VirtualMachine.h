@@ -11,6 +11,7 @@ namespace WarAnts
 {
 
 class Ant;
+class Config;
 class Map;
 class Player;
 
@@ -69,6 +70,7 @@ protected:
     bool loadFood(int16_t value);
     bool loadAlly(int16_t value);
     bool loadEnemy(int16_t value);
+    bool printDebug(int16_t value);
 
 protected:
     const std::vector<int8_t>& m_bcode;
@@ -76,6 +78,7 @@ protected:
 
     std::shared_ptr<Ant> m_ant;
     std::shared_ptr<Map> m_map;
+    std::shared_ptr<Config> m_conf;
 
     std::vector<Ant*> m_allies;
     std::vector<Ant*> m_enemies;

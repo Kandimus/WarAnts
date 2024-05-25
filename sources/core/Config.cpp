@@ -33,7 +33,7 @@ Config::Config(const std::string& filename) : m_filename(filename)
 
     m_antsFileSettings = JsonHelper::getValue1<std::string>(json, "ants", m_antsFileSettings);
 
-    m_commandRadius = JsonHelper::getValue2<int16_t>(json, "bcode", "CommandRadius", m_commandRadius, 1, 0x7fff);
+    m_bcodeDebug = JsonHelper::getValue2<bool>(json, "bcode", "debug", m_bcodeDebug);
 
     m_isInit = true;
 }

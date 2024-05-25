@@ -78,6 +78,7 @@ public:
     uint16_t maxCargo() const { return m_maxCargo; }
     uint16_t cargo() const { return m_cargo; }
     AntType type() const { return m_type; }
+    std::string typeToString() const;
     AntStatus status() const { return m_status; }
 
     bool isWorker() const { return m_type == AntType::Worker; }
@@ -157,7 +158,7 @@ protected:
     int16_t m_sizeOfMemory = 8;
     std::vector<su::UniInt64> m_received; //TODO clear up after calling vm.run
     int16_t m_interruptFlags = 0;
-    int16_t m_interruptReason = Interrupt::CommandAbort | Interrupt::CommandFinished;
+    int16_t m_interruptReason = Interrupt::CommandAborted | Interrupt::CommandCompleted;
 
     AntCommand m_command;
     PlayerPtr m_player;

@@ -25,12 +25,17 @@ public:
     CONFIG_PARAMETER(uint32_t, workerCountOfStart, 5)
     CONFIG_PARAMETER(uint32_t, solderCountOfStart, 3)
 
-    CONFIG_PARAMETER(uint16_t, commandRadius, 3)
+    CONFIG_PARAMETER(bool, bcodeDebug, false)
 
     CONFIG_PARAMETER(std::string, antsFileSettings, "ants/default.json")
 
+public:
+    void setUBID(const std::string& ubid) { m_ubid = ubid; }
+    const std::string& UBID() const { return m_ubid; }
+
 protected:
     std::string m_filename;
+    std::string m_ubid;
 };
 
 };

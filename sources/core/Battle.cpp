@@ -14,29 +14,6 @@
 #include "battlelog/FileProvider.h"
 #include "battlelog/TextScreenProvider.h"
 
-//std::string AntInfoToString(const AntInfo& ai)
-//{
-//	nlohmann::json json;
-//
-//	json["iteration"] = ai.iteration;
-//	json["countOfWorker"] = ai.countOfWorker;
-//	json["countOfSolder"] = ai.countOfSolder;
-//	json["countOfFood"] = ai.countOfFood;
-//	json["healthPrecent"] = ai.healthPrecent;
-//	json["satietyPrecent"] = ai.satietyPrecent;
-//	json["cargo"] = ai.cargo;
-//	json["distanceToQueen"] = ai.distanceToQueen;
-//	json["directionToLabel"] = Math::descriptionDirection(ai.directionToLabel);
-//	json["distanceToLabel"] = ai.distanceToLabel;
-//	json["countOfVisibleAlly"] = ai.countOfVisibleAlly;
-//	json["countOfVisibleEnemies"] = ai.countOfVisibleEnemies;
-//	json["countOfVisibleFood"] = ai.countOfVisibleFood;
-//	json["directionToNearEnemy"] = Math::descriptionDirection(ai.directionToNearEnemy);
-//	json["directionToNearFood"] = Math::descriptionDirection(ai.directionToNearFood);
-//
-//	return nlohmann::to_string(json);
-//}
-
 namespace WarAnts
 {
 
@@ -84,6 +61,9 @@ Battle::Battle(const std::string& confname, const std::vector<std::string>& play
         }
     }
 
+    // Generate UBID
+    m_conf->setUBID(createUBID());
+
     m_logService = std::make_shared<BattleLogService>();
     m_logService->add(std::make_shared<FileProvider>("test_battle.json"));
     m_logService->add(std::make_shared<TextScreenProvider>("test_battle_screen.txt"));
@@ -110,6 +90,17 @@ struct TickCountClock
         return time_point(duration(getTickCount()));
     }
 };
+
+std::string Battle::createUBID() const
+{
+    std::time_t t = std::time(nullptr);
+    std::tm dt;
+
+    localtime_s(&dt, &t);
+    return su::String_format2("%04i%02i%02i-%02i%02i%02i",
+        dt.tm_year + 1900, dt.tm_mon + 1, dt.tm_mday,
+        dt.tm_hour, dt.tm_min, dt.tm_sec);
+}
 
 int Battle::run()
 {

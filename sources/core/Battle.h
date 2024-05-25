@@ -30,6 +30,7 @@ public:
     int run();
 
 protected:
+    std::string createUBID() const;
     //std::vector<std::weak_ptr<Ant>> sortAnts();
 
     void processingInterrupt(Ant& ant);
@@ -51,7 +52,6 @@ protected:
 protected:
     uint32_t m_iteration = 0;
     bool m_isInit = false;
-    uint64_t m_uid; //Battle UID
     std::shared_ptr<Config> m_conf;
     std::shared_ptr<Map> m_map;
 

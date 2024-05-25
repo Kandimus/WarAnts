@@ -117,6 +117,7 @@ comment   ";"[^\n\r]*
 "len"                       { return LEN; }
 "dist"                      { return DIST; }
 "ret"                       { return RET; }
+"dbg"                       { return DBG; }
 
 "ldrc"                      { return LDRC; }
 "ldfd"                      { return LDFD; }

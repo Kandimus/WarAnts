@@ -1,10 +1,13 @@
 ﻿#include "VirtualMachine.h"
 
+#include <fstream>
+
 #include "log.h"
 #include "defines.h"
 #include "wacfile.h"
 
 #include "Cell.h"
+#include "Config.h"
 #include "Map.h"
 #include "MapMath.h"
 #include "memory.h"
@@ -21,6 +24,7 @@ VirtualMachine::VirtualMachine(const std::shared_ptr<Map>& map, const std::share
 {
     m_ant = ant;
     m_map = map;
+    m_conf = map->config();
 
     auto wac = m_ant->player()->info();
 
@@ -263,6 +267,7 @@ bool VirtualMachine::run()
             case Asm::BCode::LDAL: result = value1(cmd, value.i16, valType); break;
             case Asm::BCode::CIDL: result = value1(cmd, value.i16, valType); break;
             case Asm::BCode::CEAT: result = value1(cmd, value.i16, valType); break;
+            case Asm::BCode::DBG:  result = value1(cmd, value.i16, valType); break;
         }
 
         if (!result)
@@ -557,7 +562,7 @@ bool VirtualMachine::jump(uint8_t cmd, uint16_t offset, uint8_t offsetType)
 
 bool VirtualMachine::value1(uint8_t cmd, uint16_t value, uint8_t valueType)
 {
-    auto cmdPos = pos() - 1 -(valueType == Asm::BCode::VALUE_CHAR || valueType == Asm::BCode::VALUE_SHORT) ? (valueType == Asm::BCode::VALUE_SHORT ? 2 : 1) : 0;
+    auto cmdPos = pos() - 1 - (valueType == Asm::BCode::VALUE_CHAR || valueType == Asm::BCode::VALUE_SHORT) ? (valueType == Asm::BCode::VALUE_SHORT ? 2 : 1) : 0;
 
     if (valueType != Asm::BCode::VALUE_CHAR && valueType != Asm::BCode::VALUE_SHORT)
     {
@@ -574,6 +579,7 @@ bool VirtualMachine::value1(uint8_t cmd, uint16_t value, uint8_t valueType)
         case Asm::BCode::LDAL: result = loadAlly(value); break;
         case Asm::BCode::CIDL: result = true; m_ant->setCommand(AntCommand(CommandType::Idle, value)); break;
         case Asm::BCode::CEAT: result = true; m_ant->setCommand(AntCommand(CommandType::Eat, value)); break;
+        case Asm::BCode::DBG:  result = printDebug(value); break;
         default:
             LOGE("Command %02x (%04x): Undefined the logical command", (int)cmd, cmdPos);
             SU_BREAKPOINT();
@@ -877,6 +883,35 @@ bool VirtualMachine::loadEnemy(int16_t value)
     m_memory[Memory::EnemyCoordY] = m_enemies[value]->position().y();
 
     return true;
+}
+
+bool VirtualMachine::printDebug(int16_t value)
+{
+    if (!m_conf->bcodeDebug())
+    {
+        return true;
+    }
+
+    std::string filename = su::Log::instance().getDir() + "/" + m_conf->UBID() + ".debug.txt";
+
+    std::ofstream file(filename, std::ios_base::app);
+
+    if (!file.is_open())
+    {
+        LOGE("Error: Can't open file for debug output");
+    }
+
+    file << "-------------------------------------------------------------------------------" << std::endl;
+    file << su::String_format2("    Player: %02i, Ant: %s", m_ant->player()->index(), m_ant->typeToString().c_str()) << std::endl;
+    file << std::endl;
+    file << su::String_format2("    r0: %04x, r10: %04x, r2: %04x, rc: %04x, rf: %04x, p0: <%04x:%04x>, p1: <%04x:%04x>, p2: <%04x:%04x>",
+        m_registers[Asm::Register::R0], m_registers[Asm::Register::R1], m_registers[Asm::Register::R2],
+        m_registers[Asm::Register::RC], m_registers[Asm::Register::RF], m_registers[Asm::Register::P0X],
+        m_registers[Asm::Register::P0Y], m_registers[Asm::Register::P1X], m_registers[Asm::Register::P1Y],
+        m_registers[Asm::Register::P2X], m_registers[Asm::Register::P2Y]) << std::endl;
+    file << std::endl;
+    file << su::String_printfHexBuffer(m_memory.data(), m_memory.size(), "    ") << std::endl;
+    file << std::endl;
 }
 
 };
