@@ -300,7 +300,7 @@ bool Battle::commandAttack(Ant& ant)
         case Command::StageMovingToAttack:
         {
             Ant* enemy = nullptr;
-            int16_t minDist = 0x7fff;
+            uint32_t minDist = 0xffffffff;
 
             auto result = m_map->processingRadius(ant.command().m_pos, Constant::CommandRadius, [&enemy, &minDist, &ant](const Cell* cell)
                 {

@@ -19,6 +19,8 @@ class TestConfig : public WarAnts::Config
 public:
     TestConfig() : WarAnts::Config()
     {
+        setUBID("test");
+        m_bcodeDebug = true;
     }
 
     void setBounded(bool bounded) { m_isBounded = bounded; }
@@ -57,6 +59,11 @@ public:
     TestPlayer(const WarAnts::Asm::WacFile& wac) : WarAnts::Player(0, "")
     {
         m_info = wac;
+    }
+
+    void setLibname(const std::string& filename)
+    {
+        m_libName = filename;
     }
 };
 
@@ -154,8 +161,11 @@ std::shared_ptr<TestAnt> runBCode(bool isBounded, const std::string& filename)
 
     REQUIRE(errors.empty());
 
-    // Allies
+    // main player
     std::shared_ptr<TestPlayer> plr = std::make_shared<TestPlayer>(wac);
+    plr->setLibname(filename);
+
+    // Allies
     std::shared_ptr<TestAnt> qAlly_1 = std::make_shared<TestAnt>(WarAnts::AntType::Queen, 12, 5, plr);
     std::shared_ptr<TestAnt> sAlly_1 = std::make_shared<TestAnt>(WarAnts::AntType::Solder, 1, 0, plr);
     std::shared_ptr<TestAnt> wAlly_1 = std::make_shared<TestAnt>(WarAnts::AntType::Worker, 7, 3, plr);

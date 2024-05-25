@@ -2,6 +2,7 @@
 sources/.vs/*
 output/*
 runtime/tests/*.txt
+runtime/logs/*
 
 # logs
 *.log

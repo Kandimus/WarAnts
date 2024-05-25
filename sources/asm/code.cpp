@@ -409,29 +409,7 @@ void Code::printData(const std::string& filename)
     file << "    .worker " << su::String_format2("%04x", m_funcWorker->offset()) << std::endl;
     file << std::endl;
 
-    file << su::String_printfHexBuffer((const char*)m_data.data(), m_data.size(), "");
-    /*file << "       00 01 02 03 04 05 06 07 08 09 0A 0B 0C 0D 0E 0F" << std::endl;
-    file << "     +------------------------------------------------" << std::endl;
-
-    size_t count = 0;
-    for (auto val8 : m_data)
-    {
-        if ((count & 0x0f) == 0)
-        {
-            file << su::String_format2("%04x |", count & 0xfff0);
-        }
-
-        int32_t val32 = val8;
-        val32 &= 0xff;
-        file << su::String_format2(" %02x", val32);
-
-        if ((count & 0x0f) == 0x0f)
-        {
-            file << std::endl;
-        }
-        ++count;
-    }
-    file << std::endl;*/
+    file << su::String_printfHexBuffer(m_data.data(), m_data.size(), sizeof(char), "");
     file.close();
 }
 
