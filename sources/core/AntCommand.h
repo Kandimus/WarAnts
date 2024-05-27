@@ -7,7 +7,6 @@
 namespace WarAnts
 {
 
-
 namespace Command
 {
 enum Type
@@ -58,10 +57,11 @@ public:
 
     void set(Command::Type cmd, const Position& pos, int16_t value)
     {
+        clear();
+
         m_type = cmd;
         m_pos = pos;
         m_value = value;
-        m_isCompleted = false;
     }
 
     void clear()
@@ -70,6 +70,8 @@ public:
         m_pos = 0;
         m_value = 0;
         m_isCompleted = false;
+        m_abortingCount = 0;
+        m_lengthToPoint = 0xffff;
     }
 
     void setCompleted(bool val) { m_isCompleted = val; }
@@ -80,6 +82,8 @@ public:
     Position m_pos = 0;
     int16_t m_value = 0;
     bool m_isCompleted = false;
+    uint16_t m_abortingCount = 0;
+    uint16_t m_lengthToPoint = 0;
 };
 
 

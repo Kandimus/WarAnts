@@ -23,7 +23,7 @@ int main(int argc, const char **argv)
     std::string configname = cl.getOption(Arg::CONFIG);
     if (configname.empty())
     {
-        LOGE("Do not selected configuration file!");
+        printf("You need to specify the configuration file!");
         return 1;
     }
 

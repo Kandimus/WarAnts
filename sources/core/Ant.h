@@ -40,18 +40,18 @@ namespace Interrupt
 
 enum Type : uint16_t
 {
-    CommandAborted = 0x0001,
-    CommandCompleted = 0x0002,
-    WasAttacked = 0x0004,
-    CloseEnemy = 0x0008,
-    FarEnemy = 0x0010,
+    CommandAborted = 0x0001,     // set in the postVM function
+    CommandCompleted = 0x0002,   // set in the postVM function
+    WasAttacked = 0x0004,        // set in the damage function
+    CloseEnemy = 0x0008,         // set in 
+    FarEnemy = 0x0010,           //
     CloseFood = 0x0020,
     FarFood = 0x0040,
-    LowSatiety = 0x0080,
+    LowSatiety = 0x0080,         
     MiddleSatiety = 0x0100,
     LowHealth = 0x0200,
     MiddleHealth = 0x0400,
-    Queen = 0x0800,
+    Queen = 0x0800,              // ????
 };
 
 }
@@ -123,6 +123,7 @@ public:
     bool damage(int16_t damage);
 
     bool beginTurn();
+    bool postVM();
     bool endTurn();
 
     uint32_t lifeCount() const { return m_lifeCount; }

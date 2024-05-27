@@ -11,6 +11,7 @@ namespace Constant
     const float InterruptValueMiddle = 50.0f;
 
     const int16_t CommandRadius = 5;
+    const int16_t CommandAborting = 10;
 }
 
 }

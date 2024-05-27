@@ -20,7 +20,7 @@
 namespace WarAnts
 {
 
-VirtualMachine::VirtualMachine(const std::shared_ptr<Map>& map, const std::shared_ptr<Ant>& ant)
+VirtualMachine::VirtualMachine(uint32_t iteration, const std::shared_ptr<Map>& map, const std::shared_ptr<Ant>& ant)
     : m_bcode(ant->player()->info().bcode)
     , m_memory(ant->memory())
 {
@@ -48,10 +48,10 @@ VirtualMachine::VirtualMachine(const std::shared_ptr<Map>& map, const std::share
         return;
     }
 
-    prepare();
+    prepare(iteration);
 }
 
-void VirtualMachine::prepare()
+void VirtualMachine::prepare(uint32_t iteration)
 {
     auto visibleCells = Math::visibleCells(m_ant->position(), m_ant->visibility());
 
@@ -89,9 +89,15 @@ void VirtualMachine::prepare()
         }
     }
 
+    su::UniInt32 iter;
+    iter.u32 = iteration;
+
     // Clear system data
     memset(m_memory.data(), 0, sizeof(int16_t) * Memory::UserData);
 
+    m_memory[Memory::Iteration] = iter.i16[0];
+    m_memory[Memory::Iteration + 1] = iter.i16[1];
+    m_memory[Memory::SatietyPercent] = int16_t(m_ant->satietyPercent() * 10);
     m_memory[Memory::SatietyPercent] = int16_t(m_ant->satietyPercent() * 10);
     m_memory[Memory::HealthPercent] = int16_t(m_ant->healthPercent() * 10);
     m_memory[Memory::Cargo] = m_ant->cargo(); //TODO может тут нужно в процентах?
@@ -693,9 +699,7 @@ bool VirtualMachine::mapSize()
         return false;
     }
 
-    arg.ptr[0] = m_map->sizeX();
-    arg.ptr[1] = m_map->sizeY();
-
+    m_map->size().store(arg.ptr);
     return true;
 }
 
@@ -935,10 +939,11 @@ bool VirtualMachine::printDebug(int16_t value)
             dt.tm_hour, dt.tm_min, dt.tm_sec, value)
         << std::endl;
     file << std::endl;
-    file << su::String_format2("    Player: %02i, file: '%s', Ant: %s",
+    file << su::String_format2("    Player: %02i, file: '%s', Ant: %s %s",
             player->index(),
             player->library().c_str(),
-            m_ant->typeToString().c_str())
+            m_ant->typeToString().c_str(),
+            m_ant->position().toString().c_str())
         << std::endl;
     file << std::endl;
     file << su::String_format2("    r0: %04x, r1: %04x, r2: %04x, rc: %04x, rf: %04x",

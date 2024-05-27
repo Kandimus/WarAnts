@@ -21,7 +21,9 @@ namespace WarAnts
 Battle::Battle(const std::string& confname, const std::vector<std::string>& players)
 {
     m_conf = std::make_shared<Config>(confname);
-    m_map  = std::make_shared<Map>(m_conf);
+    m_conf->setUBID(createUBID());
+    su::Log::instance().setTimeStamp(false);
+    su::Log::instance().setFilename(m_conf->UBID());
 
     // init ant fabric
     AntFabric::init(m_conf->antsFileSettings());
@@ -62,12 +64,12 @@ Battle::Battle(const std::string& confname, const std::vector<std::string>& play
         }
     }
 
-    // Generate UBID
-    m_conf->setUBID(createUBID());
-
+    std::string logDir = su::Log::instance().getDir();
     m_logService = std::make_shared<BattleLogService>();
-    m_logService->add(std::make_shared<FileProvider>("test_battle.json"));
-    m_logService->add(std::make_shared<TextScreenProvider>("test_battle_screen.txt"));
+    m_logService->add(std::make_shared<FileProvider>(logDir + m_conf->UBID() + ".json"));
+    m_logService->add(std::make_shared<TextScreenProvider>(logDir + m_conf->UBID() + "_screen.txt"));
+
+    m_map = std::make_shared<Map>(m_conf);
 
     LOGI("create new battle. map is [%i x %i]", m_conf->width(), m_conf->height());
 
@@ -127,6 +129,8 @@ int Battle::run()
     }
     m_logService->saveMap(*m_map.get());
 
+    m_iteration = 0;
+
     // main loop
     while(true)
     {
@@ -136,7 +140,6 @@ int Battle::run()
 
         // clear IsChange flag
         m_map->clearChanged();
-        m_iteration++;
 
         LOGD("Iteration %i", m_iteration);
 
@@ -162,8 +165,9 @@ int Battle::run()
 
             if(ant->interruptReason())
             {
-                VirtualMachine vm(m_map, ant);
+                VirtualMachine vm(m_iteration, m_map, ant);
                 vm.run();
+                ant->postVM();
             }
 
             doAntCommand(*ant);
@@ -202,6 +206,8 @@ int Battle::run()
         {
             break;
         }
+
+        m_iteration++;
     }
 
     return 0;
@@ -277,8 +283,18 @@ bool Battle::commandMove(Ant& ant)
 {
     auto dist = moveAntToPoint(ant, ant.command().m_pos);
 
-    ant.setInterruptReason(Interrupt::CommandAborted, dist < 0);
-    ant.setInterruptReason(Interrupt::CommandCompleted, dist >= 0 || dist <= 1);
+    if (dist < ant.command().m_lengthToPoint)
+    {
+        ant.command().m_lengthToPoint = dist;
+        ant.command().m_abortingCount = 0;
+    }
+    else
+    {
+        ++ant.command().m_abortingCount;
+    }
+
+    ant.setInterruptReason(Interrupt::CommandAborted, dist < 0 || ant.command().m_abortingCount >= Constant::CommandAborting);
+    ant.setInterruptReason(Interrupt::CommandCompleted, dist >= 0 && dist <= 1);
 
     return true;
 }
@@ -441,9 +457,12 @@ int16_t Battle::moveAntToPoint(Ant& ant, const Position& pos)
     auto oldPos = ant.position();
     LOGD("ant %s ---> %s: %s", ant.position().toString().c_str(), ant.command().m_pos.toString().c_str(), directionToString(dirToPoint, true).c_str());
     LOGD("dir %s changed to %s", directionToString(dirToPoint, true).c_str(), directionToString(dir, true).c_str());
-    LOGD("ant %s move to %s: %s", oldPos.toString().c_str(), ant.position().toString().c_str());
 
-    return moveAntToDirection(ant, dir);
+    auto result = moveAntToDirection(ant, dir);
+
+    LOGD("ant %s move to %s", oldPos.toString().c_str(), ant.position().toString().c_str());
+
+    return true;
 }
 
 /// \brief Moving the ant to selected direction

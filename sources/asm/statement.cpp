@@ -223,9 +223,9 @@ bool Statement::compile(Code* code)
     {
         case AsmCommand::ADD:  compile2Args(BCode::ADD, Table::LVal,   code); break;
         case AsmCommand::AND:  compile2Args(BCode::AND, Table::LValNP, code); break;
-        case AsmCommand::DEC:  compile1Args(BCode::DEC, Table::LValNP, code); break;
+        case AsmCommand::DEC:  compile1Args(BCode::DEC, Table::LVal,   code); break;
         case AsmCommand::DIV:  compile2Args(BCode::DIV, Table::LVal,   code); break;
-        case AsmCommand::INC:  compile1Args(BCode::INC, Table::LValNP, code); break;
+        case AsmCommand::INC:  compile1Args(BCode::INC, Table::LVal,   code); break;
         case AsmCommand::MOD:  compile2Args(BCode::MOD, Table::LValNP, code); break;
         case AsmCommand::MUL:  compile2Args(BCode::MUL, Table::LVal,   code); break;
         case AsmCommand::NEG:  compile1Args(BCode::NEG, Table::LVal,   code); break;

@@ -31,6 +31,16 @@ public:
     void dec() { --m_x; --m_y; }
     void neg() { m_x = -m_x; m_y = -m_y; }
 
+    Position min(const Position& p) const { return Position(m_x < p.m_x ? m_x : p.m_x, m_y < p.m_y ? m_y : p.m_y); }
+    Position max(const Position& p) const { return Position(m_x > p.m_x ? m_x : p.m_x, m_y > p.m_y ? m_y : p.m_y); }
+
+    Position min(int16_t v) const { return Position(m_x < v ? m_x : v, m_y < v ? m_y : v); }
+    Position max(int16_t v) const { return Position(m_x > v ? m_x : v, m_y > v ? m_y : v); }
+
+    Position abs() const { return Position(std::abs(m_x), std::abs(m_y)); }
+    
+    int16_t minAxis() const { return m_x <= m_y ? m_x : m_y; }
+
     void store(int16_t* p) const { p[0] = m_x; p[1] = m_y; }
 
     bool operator==(const Position& p) const { return m_x == p.x() && m_y == p.y(); }
@@ -82,12 +92,6 @@ public:
     void operator-=(int16_t val) { m_x -= val; m_y -= val; }
     void operator*=(int16_t val) { m_x *= val; m_y *= val; }
     void operator/=(int16_t val) { m_x -= val; m_y -= val; }
-
-    Position min(const Position& p) const { return Position(m_x < p.m_x ? m_x : p.m_x, m_y < p.m_y ? m_y : p.m_y); }
-    Position max(const Position& p) const { return Position(m_x > p.m_x ? m_x : p.m_x, m_y > p.m_y ? m_y : p.m_y); }
-
-    Position min(int16_t v) const { return Position(m_x < v ? m_x : v, m_y < v ? m_y : v); }
-    Position max(int16_t v) const { return Position(m_x > v ? m_x : v, m_y > v ? m_y : v); }
 
     std::string toString() const
     {

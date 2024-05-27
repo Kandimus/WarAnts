@@ -70,6 +70,16 @@ bool Ant::beginTurn()
     return true;
 }
 
+bool Ant::postVM()
+{
+    // Clear IR
+    m_interruptReason = 0;
+    // Copy IF form memory to variable
+    m_interruptFlags = m_memory[Memory::InterruptFlags] | Interrupt::CommandAborted | Interrupt::CommandCompleted;
+
+    return true;
+}
+
 bool Ant::endTurn()
 {
     m_satiety -= m_redicedSatiety;
@@ -87,12 +97,8 @@ bool Ant::endTurn()
 
     // Clear received data
     m_received.clear();
-    // Clear IR
-    m_interruptReason = 0;
-    // Copy IF form memory to variable
-    m_interruptFlags = m_memory[Memory::InterruptFlags];
 
-    // Attack
+    // Interrupts of the status
     setInterruptReason(Interrupt::LowSatiety, satietyPercent() < Constant::InterruptValueLow);
     setInterruptReason(Interrupt::MiddleSatiety, satietyPercent() < Constant::InterruptValueMiddle);
     setInterruptReason(Interrupt::LowSatiety, healthPercent() < Constant::InterruptValueLow);

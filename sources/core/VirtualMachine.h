@@ -28,7 +28,7 @@ public:
     };
 
 public:
-    VirtualMachine(const std::shared_ptr<Map>& map, const std::shared_ptr<Ant>& ant);
+    VirtualMachine(uint32_t iteration, const std::shared_ptr<Map>& map, const std::shared_ptr<Ant>& ant);
     VirtualMachine(const VirtualMachine&) = delete;
     VirtualMachine(VirtualMachine&&) = delete;
     virtual ~VirtualMachine() = default;
@@ -43,7 +43,7 @@ protected:
     void setPos(uint16_t pos) { m_pos = pos; };
     int8_t getNextChar() { ++m_pos; return m_bcode[m_pos - 1]; }
 
-    void prepare();
+    void prepare(uint32_t iteration);
     Argument getRegisterArgument();
 
     void setRF(int16_t bit, bool value);
