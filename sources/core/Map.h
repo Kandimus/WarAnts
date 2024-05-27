@@ -40,8 +40,8 @@ public:
     }
 
     inline const Position& size() const { return m_size; }
-    inline uint32_t sizeX() const { return m_size.x(); }
-    inline uint32_t sizeY() const { return m_size.y(); }
+    inline uint16_t sizeX() const { return m_size.x(); }
+    inline uint16_t sizeY() const { return m_size.y(); }
 
     ListAnts generate(const std::vector<std::shared_ptr<Player>>& players);
 
@@ -95,9 +95,9 @@ protected:
     std::vector<std::shared_ptr<Cell>> m_map;
     std::shared_ptr<Config> m_conf;
 
-    const uint32_t m_startingSquare = 10;
-    const uint32_t m_minWidth = 10;
-    const uint32_t m_minHeight = 10;
+    const uint16_t m_startingSquare = 10;
+    const uint16_t m_minWidth = 10;
+    const uint16_t m_minHeight = 10;
 };
 
 };

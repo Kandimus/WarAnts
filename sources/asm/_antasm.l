@@ -118,6 +118,7 @@ comment   ";"[^\n\r]*
 "dist"                      { return DIST; }
 "ret"                       { return RET; }
 "dbg"                       { return DBG; }
+"mpsz"                      { return MPSZ; }
 
 "ldrc"                      { return LDRC; }
 "ldfd"                      { return LDFD; }

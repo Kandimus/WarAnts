@@ -143,6 +143,7 @@ enum class AsmCommand
     DIST,
     RET,
     DBG,
+    MPSZ,
 
     LDRC,
     LDFD,
@@ -245,6 +246,7 @@ enum Command : uint8_t
     LEN,
     DIST,
     RET,
+    MPSZ,
 
     CMOV,
     CATT,

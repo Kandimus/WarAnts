@@ -319,6 +319,8 @@ TEST_CASE("basic", "[VM]")
     CHECK(ant->getValue(48) == 48);
     CHECK(ant->getValue(49) == 49);
     CHECK(ant->getValue(50) == 50);
+    CHECK(ant->getValue(51) == 15);
+    CHECK(ant->getValue(52) == 15);
 }
 
 TEST_CASE("arithmetic", "[VM]")

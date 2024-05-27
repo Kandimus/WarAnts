@@ -59,6 +59,7 @@ protected:
     bool ret(bool& exit);
     bool commandPositionArg(int8_t cmd);
     bool commandNoArgs(int8_t cmd);
+    bool mapSize();
     void setDstAndFlags(int16_t* dst, int32_t value);
     bool checkLVal(const Argument& arg);
     bool bsf(int16_t* bitno, int16_t src);

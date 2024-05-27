@@ -1,0 +1,18 @@
+%core "0100"
+%name "Test basic operations"
+%version "1"
+%class "black"
+
+.WORKER
+    mov   fc, 2h
+    ; В теории можно находить такие циклы, где увеличивается/изменяется регистр fc и выдавать варнинг
+infinitive:
+    inc   fc
+    loop  infinitive
+    ret
+
+.solder
+    RET
+
+.queen
+    RET

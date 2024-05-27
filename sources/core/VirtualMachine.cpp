@@ -101,7 +101,7 @@ void VirtualMachine::prepare()
     m_memory[Memory::CountOfReceivedData] = (int16_t)m_ant->receivedData().size();
     //CountOfWorkers = 0x09,
     //CountOfSolders = 0x0a,
-    //InterruptReason = 0x0b,
+    m_memory[Memory::InterruptReason] = m_ant->interruptReason();
     m_memory[Memory::CommandId] = (int16_t)m_ant->command().m_type;
     m_memory[Memory::CommandX] = m_ant->command().m_pos.x();
     m_memory[Memory::CommandY] = m_ant->command().m_pos.y();
@@ -243,6 +243,7 @@ bool VirtualMachine::run()
             case Asm::BCode::LEN:  result = length(cmd); break;
             case Asm::BCode::DIST: result = length(cmd); break;
             case Asm::BCode::RET:  result = ret(exit); break;
+            case Asm::BCode::MPSZ: result = mapSize(); break;
 
             case Asm::BCode::CMOV: result = commandPositionArg(cmd); break;
             case Asm::BCode::CATT: result = commandPositionArg(cmd); break;
@@ -678,6 +679,23 @@ bool VirtualMachine::commandNoArgs(int8_t cmd)
             SU_BREAKPOINT();
             return false;
     }
+    return true;
+}
+
+bool VirtualMachine::mapSize()
+{
+    auto cmdPos = pos() - 1;
+    auto arg = getRegisterArgument();
+
+    if (!arg.pos)
+    {
+        LOGE("Offset %04x: the argument is not a position (reg 0x%02x)", arg.offset, arg.reg);
+        return false;
+    }
+
+    arg.ptr[0] = m_map->sizeX();
+    arg.ptr[1] = m_map->sizeY();
+
     return true;
 }
 

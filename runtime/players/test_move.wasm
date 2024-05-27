@@ -1,0 +1,81 @@
+%   core "0100"
+%   name "Black stupid moving ants"
+%version "1"
+%  class "black"
+
+#define iteration   00H
+#define food_count  07H
+#define enemy_count 06H
+#define enemy_pos   21H
+#define IF          24H
+
+#define Direction   32h
+
+.Worker
+    eq   [iteration], 0
+    jf   main
+init:
+    mov  [IF], 0 ; only CA and CC
+    mov  [Direction], 2
+    
+main:
+    eq   [Direction], 1
+    jt   goto_end
+    eq   [Direction], 2
+    jt   goto_begin
+    dbg  [Direction]
+    jmp  goto_begin
+    
+goto_end:
+    mov  [Direction], 2
+    mpsz p0
+    dec  p0
+    cmov p0
+    jmp  end
+    
+goto_begin:
+    mov  [Direction], 2
+    mpsz p0
+    dec  p0
+    cmov p0
+    jmp  end
+    
+;    MOV  RF, [1 * 2 + 3]
+;    AND R0, P0
+    MAX P1, P0
+    MOV [R0 + 5], [R1 + P0:X * 2 + 10]
+    ; Если мы голодны (сытость <= 50.0)
+    ; то идем к ближайшей точке с едой
+    ; или кушаем из карго
+    LE  [2], 500
+    jt  go_to_food
+
+    ; Если рядом минимум 2 противника, то атакуем ближайшего
+    GE  [enemy_count], 2
+    jt  attack_enemy
+    jmp finish
+go_to_food:
+    GT  [food_count], 0
+    jt  eat_from_cargo
+    LDFD 0
+    CTKF [48]
+    JMP finish
+
+eat_from_cargo:
+    CEAT 2
+    JMP  finish
+
+attack_enemy:
+    CALL GetNearlyEnemy
+    LDEN R0
+    CATT [enemy_pos]
+    JMP finish
+finish:
+    RET
+
+
+.SOLDER
+    ret
+
+.queen
+    ret

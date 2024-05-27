@@ -272,6 +272,7 @@ bool Statement::compile(Code* code)
         case AsmCommand::DIST: compile1Args(BCode::DIST, Table::Position, code); break;
         case AsmCommand::RET:  compileNoArgs(BCode::RET, code); break;
         case AsmCommand::DBG:  compile1Args(BCode::DBG, Table::RVal,      code); break;
+        case AsmCommand::MPSZ: compile1Args(BCode::MPSZ, Table::Position, code); break;
 
         case AsmCommand::LDRC: compile1Args(BCode::LDRC, Table::RValNP, code); break;
         case AsmCommand::LDFD: compile1Args(BCode::LDFD, Table::RValNP, code); break;
@@ -459,7 +460,8 @@ void Statement::print(std::ofstream& file) const
         case AsmCommand::LEN:  print2Expr(file, "LEN ", m_dst, m_src); break;
         case AsmCommand::DIST: print1Expr(file, "DIST", m_dst       ); break;
         case AsmCommand::RET:  print0Expr(file, "RET"); break;
-        case AsmCommand::DBG:  print1Expr(file, "DBG", m_src); break;
+        case AsmCommand::DBG:  print1Expr(file, "DBG",  m_src); break;
+        case AsmCommand::MPSZ: print1Expr(file, "MPSZ", m_dst); break;
 
         case AsmCommand::LDRC: print1Expr(file, "LDRC", m_src); break;
         case AsmCommand::LDFD: print1Expr(file, "LDFD", m_src); break;
