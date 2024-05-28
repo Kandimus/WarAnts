@@ -113,13 +113,8 @@ int Battle::run()
         return 1;
     }
 
-    //TODO create UID of battle
-
     // create list of all ant
     m_ants = m_map->generate(m_players);
-
-    //TEST!!!
-    //m_ants.begin()->get()->setCommand(CommandType::MoveAndIdle, 1, 1, 0);
 
     // send of starting info
     m_logService->saveMapInfo(*m_map.get());
@@ -462,7 +457,7 @@ int16_t Battle::moveAntToPoint(Ant& ant, const Position& pos)
 
     LOGD("ant %s move to %s", oldPos.toString().c_str(), ant.position().toString().c_str());
 
-    return true;
+    return result;
 }
 
 /// \brief Moving the ant to selected direction
