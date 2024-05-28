@@ -22,6 +22,7 @@ Config::Config(const std::string& filename) : m_filename(filename)
     }
 
     file >> json;
+    file.close();
 
     m_width = JsonHelper::getValue2<uint32_t>(json, "map", "width", m_width, 15, 1000);
     m_height = JsonHelper::getValue2<uint32_t>(json, "map", "height", m_height, 15, 1000);

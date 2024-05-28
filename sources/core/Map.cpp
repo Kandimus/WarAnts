@@ -1,60 +1,65 @@
 #include "Map.h"
 
+#include <fstream>
 #include <vector>
+
 #include "Log.h"
 
 #include "AntFabric.h"
 #include "Cell.h"
 #include "Config.h"
+#include "constants.h"
 #include "Direction.h"
-#include "Math.h"
-#include "Player.h"
+#include "jsonhelper.h"
 #include "MapMath.h"
+#include "Player.h"
 
 namespace WarAnts
 {
 
-Map::Map(const std::shared_ptr<Config>& conf)
+Map::Map(const std::shared_ptr<Config>& conf, const std::string& filename)
 {
     m_conf = conf;
-
-    uint32_t w = m_conf->width();
-    uint32_t h = m_conf->height();
-
-    if (w < m_minWidth)
-    {
-        w = m_minWidth;
-        LOGI("Set width = %i", w);
-    }
-
-    if (h < m_minHeight)
-    {
-        h = m_minHeight;
-        LOGI("Set height = %i", h);
-    }
-
-    createMap(w, h);
-
-    LOGI("Create map [%i x %i]", m_size.x(), m_size.y());
+    m_filename = filename;
 }
 
 ListAnts Map::generate(const std::vector<std::shared_ptr<Player>>& players)
 {
     ListAnts ants;
 
-    // countCell = m_map.size();
+    std::vector<Position> playerStart;
 
-    //TODO generate stone
-
-    //TODO generate food
-
-    //TODO generate ants
     for (auto& player : players)
     {
-        Position posQueen(static_cast<uint16_t>(Math::random(0, m_size.x())),
-                          static_cast<uint16_t>(Math::random(0, m_size.y())));
+        playerStart.push_back(Position(-1, -1));
+    }
 
-        posQueen = nearAvaliblePosition(posQueen);
+    if (m_filename.empty() || !load(playerStart))
+    {
+        setSize(m_conf->width(), m_conf->height());
+        createMap();
+        //TODO generate stone
+        //TODO generate food
+        LOGI("Created map [%i x %i]", m_size.x(), m_size.y());
+    }
+    
+    for (auto& start : playerStart)
+    {
+        if (start.x() < 0 || start.y() < 0)
+        {
+            int16_t x = (int16_t)Math::random(0, m_size.x() - 1);
+            int16_t y = (int16_t)Math::random(0, m_size.y() - 1);
+            start.init(x, y);
+        }
+    }
+
+    //TODO generate ants
+    for (size_t ii = 0; ii < players.size(); ++ii)
+    {
+        auto& player = players[ii];
+        Position posQueen = playerStart[ii];
+
+        posQueen = closestAvaliblePosition(posQueen);
         LOGD("Queen #%i [%i x %i]", player->index(), posQueen.x(), posQueen.y());
 
         // do place Queen
@@ -84,7 +89,7 @@ AntPtr Map::createAnt(const PlayerPtr& player, AntType antType, const Position& 
     Position calc_pos(static_cast<uint16_t>(Math::random(0, r * 2)), static_cast<uint16_t>(Math::random(0, r * 2)));
     calc_pos -= r;
     calc_pos += pos;
-    calc_pos = nearAvaliblePosition(calc_pos);
+    calc_pos = closestAvaliblePosition(calc_pos);
 
     auto ant = AntFabric::createAnt(player, antType);
 
@@ -143,7 +148,7 @@ void Map::forceCellChange(const Position& pos)
     }
 }
 
-Position Map::nearAvaliblePosition(const Position& pos) const
+Position Map::closestAvaliblePosition(const Position& pos) const
 {
     if (isCellEmpty(pos))
     {
@@ -195,7 +200,7 @@ Position Map::nearAvaliblePosition(const Position& pos) const
     return pos + curPos;
 }
 
-Position Map::nearestFood(const Position& pos, uint32_t visible) const
+Position Map::closestFood(const Position& pos, uint32_t visible) const
 {
     std::vector<const Position*> arrMinDist;
     //auto visibleCells = Math::visibleCells(pos, visible);
@@ -236,11 +241,27 @@ void Map::moveAnt(Ant& ant, const Position& pos)
     ant.setPosition(pos);
 }
 
-void Map::createMap(uint32_t w, uint32_t h)
+void Map::setSize(int16_t w, int16_t h)
+{
+    if (w < m_minWidth)
+    {
+        w = m_minWidth;
+        LOGW("Set width = %i", w);
+    }
+
+    if (h < m_minHeight)
+    {
+        h = m_minHeight;
+        LOGW("Set height = %i", h);
+    }
+
+    m_size.init(w, h);
+}
+
+void Map::createMap()
 {
     m_map.clear();
 
-    m_size.init(w, h);
     m_map.resize(m_size.x() * m_size.y());
 
     Position pos;
@@ -251,14 +272,105 @@ void Map::createMap(uint32_t w, uint32_t h)
     }
 }
 
+bool Map::load(std::vector<Position>& start)
+{
+    std::string path = Constant::dirMaps + m_filename;
+    std::ifstream file(path);
+    nlohmann::json json;
+
+    if (!file.is_open())
+    {
+        LOGE("Error: The '%s' map file not found. Using the default map generation algorithm.", path.c_str());
+        return false;
+    }
+
+    file >> json;
+    file.close();
+
+    int16_t w = JsonHelper::getValue2<int16_t>(json, "size", "width", m_minWidth);
+    int16_t h = JsonHelper::getValue2<int16_t>(json, "size", "height", m_minHeight);
+    setSize(w, h);
+
+    createMap();
+
+    // players
+    nlohmann::json jsonPlayer = json["player"];
+    if (jsonPlayer.is_array())
+    {
+        for (auto& item : jsonPlayer.items())
+        {
+            nlohmann::json& value = item.value();
+            if (!value.contains("id") || !value.contains("spawn") || !value["spawn"].is_array() || value["spawn"].size() != 2)
+            {
+                continue;
+            }
+
+            size_t id = value["id"];
+            if (id >= start.size())
+            {
+                continue;
+            }
+
+            start[id].init(value["spawn"][0], value["spawn"][1]);
+        }
+    }
+
+    // stones
+    nlohmann::json jsonStones = json["stone"];
+    if (jsonStones.is_array())
+    {
+        for (auto& item : jsonStones.items())
+        {
+            nlohmann::json& value = item.value();
+            if (!value.is_array() || value.size() != 2)
+            {
+                continue;
+            }
+
+            auto apos = absPosition(Position(value[0], value[1]));
+            if (apos > 0)
+            {
+                m_map[apos]->setStone(true);
+            }
+        }
+    }
+
+    // foods
+    nlohmann::json jsonFoods = json["food"];
+    if (jsonFoods.is_array())
+    {
+        for (auto& item : jsonFoods.items())
+        {
+            nlohmann::json& value = item.value();
+            if (!value.is_array() || value.size() != 3)
+            {
+                continue;
+            }
+
+            int16_t x = value[0];
+            int16_t y = value[1];
+            int16_t c = value[2];
+            auto apos = absPosition(Position(value[0], value[1]));
+            if (apos > 0)
+            {
+                m_map[apos]->setFood(value[2]);
+            }
+        }
+    }
+
+    LOGI("Loaded map (%i x %i) from '%s'", m_size.x(), m_size.y(), m_filename.c_str());
+
+    return true;
+}
+
 void Map::incPosition(Position& pos, uint32_t x) const
 {
     pos.addX(x);
 
     if (pos.x() >= m_size.x())
     {
-        pos.addY(pos.x() - m_size.x() + 1);
-        pos.setX(m_size.x() - 1);
+        pos.addY(pos.x() / m_size.x());
+        pos.setX(pos.x() % m_size.x());
     }
 }
 
@@ -266,7 +378,10 @@ int32_t Map::absPosition(const Position& pos) const
 {
     if (m_conf->isBounded())
     {
-        return (pos.x() >= 0 && pos.x() < m_size.x() && pos.y() >= 0 && pos.y() < m_size.y()) ? pos.x() + pos.y() * m_size.x() : 0xffffffff;
+        return (pos.x() >= 0 && pos.x() < m_size.x() &&
+                pos.y() >= 0 && pos.y() < m_size.y())
+            ? pos.x() + pos.y() * m_size.x()
+            : 0xffffffff;
     }
     return 0xffffffff; //TODO Issue-2
 }

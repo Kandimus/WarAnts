@@ -18,9 +18,9 @@
 namespace WarAnts
 {
 
-Battle::Battle(const std::string& confname, const std::vector<std::string>& players)
+Battle::Battle(const std::string& confname, const std::string& mapname, const std::vector<std::string>& players)
 {
-    m_conf = std::make_shared<Config>(confname);
+    m_conf = std::make_shared<Config>(Constant::dirConfig + confname);
     m_conf->setUBID(createUBID());
     su::Log::instance().setTimeStamp(false);
     su::Log::instance().setFilename(m_conf->UBID());
@@ -32,7 +32,7 @@ Battle::Battle(const std::string& confname, const std::vector<std::string>& play
     uint32_t player_index = 0;
     for (auto& libname : players)
     {
-        m_players.push_back(std::make_shared<Player>(player_index++, "players/" + libname));
+        m_players.push_back(std::make_shared<Player>(player_index++, Constant::dirPlayers + libname));
     }
 
     if (players.size() < 2)
@@ -69,9 +69,9 @@ Battle::Battle(const std::string& confname, const std::vector<std::string>& play
     m_logService->add(std::make_shared<FileProvider>(logDir + m_conf->UBID() + ".json"));
     m_logService->add(std::make_shared<TextScreenProvider>(logDir + m_conf->UBID() + "_screen.txt"));
 
-    m_map = std::make_shared<Map>(m_conf);
-
-    LOGI("create new battle. map is [%i x %i]", m_conf->width(), m_conf->height());
+    //TODO может быть перенести карту в функцию `run`?
+    m_map = std::make_shared<Map>(m_conf, mapname);
+    LOGI("Created new battle [%s]", m_conf->UBID().c_str());
 
     m_isInit = true;
 }

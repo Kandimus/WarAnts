@@ -20,7 +20,7 @@ using PlayerPtr = std::shared_ptr<Player>;
 class Map
 {
 public:
-    Map(const std::shared_ptr<Config>& conf);
+    Map(const std::shared_ptr<Config>& conf, const std::string& filename);
     virtual ~Map() = default;
 
     inline std::shared_ptr<Config> config() const { return m_conf; }
@@ -55,8 +55,8 @@ public:
     void clearChanged();
     void forceCellChange(const Position& pos);
 
-    Position nearAvaliblePosition(const Position& pos) const;
-    Position nearestFood(const Position& pos, uint32_t visible) const;
+    Position closestAvaliblePosition(const Position& pos) const;
+    Position closestFood(const Position& pos, uint32_t visible) const;
     
     template<typename F>
     bool processingRadius(const Position& pos, int16_t radius, const F& f)
@@ -86,7 +86,9 @@ public:
     AntPtr createAnt(const PlayerPtr& player, AntType antType, const Position& pos, uint16_t r);
 
 protected:
-    void createMap(uint32_t w, uint32_t h);
+    void setSize(int16_t w, int16_t h);
+    void createMap();
+    bool load(std::vector<Position>& start);
     void incPosition(Position& pos, uint32_t x = 1) const;
     int32_t absPosition(const Position& pos) const;
 
@@ -94,6 +96,7 @@ protected:
     Position m_size;
     std::vector<std::shared_ptr<Cell>> m_map;
     std::shared_ptr<Config> m_conf;
+    std::string m_filename;
 
     const uint16_t m_startingSquare = 10;
     const uint16_t m_minWidth = 10;

@@ -33,7 +33,7 @@ protected:
 
     const char cEmpty = ' ';
     const char cStone = '#';
-    const char cFood  = '*';
+    const char cFood  = '$';
     const char cQueen[4]  = {'q', 'w', 'e', 'r'};
     const char cSolder[4] = {'a', 's', 'd', 'f'};
     const char cWorker[4] = {'z', 'x', 'c', 'v'};

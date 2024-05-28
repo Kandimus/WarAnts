@@ -7,6 +7,7 @@ namespace Arg
 {
     const su::CommandLineOption CONFIG = { "config", 'c' };
     const su::CommandLineOption LOGDIR = { "logdir", 'l' };
+    const su::CommandLineOption MAP = { "map", 'm' };
 };
 
 int main(int argc, const char **argv)
@@ -15,6 +16,7 @@ int main(int argc, const char **argv)
 
     cl.addOption(Arg::CONFIG, "default.json")
       .addOption(Arg::LOGDIR, "./logs/")
+      .addOption(Arg::MAP, "")
       .parse(argc, argv);
 
     su::Log::instance().setDir(cl.getOption(Arg::LOGDIR));
@@ -34,7 +36,7 @@ int main(int argc, const char **argv)
         plr_list.push_back(cl.getArgument(ii));
     }
 
-    WarAnts::Battle battle("./config/" + configname, plr_list);
+    WarAnts::Battle battle(configname, cl.getOption(Arg::MAP), plr_list);
 
     return battle.run();
 }
