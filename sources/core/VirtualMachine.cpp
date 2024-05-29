@@ -934,9 +934,10 @@ bool VirtualMachine::printDebug(int16_t value)
     file << "----------------------------------------------------------------------------------------" << std::endl;
 
     localtime_s(&dt, &t);
-    file << su::String_format2("%04i.%02i.%02i %02i:%02i:%02i Debug: %04x",
+    file << su::String_format2("%04i.%02i.%02i %02i:%02i:%02i #%i, UserData: %i %04x",
             dt.tm_year + 1900, dt.tm_mon + 1, dt.tm_mday,
-            dt.tm_hour, dt.tm_min, dt.tm_sec, value)
+            dt.tm_hour, dt.tm_min, dt.tm_sec,
+            *(uint32_t*)&m_memory[Memory::Iteration], value, value)
         << std::endl;
     file << std::endl;
     file << su::String_format2("    Player: %02i, file: '%s', Ant: %s %s",
