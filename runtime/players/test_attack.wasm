@@ -1,0 +1,101 @@
+%core "0100"
+%name "Black stupid ants. Moving form 0 to end and back again."
+%version "1"
+%class "black"
+
+#define iteration   00H
+#define food_count  07H
+#define enemy_count 06H
+#define enemy_pos   21H
+#define IF          24H
+
+#define IR_CE       0008h
+#define IR_FE       0010h
+#define IR_E        0018h
+
+#define Direction   32h
+
+;-----------------------------------------------
+; return R0 as index the closest enemy or -1
+.GetClosestEnemy
+    ; R0 - index of the nearest enemy
+    ; R1 - min distance to an enemy
+    ; R2 - the current distance to an enemy
+    mov   r0, -1
+    mov   rc, [enemy_count]
+    ; if no enemy in the ant radius then exit
+    jz    return
+    dec   rc
+    mov   r1, 7fffh ; max len
+    
+    ; main loop
+beg_loop:
+    lden  rc
+    dist  <enemy_pos> ; r2 contain the distantion to enemy
+    gt    r2, r1
+    jt    end_loop
+    mov   r1, r2
+    mov   r0, rc
+end_loop:
+    loop  beg_loop
+return:
+    ret
+
+;------------------------------------------------------------------------------
+;
+.Worker
+    eq    [iteration], 0
+    jf    main
+init:
+    mov   [IF], 001Bh      ; CA CC CE FE
+    mov   [Direction], 2
+    
+main:
+    ; checking enemies near of ant
+    test  [IF], IR_CE
+    jt    attack
+    test  [IF], IR_FE
+    jt    attack
+
+    ; no enemies, simple moving
+    eq    [Direction], 1
+    jt    goto_end
+    eq    [Direction], 2
+    jt    goto_begin
+    dbg   -1
+    jmp   goto_begin
+    
+goto_end:
+    mov   [Direction], 2
+    mpsz  p0
+    dec   p0
+    cmov  p0
+    jmp   end
+    
+goto_begin:
+    mov   [Direction], 1
+    mov   p0:x, 0
+    mov   p0:y, 0
+    cmov  p0
+    jmp   end
+    
+attack:
+    mov   [Direction], 3
+    call  GetClosestEnemy
+    eq    r0, -1
+    jt    end
+    lden  r0
+    catt  <enemy_pos>
+    jmp   end
+    
+end:
+    dbg  [Direction]
+    RET
+
+
+.SOLDER
+    ret
+
+
+.QUEEN
+    ret

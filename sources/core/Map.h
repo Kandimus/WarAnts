@@ -57,6 +57,10 @@ public:
 
     Position closestAvaliblePosition(const Position& pos) const;
     Position closestFood(const Position& pos, uint32_t visible) const;
+
+    void moveAnt(Ant& ant, const Position& pos);
+    void removeAnt(const Position& pos);
+    AntPtr createAnt(const PlayerPtr& player, AntType antType, const Position& pos, uint16_t r);
     
     template<typename F>
     bool processingRadius(const Position& pos, int16_t radius, const F& f)
@@ -79,11 +83,30 @@ public:
         return true;
     }
 
+    template<typename F>
+    bool processingAntsInRadius(const Position& pos, int16_t radius, const F& f)
+    {
+        auto listPos = Math::visibleCells(pos, radius);
+        if (!listPos.empty())
+        {
+            return false;
+        }
 
+        for (auto& pos : listPos)
+        {
+            auto pCell = cell(pos);
+            if (!pCell)
+            {
+                continue;
+            }
 
-    void moveAnt(Ant& ant, const Position& pos);
-    void removeAnt(const Position& pos);
-    AntPtr createAnt(const PlayerPtr& player, AntType antType, const Position& pos, uint16_t r);
+            if (pCell->ant())
+            {
+                f(pCell->ant());
+            }
+        }
+        return true;
+    }
 
 protected:
     void setSize(int16_t w, int16_t h);

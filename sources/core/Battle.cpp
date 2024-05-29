@@ -212,11 +212,24 @@ void Battle::processingInterrupt(Ant& ant)
 {
     if (ant.interruptFlags() & Interrupt::CloseEnemy)
     {
+        bool enemyIsPresent = false;
+        auto player = ant.player();
+        auto result = m_map->processingAntsInRadius(ant.position(), ant.visibility() / Constant::DivCloseRadius, [&enemyIsPresent, player](Ant* cellAnt)
+        {
+            enemyIsPresent = cellAnt->player() != player;
+        });
+        ant.setInterruptReason(Interrupt::CloseEnemy, enemyIsPresent);
     }
 
     if (ant.interruptFlags() & Interrupt::FarEnemy)
     {
-
+        bool enemyIsPresent = false;
+        auto player = ant.player();
+        auto result = m_map->processingAntsInRadius(ant.position(), ant.visibility() / Constant::DivFarRadius, [&enemyIsPresent, player](Ant* cellAnt)
+        {
+            enemyIsPresent = cellAnt->player() != player;
+        });
+        ant.setInterruptReason(Interrupt::FarEnemy, enemyIsPresent);
     }
 
     if (ant.interruptFlags() & Interrupt::CloseFood)
@@ -313,24 +326,20 @@ bool Battle::commandAttack(Ant& ant)
             Ant* enemy = nullptr;
             uint32_t minDist = 0xffffffff;
 
-            auto result = m_map->processingRadius(ant.command().m_pos, Constant::CommandRadius, [&enemy, &minDist, &ant](const Cell* cell)
+            auto result = m_map->processingAntsInRadius(ant.command().m_pos, Constant::CommandRadius, [&enemy, &minDist, &ant](Ant* cellAnt)
+            {
+                if (cellAnt->player() == ant.player())
                 {
-                    auto cellAnt = cell->ant();
-                    if (!cellAnt)
-                    {
-                        return;
-                    }
+                    return;
+                }
 
-                    if (cellAnt->player() != ant.player())
-                    {
-                        auto dist = Math::distanceTo(ant.position(), cellAnt->position());
-                        if (dist < minDist)
-                        {
-                            minDist = dist;
-                            enemy = cellAnt;
-                        }
-                    }
-                });
+                auto dist = Math::distanceTo(ant.position(), cellAnt->position());
+                if (dist < minDist)
+                {
+                    minDist = dist;
+                    enemy = cellAnt;
+                }
+            });
             
             if (!result)
             {
