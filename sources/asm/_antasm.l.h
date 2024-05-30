@@ -1072,7 +1072,7 @@ YY_RULE_SETUP
 case 54:
 YY_RULE_SETUP
 #line 87 "D:\\prj\\WarAnts\\sources\\asm\\_antasm.l"
-{ return BTR; }
+{ return BTS; }
 	YY_BREAK
 case 55:
 YY_RULE_SETUP

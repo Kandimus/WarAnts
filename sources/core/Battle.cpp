@@ -241,7 +241,12 @@ void Battle::processingInterrupt(Ant& ant)
 
     }
 
-    // Queen
+    // Queen has been attacked!
+
+    if (ant.interruptReason())
+    {
+        LOGD("%s have %sintrrupt 0x%04x", ant.toString().c_str(), ant.interruptReason() & ant.interruptFlags() ? "" : "masked ", ant.interruptReason());
+    }
 }
 
 void Battle::doAntCommand(Ant& ant)
@@ -278,6 +283,8 @@ void Battle::doAntCommand(Ant& ant)
 
 bool Battle::commandIdle(Ant& ant)
 {
+    //LOGD("%s: command IDLE %i", ant.toString().c_str(), ant.command().m_value);
+
     if (ant.command().m_value >= 0)
     {
         --ant.command().m_value;
@@ -289,6 +296,8 @@ bool Battle::commandIdle(Ant& ant)
 
 bool Battle::commandMove(Ant& ant)
 {
+    LOGD("%s: command MOVE %s", ant.toString().c_str(), ant.command().m_pos.toString().c_str());
+
     auto dist = moveAntToPoint(ant, ant.command().m_pos);
 
     if (dist < ant.command().m_lengthToPoint)
@@ -311,13 +320,21 @@ bool Battle::commandAttack(Ant& ant)
 {
     auto cmd = ant.command();
 
+    LOGD("%s: command ATTACK %s", ant.toString().c_str(), ant.command().m_pos.toString().c_str());
+
+
+    может быть пойти от обратного, найти в радиусе 1 вражеские муравьи, если они есть, то атаковать
+    если их нет, то проверить радиус Constant::CommandRadius, если они там есть, то сделать шаг к ближайшему
+    если их нет, то аборт
+
+
     switch(cmd.m_value)
     {
         case Command::StageMovingToPoint:
         {
             auto dist = moveAntToPoint(ant, ant.command().m_pos);
             ant.setInterruptReason(Interrupt::CommandAborted, dist < 0);
-            cmd.m_value = (dist >= 0 || dist <= 1) ? Command::StageMovingToAttack : cmd.m_value;
+            cmd.m_value = (dist >= 0 && dist <= 1) ? Command::StageMovingToAttack : cmd.m_value;
         }
         break;
 
@@ -457,14 +474,17 @@ int16_t Battle::moveAntToPoint(Ant& ant, const Position& pos)
 {
     auto dirToPoint = Math::directionTo(ant.position(), pos);
     auto dir = Math::probabilisticDirection(dirToPoint);
-
     auto oldPos = ant.position();
-    LOGD("ant %s ---> %s: %s", ant.position().toString().c_str(), ant.command().m_pos.toString().c_str(), directionToString(dirToPoint, true).c_str());
-    LOGD("dir %s changed to %s", directionToString(dirToPoint, true).c_str(), directionToString(dir, true).c_str());
+
+    LOGD("%s ---> %s: %s", ant.toString().c_str(), ant.command().m_pos.toString().c_str(), directionToString(dirToPoint, true).c_str());
+    if (dirToPoint != dir)
+    {
+        LOGD("    dir %s changed to %s", directionToString(dirToPoint, true).c_str(), directionToString(dir, true).c_str());
+    }
 
     auto result = moveAntToDirection(ant, dir);
 
-    LOGD("ant %s move to %s", oldPos.toString().c_str(), ant.position().toString().c_str());
+    LOGD("    form %s moved to %s", oldPos.toString().c_str(), ant.position().toString().c_str());
 
     return result;
 }

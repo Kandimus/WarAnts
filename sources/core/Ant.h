@@ -128,7 +128,7 @@ public:
 
     uint32_t lifeCount() const { return m_lifeCount; }
 
-    std::string getString() const { return su::String_format("#%i"); }
+    std::string toString() const { return su::String_format2("Ant #%i ", m_id) + m_pos.toString(); }
 
 protected:
     bool checkDie();

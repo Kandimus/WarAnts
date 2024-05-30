@@ -1,19 +1,26 @@
 %core "0100"
-%name "Black stupid ants. Moving form 0 to end and back again."
+%name "Black stupid ants. Moving form 0 to end and back again, attack enemies along the way."
 %version "1"
 %class "black"
 
-#define iteration   00H
-#define food_count  07H
-#define enemy_count 06H
-#define enemy_pos   21H
-#define IF          24H
+#define iteration       00H
+#define allies_count    07H
+#define enemies_count   06H
+#define food_count      07H
+#define IR              0bH
+#define enemy_info      14h
+#define enemy_pos       15H
+#define IF              24H
 
-#define IR_CE       0008h
-#define IR_FE       0010h
-#define IR_E        0018h
+; interrupt flag bit numbers
+#define IF_CA           0
+#define IF_CC           1
+#define IF_AT           2
+#define IF_CE           3
+#define IF_FE           4
 
-#define Direction   32h
+#define Direction       32h
+#define Attacking       33h
 
 ;-----------------------------------------------
 ; return R0 as index the closest enemy or -1
@@ -22,7 +29,7 @@
     ; R1 - min distance to an enemy
     ; R2 - the current distance to an enemy
     mov   r0, -1
-    mov   rc, [enemy_count]
+    mov   rc, [enemies_count]
     ; if no enemy in the ant radius then exit
     jz    return
     dec   rc
@@ -51,13 +58,19 @@ init:
     mov   [Direction], 2
     
 main:
-    ; checking enemies near of ant
-    test  [IF], IR_CE
+    ; checking the interrupt reason
+    bt    [IR], IF_CA ; command aborted
+    jt    simple_move
+    bt    [IR], IF_CE ; enemies near of ant
     jt    attack
-    test  [IF], IR_FE
+    bt    [IR], IF_FE ; enemies far of ant
     jt    attack
 
     ; no enemies, simple moving
+simple_move:
+    mov   [Attacking], 0
+    bts   [IF], IF_CE
+    bts   [IF], IF_FE
     eq    [Direction], 1
     jt    goto_end
     eq    [Direction], 2
@@ -80,12 +93,15 @@ goto_begin:
     jmp   end
     
 attack:
-    mov   [Direction], 3
+    mov   [Attacking], 3
     call  GetClosestEnemy
     eq    r0, -1
     jt    end
     lden  r0
+    dbg  777
     catt  <enemy_pos>
+    btr   [IF], IF_CE
+    btr   [IF], IF_FE
     jmp   end
     
 end:

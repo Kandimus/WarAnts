@@ -66,7 +66,7 @@ public:
     bool processingRadius(const Position& pos, int16_t radius, const F& f)
     {
         auto listPos = Math::visibleCells(pos, radius);
-        if (!listPos.empty())
+        if (listPos.empty())
         {
             return false;
         }
@@ -87,7 +87,7 @@ public:
     bool processingAntsInRadius(const Position& pos, int16_t radius, const F& f)
     {
         auto listPos = Math::visibleCells(pos, radius);
-        if (!listPos.empty())
+        if (listPos.empty())
         {
             return false;
         }

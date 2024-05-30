@@ -14,7 +14,7 @@ void Cell::setAnt(Ant* ant)
     }
     else
     {
-        LOGE("Cell[%i, %i]: can not move ant (%s)", m_pos.x(), m_pos.y(), ant->getString().c_str());
+        LOGE("Cell[%i, %i]: can not move %s", m_pos.x(), m_pos.y(), ant->toString().c_str());
     }
 }
 

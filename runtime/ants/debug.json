@@ -3,7 +3,7 @@
     "worker": {
       "health": 10,
       "attack": 5,
-      "visibility": 5,
+      "visibility": 8,
       "satiety": 115,
       "RedicedSatiety": 1,
       "HungerDamage": 1,
@@ -14,7 +14,7 @@
     "solder": {
       "health": 20,
       "attack": 7,
-      "visibility": 5,
+      "visibility": 12,
       "satiety": 10,
       "RedicedSatiety": 1,
       "HungerDamage": 1,
@@ -23,7 +23,7 @@
     "queen": {
       "health": 50,
       "attack": 8,
-      "visibility": 10,
+      "visibility": 20,
       "satiety": 40,
       "RedicedSatiety": 1,
       "HungerDamage": 1,

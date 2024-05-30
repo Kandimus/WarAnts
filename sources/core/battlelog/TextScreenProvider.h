@@ -30,6 +30,7 @@ protected:
     uint32_t m_w = 0;
     uint32_t m_h = 0;
     std::vector<char> m_map;
+    uint32_t m_iteration = 0;
 
     const char cEmpty = ' ';
     const char cStone = '#';

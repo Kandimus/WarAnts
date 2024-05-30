@@ -65,6 +65,7 @@ void TextScreenProvider::savePlayer(const Player& player)
 
 void TextScreenProvider::saveBeginTurn(uint32_t iteration)
 {
+    m_iteration = iteration;
 }
 
 void TextScreenProvider::saveEndTurn(uint32_t iteration, size_t msec)
@@ -125,6 +126,7 @@ void TextScreenProvider::saveMap(const Map& map)
         }
     }
 
+    file << m_iteration << std::endl;
     file << '+';
     for (uint32_t x = 0; x < m_w; ++x)
     {
