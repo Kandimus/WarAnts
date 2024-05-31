@@ -117,9 +117,9 @@ void TextScreenProvider::saveMap(const Map& map)
             {
                 switch (ant->type())
                 {
-                    case AntType::Queen:  m_map[ii] = cQueen [player->index()]; break;
-                    case AntType::Solder: m_map[ii] = cSolder[player->index()]; break;
-                    case AntType::Worker: m_map[ii] = cWorker[player->index()]; break;
+                    case Ant::Type::Queen:  m_map[ii] = cQueen [player->index()]; break;
+                    case Ant::Type::Solder: m_map[ii] = cSolder[player->index()]; break;
+                    case Ant::Type::Worker: m_map[ii] = cWorker[player->index()]; break;
                     default: m_map[ii] = '?';
                 }
             }
@@ -153,6 +153,48 @@ void TextScreenProvider::saveMap(const Map& map)
 
     file << std::endl;
     file << std::endl;
+
+    file.close();
+}
+
+void TextScreenProvider::attack(const Ant& ant, const Ant& enemy)
+{
+}
+
+void TextScreenProvider::antIsDied(const Ant& ant)
+{
+}
+
+void TextScreenProvider::playerLost(const Player& plr)
+{
+    std::ofstream file(m_filename, std::ios::app);
+
+    if (!isFileOpen(file))
+    {
+        return;
+    }
+
+    file << "'" << plr.teamName() << "' lost!" << std::endl << std::endl;
+    file.close();
+}
+
+void TextScreenProvider::endGame(const Player* winner)
+{
+    std::ofstream file(m_filename, std::ios::app);
+
+    if (!isFileOpen(file))
+    {
+        return;
+    }
+
+    if (winner)
+    {
+        file << "'" << winner->teamName() << "' win!" << std::endl;
+    }
+    else
+    {
+        file << "Draw!" << std::endl;
+    }
 
     file.close();
 }

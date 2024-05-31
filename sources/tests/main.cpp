@@ -29,9 +29,10 @@ public:
 class PublicMap : public WarAnts::Map
 {
 public:
-    PublicMap() : WarAnts::Map(std::make_shared<TestConfig>())
+    PublicMap() : WarAnts::Map(std::make_shared<TestConfig>(), "")
     {
-        createMap(15, 15);
+        setSize(15, 15);
+        createMap();
     }
 
     inline void setBounded(bool bounded)
@@ -70,7 +71,7 @@ public:
 class TestAnt : public WarAnts::Ant
 {
 public:
-    TestAnt(WarAnts::AntType type, int16_t x, int16_t y, const std::shared_ptr<TestPlayer>& plr) : WarAnts::Ant()
+    TestAnt(WarAnts::Ant::Type type, int16_t x, int16_t y, const std::shared_ptr<TestPlayer>& plr) : WarAnts::Ant()
     {
         m_pos = WarAnts::Position(x, y);
         m_type = type;
@@ -81,7 +82,7 @@ public:
         m_memory.resize(WarAnts::Memory::UserData + 0x70);
     }
 
-    void setType(WarAnts::AntType type) { m_type = type; }
+    void setType(WarAnts::Ant::Type type) { m_type = type; }
     void setHealth(int16_t health) { m_health = health; }
 };
 
@@ -166,26 +167,26 @@ std::shared_ptr<TestAnt> runBCode(bool isBounded, const std::string& filename)
     plr->setLibname(filename);
 
     // Allies
-    std::shared_ptr<TestAnt> qAlly_1 = std::make_shared<TestAnt>(WarAnts::AntType::Queen, 12, 5, plr);
-    std::shared_ptr<TestAnt> sAlly_1 = std::make_shared<TestAnt>(WarAnts::AntType::Solder, 1, 0, plr);
-    std::shared_ptr<TestAnt> wAlly_1 = std::make_shared<TestAnt>(WarAnts::AntType::Worker, 7, 3, plr);
-    std::shared_ptr<TestAnt> wAlly_2 = std::make_shared<TestAnt>(WarAnts::AntType::Worker, 9, 10, plr);
+    std::shared_ptr<TestAnt> qAlly_1 = std::make_shared<TestAnt>(WarAnts::Ant::Type::Queen, 12, 5, plr);
+    std::shared_ptr<TestAnt> sAlly_1 = std::make_shared<TestAnt>(WarAnts::Ant::Type::Solder, 1, 0, plr);
+    std::shared_ptr<TestAnt> wAlly_1 = std::make_shared<TestAnt>(WarAnts::Ant::Type::Worker, 7, 3, plr);
+    std::shared_ptr<TestAnt> wAlly_2 = std::make_shared<TestAnt>(WarAnts::Ant::Type::Worker, 9, 10, plr);
     sAlly_1->setHealth(50);
 
     // Enemies
     std::shared_ptr<TestPlayer> plrEnemy = std::make_shared<TestPlayer>(wacEnemy);
-    std::shared_ptr<TestAnt> qEnemy_1 = std::make_shared<TestAnt>(WarAnts::AntType::Queen, 3, 6, plrEnemy);
-    std::shared_ptr<TestAnt> sEnemy_1 = std::make_shared<TestAnt>(WarAnts::AntType::Solder, 7, 0, plrEnemy);
-    std::shared_ptr<TestAnt> sEnemy_2 = std::make_shared<TestAnt>(WarAnts::AntType::Solder, 14, 3, plrEnemy);
-    std::shared_ptr<TestAnt> sEnemy_3 = std::make_shared<TestAnt>(WarAnts::AntType::Solder, 2, 3, plrEnemy);
-    std::shared_ptr<TestAnt> sEnemy_4 = std::make_shared<TestAnt>(WarAnts::AntType::Solder, 3, 9, plrEnemy);
-    std::shared_ptr<TestAnt> wEnemy_1 = std::make_shared<TestAnt>(WarAnts::AntType::Worker, 2, 1, plrEnemy);
-    std::shared_ptr<TestAnt> wEnemy_2 = std::make_shared<TestAnt>(WarAnts::AntType::Worker, 5, 14, plrEnemy);
+    std::shared_ptr<TestAnt> qEnemy_1 = std::make_shared<TestAnt>(WarAnts::Ant::Type::Queen, 3, 6, plrEnemy);
+    std::shared_ptr<TestAnt> sEnemy_1 = std::make_shared<TestAnt>(WarAnts::Ant::Type::Solder, 7, 0, plrEnemy);
+    std::shared_ptr<TestAnt> sEnemy_2 = std::make_shared<TestAnt>(WarAnts::Ant::Type::Solder, 14, 3, plrEnemy);
+    std::shared_ptr<TestAnt> sEnemy_3 = std::make_shared<TestAnt>(WarAnts::Ant::Type::Solder, 2, 3, plrEnemy);
+    std::shared_ptr<TestAnt> sEnemy_4 = std::make_shared<TestAnt>(WarAnts::Ant::Type::Solder, 3, 9, plrEnemy);
+    std::shared_ptr<TestAnt> wEnemy_1 = std::make_shared<TestAnt>(WarAnts::Ant::Type::Worker, 2, 1, plrEnemy);
+    std::shared_ptr<TestAnt> wEnemy_2 = std::make_shared<TestAnt>(WarAnts::Ant::Type::Worker, 5, 14, plrEnemy);
     qEnemy_1->setHealth(75);
     sEnemy_3->setHealth(25);
 
     // The ant!
-    std::shared_ptr<TestAnt> ant = std::make_shared<TestAnt>(WarAnts::AntType::Worker, 2, 2, plr);
+    std::shared_ptr<TestAnt> ant = std::make_shared<TestAnt>(WarAnts::Ant::Type::Worker, 2, 2, plr);
 
     // Map
     std::shared_ptr<PublicMap> map = std::make_shared<PublicMap>();
@@ -213,7 +214,7 @@ std::shared_ptr<TestAnt> runBCode(bool isBounded, const std::string& filename)
     map->setAnt(wEnemy_1);
     map->setAnt(wEnemy_2);
 
-    WarAnts::VirtualMachine vm(map, ant);
+    WarAnts::VirtualMachine vm(0, map, ant);
 
     vm.run();
 
@@ -234,6 +235,8 @@ TEST_CASE("visibleCells", "[Math]")
 
 TEST_CASE("directionTo", "[Math]")
 {
+    CHECK(WarAnts::Math::directionTo(WarAnts::Position(45, 22), WarAnts::Position(43, 22)) == WarAnts::Direction::West);
+
     CHECK(WarAnts::Math::directionTo(WarAnts::Position(1, 1), WarAnts::Position(0, 19)) == WarAnts::Direction::South);
 
     CHECK(WarAnts::Math::directionTo(WarAnts::Position(6, 6), WarAnts::Position( 6,  0)) == WarAnts::Direction::Nord);
@@ -283,7 +286,7 @@ TEST_CASE("nearAvaliblePosition", "[Map]")
       X X X X X
     */
     map.getCell(8, 8)->setStone(false);
-    auto pos1 = map.nearAvaliblePosition(WarAnts::Position(7, 7));
+    auto pos1 = map.closestAvaliblePosition(WarAnts::Position(7, 7));
     CHECK(pos1 == WarAnts::Position(8, 8));
 
     /*
@@ -302,7 +305,7 @@ TEST_CASE("nearAvaliblePosition", "[Map]")
     int test2max = 10;
     for (int ii = 0; ii < test2max; ++ii)
     {
-        auto pos2 = map.nearAvaliblePosition(WarAnts::Position(7, 7));
+        auto pos2 = map.closestAvaliblePosition(WarAnts::Position(7, 7));
 
         test2a += pos2 == WarAnts::Position(8, 5);
         test2b += pos2 == WarAnts::Position(7, 9);
@@ -349,7 +352,7 @@ TEST_CASE("bit", "[VM]")
     auto ant = runBCode(true, "bit.wasm");
     CHECK(ant->getValue(48) == 16);
     CHECK(ant->getValue(49) == 1);
-    CHECK(ant->getValue(50) == 0x0170);
+    CHECK(ant->getValue(50) == 0x0160);
 }
 
 TEST_CASE("load", "[VM]")

@@ -60,7 +60,7 @@ public:
 
     void moveAnt(Ant& ant, const Position& pos);
     void removeAnt(const Position& pos);
-    AntPtr createAnt(const PlayerPtr& player, AntType antType, const Position& pos, uint16_t r);
+    AntPtr createAnt(const PlayerPtr& player, Ant::Type antType, const Position& pos, uint16_t r);
     
     template<typename F>
     bool processingRadius(const Position& pos, int16_t radius, const F& f)

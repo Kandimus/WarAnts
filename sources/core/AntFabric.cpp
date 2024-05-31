@@ -30,9 +30,9 @@ bool AntFabric::init(const std::string& filename)
     for (auto& [key, val] : json.items())
     {
         // нужен правильный порядок
-        AntFabricData::gTemplates[key].push_back(Ant(json[key][AntTypeToString(AntType::Queen)], AntType::Queen));
-        AntFabricData::gTemplates[key].push_back(Ant(json[key][AntTypeToString(AntType::Solder)], AntType::Solder));
-        AntFabricData::gTemplates[key].push_back(Ant(json[key][AntTypeToString(AntType::Worker)], AntType::Worker));
+        AntFabricData::gTemplates[key].push_back(Ant(json[key][AntTypeToString(Ant::Type::Queen)],  Ant::Type::Queen));
+        AntFabricData::gTemplates[key].push_back(Ant(json[key][AntTypeToString(Ant::Type::Solder)], Ant::Type::Solder));
+        AntFabricData::gTemplates[key].push_back(Ant(json[key][AntTypeToString(Ant::Type::Worker)], Ant::Type::Worker));
 
         LOGI("Loaded class of ant '%s'", key.c_str());
     }
@@ -40,12 +40,12 @@ bool AntFabric::init(const std::string& filename)
     return true;
 }
 
-AntPtr AntFabric::createAnt(PlayerPtr player, AntType antType)
+AntPtr AntFabric::createAnt(PlayerPtr player, Ant::Type antType)
 {
     auto antClass = player->antClass();
 
     if (AntFabricData::gTemplates.find(antClass) == AntFabricData::gTemplates.end() ||
-        antType >= AntType::__MAX)
+        antType >= Ant::Type::__MAX)
     {
         return nullptr;
     }

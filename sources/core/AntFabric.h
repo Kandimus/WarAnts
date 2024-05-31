@@ -16,7 +16,7 @@ class AntFabric
 public:
     static bool init(const std::string& filename);
 
-    static AntPtr createAnt(PlayerPtr player, AntType antType);
+    static AntPtr createAnt(PlayerPtr player, Ant::Type antType);
 };
 
 };

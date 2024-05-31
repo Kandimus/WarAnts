@@ -57,4 +57,36 @@ void BattleLogService::saveMap(const Map& map)
     }
 }
 
+void BattleLogService::attack(const Ant& ant, const Ant& enemy)
+{
+    for (auto& provider : m_providers)
+    {
+        provider->attack(ant, enemy);
+    }
+}
+
+void BattleLogService::antIsDied(const Ant& ant)
+{
+    for (auto& provider : m_providers)
+    {
+        provider->antIsDied(ant);
+    }
+}
+
+void BattleLogService::playerLost(const Player& plr)
+{
+    for (auto& provider : m_providers)
+    {
+        provider->playerLost(plr);
+    }
+}
+
+void BattleLogService::endGame(const Player* winner)
+{
+    for (auto& provider : m_providers)
+    {
+        provider->endGame(winner);
+    }
+}
+
 };

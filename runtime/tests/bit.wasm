@@ -64,7 +64,7 @@
     jf    abort
 
     ; 9 btr
-    ; 8st bit of 0000 1110 1111 0000b == 0
+    ; 8st bit of 0000 1110 1111 0000b == 1
     inc   [48]
     btr   r0, 5
     jf    abort
@@ -76,47 +76,47 @@
     jt    abort
 
     ; 11 btc
-    ; 8st bit of 0000 1111 1111 0000b == 0
+    ; 8st bit of 0000 1111 1111 0000b == 1
     inc   [48]
     btc   r0, 5
-    jt    abort
-
-    ; 12 bt
-    ; 8st bit of 0000 1110 1111 0000b == 0
-    inc   [48]
-    bt    r0, 5
     jf    abort
 
+    ; 12 bt
+    ; 8st bit of 0000 1110 1101 0000b == 0
+    inc   [48]
+    bt    r0, 5
+    jt    abort
+
     ; 13 shl
-    ; 0000 1110 1111 0000b << 6 == 1011 1100 0000 0000b
+    ; 0000 1110 1101 0000b << 6 == 1011 0100 0000 0000b
     inc   [48]
     shl   r0, 6
     jf    abort
-    eq    r0, bc00h
+    eq    r0, b400h
     jf    abort
 
     ; 14 shr
-    ; 1011 1100 0000 0000b >> 11 == 0000 0000 0001 0111b
+    ; 1011 0100 0000 0000b >> 11 == 0000 0000 0001 0110b
     inc   [48]
     shr   r0, 0bh
     jf    abort
-    eq    r0, 0017h
+    eq    r0, 0016h
     jf    abort
 
     ; 15 rol
-    ; 0000 0000 0001 0111b rol 14 == 1100 0000 0000 0101b
+    ; 0000 0000 0001 0110b rol 14 == 1000 0000 0000 0101b
     inc   [48]
     rol   r0, 14
     jf    abort
-    eq    r0, c005h
+    eq    r0, 8005h
     jf    abort
 
     ; 16 ror
-    ; 1100 0000 0000 0101b ror 10 == 0000 0001 0111 0000b
+    ; 1000 0000 0000 0101b ror 10 == 0000 0001 0110 0000b
     inc   [48]
     ror   r0, 10
     jt    abort
-    eq    r0, 0170h
+    eq    r0, 0160h
     jf    abort
 
     mov   [50], r0

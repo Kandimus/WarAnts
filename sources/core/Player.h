@@ -5,17 +5,15 @@
 #include <string>
 #include <vector>
 
+#include "ant.h"
 #include "wacfile.h"
 
 namespace WarAnts
 {
-class Ant;
-enum class AntType;
-
 using AntPtr = std::shared_ptr<Ant>;
 
 //TODO может перейти на массивы?
-struct AntCount
+struct AntStatistik
 {
     uint32_t m_all = 0;
     uint32_t m_workers = 0;
@@ -26,6 +24,12 @@ struct AntCount
 class Player
 {
 public:
+    enum Status
+    {
+        InGame = 0,
+        Lost,
+    };
+
     Player(uint32_t index, const std::string& libname);
     virtual ~Player();
 
@@ -43,12 +47,14 @@ public:
     void setAntQueen(const AntPtr& queen) { m_antQueen = queen; }
     AntPtr antQueen() const { return m_antQueen; }
 
-    void antIsBorn(AntType type);
+    // statistic
+    void antIsBorn(Ant::Type type);
     void antIsDied(Ant& ant);
-    const AntCount& curCounts() const { return m_curCount; }
-    const AntCount& maxCounts() const { return m_maxCount; }
-    const AntCount& maxLifeCount() const { return m_maxLifeCount; }
+    void addReceivedDamage(Ant::Type type, int16_t damage);
+    void addDealtDamage(Ant::Type type, int16_t damage);
+    void addKilled(Ant::Type type);
 
+    // wac
     const Asm::WacFile& info() const { return m_info; }
 
 protected:
@@ -59,13 +65,18 @@ protected:
     Asm::WacFile m_info;
     uint32_t m_index = 0;
     bool m_isInit = false;
+    Status m_status = Status::InGame;
 
     AntPtr m_antQueen;
 
     // Statistic
-    AntCount m_maxCount;
-    AntCount m_curCount;
-    AntCount m_maxLifeCount;
+    uint32_t m_maxCount[Ant::Type::__MAX];
+    uint32_t m_curCount[Ant::Type::__MAX];
+    uint32_t m_maxLifeCount[Ant::Type::__MAX];
+    uint32_t m_receivedDamage[Ant::Type::__MAX];
+    uint32_t m_dealtDamage[Ant::Type::__MAX];
+    uint32_t m_killed[Ant::Type::__MAX];
+    uint32_t m_died[Ant::Type::__MAX];
 };
 
 };

@@ -19,22 +19,6 @@ class Player;
 
 using PlayerPtr = std::shared_ptr<Player>;
 
-enum class AntType
-{
-    Queen = 0,
-    Solder,
-    Worker,
-
-    __MAX,
-};
-
-enum class AntStatus
-{
-    Life = 0,
-    Dead,
-};
-
-
 namespace Interrupt
 {
 
@@ -56,13 +40,34 @@ enum Type : uint16_t
 
 }
 
-std::string AntTypeToString(AntType type);
-
 class Ant
 {
 public:
+    enum Type : uint8_t
+    {
+        Queen = 0,
+        Solder,
+        Worker,
+
+        __MAX,
+    };
+
+    enum Status
+    {
+        Life = 0,
+        Dead,
+    };
+
+    enum DeathReason
+    {
+        StillAlife = 0,
+        KilledByAnt = 1,
+        Hunger,
+        PlayerLoose,
+    };
+
     Ant() = default;
-    Ant(const nlohmann::json& json, AntType type);
+    Ant(const nlohmann::json& json, Type type);
     Ant(const Ant& ant) = default;
     Ant(Ant&& ant) = default;
     virtual ~Ant() = default;
@@ -77,13 +82,13 @@ public:
     uint16_t visibility() const { return m_visibility; }
     uint16_t maxCargo() const { return m_maxCargo; }
     uint16_t cargo() const { return m_cargo; }
-    AntType type() const { return m_type; }
+    Type type() const { return m_type; }
     std::string typeToString() const;
-    AntStatus status() const { return m_status; }
+    Status status() const { return m_status; }
 
-    bool isWorker() const { return m_type == AntType::Worker; }
-    bool isSolder() const { return m_type == AntType::Solder; }
-    bool isQueen() const { return m_type == AntType::Queen; }
+    bool isWorker() const { return m_type == Type::Worker; }
+    bool isSolder() const { return m_type == Type::Solder; }
+    bool isQueen() const { return m_type == Type::Queen; }
 
     float healthPercent() const { return m_health * 100.f / m_maxHealth; }
     float satietyPercent() const { return m_satiety * 100.f / m_maxSatiety; }
@@ -120,7 +125,9 @@ public:
     inline int16_t interruptReason() const { return m_interruptReason; }
     inline void setInterruptReason(int16_t bit, bool reason) { m_interruptReason |= ((m_interruptFlags & bit) && reason) ? bit : 0; }
 
-    bool damage(int16_t damage);
+    bool damage(Ant& ant);
+    void kill(DeathReason reason);
+    void killed(Type type);
 
     bool beginTurn();
     bool postVM();
@@ -135,9 +142,10 @@ protected:
 
 protected:
     uint32_t m_id = 0;
-    AntType m_type = AntType::Worker;
+    Type m_type = Type::Worker;
     Position m_pos = 0;
-    AntStatus m_status = AntStatus::Life;
+    Status m_status = Status::Life;
+    DeathReason m_deathReason = DeathReason::StillAlife;
     int16_t m_maxSatiety = 0;
     int16_t m_satiety = 0;
     int16_t m_maxHealth = 0;
@@ -162,10 +170,13 @@ protected:
     
     // statistic
     uint32_t m_lifeCount = 0;
+    uint32_t m_killed[Type::__MAX]{0};
 };
 
 using AntPtr = std::shared_ptr<Ant>;
 using VectorAnts = std::vector<std::shared_ptr<Ant>>;
 using ListAnts = std::list<std::shared_ptr<Ant>>;
+
+std::string AntTypeToString(Ant::Type type);
 
 };

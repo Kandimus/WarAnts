@@ -49,6 +49,9 @@ protected:
     int16_t moveAntToDirection(Ant& ant, const Direction& dir);
     bool killAnt(Ant& ant);
 
+    bool checkEndGame();
+    void removePlayerFromGame(Player& plr);
+
     //void generateAntInfo(AntSharedPtr& ant, AntInfo& ai);
 
 protected:
@@ -56,9 +59,9 @@ protected:
     bool m_isInit = false;
     std::shared_ptr<Config> m_conf;
     std::shared_ptr<Map> m_map;
-
     std::vector<PlayerPtr> m_players;
     ListAnts m_ants;
+    Player* m_winner = nullptr;
 
     std::shared_ptr<BattleLogService> m_logService;
 };

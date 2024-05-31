@@ -63,20 +63,21 @@ ListAnts Map::generate(const std::vector<std::shared_ptr<Player>>& players)
         LOGD("Queen #%i [%i x %i]", player->index(), posQueen.x(), posQueen.y());
 
         // do place Queen
-        auto queen = createAnt(player, AntType::Queen, posQueen, 1);
+        auto queen = createAnt(player, Ant::Type::Queen, posQueen, 1);
         ants.push_back(queen);
+        player->setAntQueen(queen);
 
         // do place workers
         for (uint32_t ii = 0; ii < m_conf->workerCountOfStart(); ++ii)
         {
-            auto worker = createAnt(player, AntType::Worker, posQueen, m_startingSquare);
+            auto worker = createAnt(player, Ant::Type::Worker, posQueen, m_startingSquare);
             ants.push_back(worker);
         }
 
         // do place solders
         for (uint32_t ii = 0; ii < m_conf->solderCountOfStart(); ++ii)
         {
-            auto solder = createAnt(player, AntType::Solder, posQueen, m_startingSquare);
+            auto solder = createAnt(player, Ant::Type::Solder, posQueen, m_startingSquare);
             ants.push_back(solder);
         }
     }
@@ -84,7 +85,7 @@ ListAnts Map::generate(const std::vector<std::shared_ptr<Player>>& players)
     return ants;
 }
 
-AntPtr Map::createAnt(const PlayerPtr& player, AntType antType, const Position& pos, uint16_t r)
+AntPtr Map::createAnt(const PlayerPtr& player, Ant::Type antType, const Position& pos, uint16_t r)
 {
     Position calc_pos(static_cast<uint16_t>(Math::random(0, r * 2)), static_cast<uint16_t>(Math::random(0, r * 2)));
     calc_pos -= r;
@@ -261,7 +262,6 @@ void Map::setSize(int16_t w, int16_t h)
 void Map::createMap()
 {
     m_map.clear();
-
     m_map.resize(m_size.x() * m_size.y());
 
     Position pos;

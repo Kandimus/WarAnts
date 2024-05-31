@@ -3,22 +3,23 @@
 #include "constants.h"
 #include "jsonhelper.h"
 #include "memory.h"
+#include "player.h"
 
 namespace WarAnts
 {
 
-std::string AntTypeToString(AntType type)
+std::string AntTypeToString(Ant::Type type)
 {
     switch (type)
     {
-        case AntType::Queen: return "queen";
-        case AntType::Solder: return "solder";
-        case AntType::Worker: return "worker";
+        case Ant::Type::Queen: return "queen";
+        case Ant::Type::Solder: return "solder";
+        case Ant::Type::Worker: return "worker";
         default: return "?";
     }
 }
 
-Ant::Ant(const nlohmann::json& json, AntType type)
+Ant::Ant(const nlohmann::json& json, Type type)
 {
     m_type = type;
     m_maxHealth = JsonHelper::getValue1<int16_t>(json, "health", m_maxHealth, 1, 0x7fff);
@@ -51,17 +52,41 @@ void Ant::reset()
     m_cargo = 0;
 }
 
-bool Ant::damage(int16_t damage)
+bool Ant::damage(Ant& ant)
 {
+    auto damage = ant.attack();
+
+    m_player->addReceivedDamage(type(), damage);
+    ant.player()->addDealtDamage(ant.type(), damage);
+
     m_health -= damage;
 
     if (checkDie())
     {
+        //TODO m_player->dieReason(ANT);
+        ant.killed(ant.type());
         return false;
     }
 
     setInterruptReason(Interrupt::WasAttacked, true);
     return true; // The ant is alive
+}
+
+void Ant::kill(DeathReason reason)
+{
+    m_status = Status::Dead;
+    m_deathReason = reason;
+}
+
+void Ant::killed(Type type)
+{
+    if (type >= Ant::Type::__MAX)
+    {
+        return;
+    }
+
+    ++m_killed[type];
+    m_player->addKilled(type);
 }
 
 bool Ant::beginTurn()
@@ -92,6 +117,7 @@ bool Ant::endTurn()
 
     if (checkDie())
     {
+        //m_player->dieReason(HANGRY);
         return false;
     }
 
@@ -111,10 +137,10 @@ bool Ant::checkDie()
 {
     if (m_health <= 0)
     {
-        m_status = AntStatus::Dead;
+        m_status = Status::Dead;
     }
 
-    return (m_status == AntStatus::Dead);
+    return (m_status == Status::Dead);
 }
 
 };

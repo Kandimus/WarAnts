@@ -149,7 +149,7 @@ int Battle::run()
         // Ant phase
         for (auto& ant : ant_vec)
         {
-            if (ant->status() == AntStatus::Dead)
+            if (ant->status() == Ant::Status::Dead)
             {
                 continue;
             }
@@ -173,12 +173,12 @@ int Battle::run()
             {
                 killAnt(*ant.get());
             }
-        }
+        } // ants
 
         // delete dead ants
         for (auto pAnt = m_ants.begin(); pAnt != m_ants.end(); )
         {
-            if ((*pAnt)->status() == AntStatus::Dead)
+            if ((*pAnt)->status() == Ant::Status::Dead)
             {
                 pAnt = m_ants.erase(pAnt);
             }
@@ -188,22 +188,31 @@ int Battle::run()
             }
         }
 
-        //---------------------------------------------------------------------
-        // End of iteration
-        m_logService->saveMap(*m_map.get());
-
-        //TODO check for end of game
-        //if (m_iteration > 3) break;
-
         m_logService->saveEndTurn(m_iteration, getTickCount() - timeStart);
 
-        if (m_ants.empty())
+        if (m_ants.empty() || checkEndGame())
         {
             break;
         }
 
+        //---------------------------------------------------------------------
+        // End of iteration
+        m_logService->saveMap(*m_map.get());
+
         m_iteration++;
     }
+
+    // TODO print RESULT file
+    if (m_winner)
+    {
+        LOGD("'%s' #%i win!", m_winner->teamName().c_str(), m_winner->index());
+    }
+    else
+    {
+        LOGD("DRAW. All ants are dead!");
+    }
+
+    m_logService->endGame(m_winner);
 
     return 0;
 }
@@ -216,7 +225,7 @@ void Battle::processingInterrupt(Ant& ant)
         auto player = ant.player();
         auto result = m_map->processingAntsInRadius(ant.position(), ant.visibility() / Constant::DivCloseRadius, [&enemyIsPresent, player](Ant* cellAnt)
         {
-            enemyIsPresent = cellAnt->player() != player;
+            enemyIsPresent = cellAnt->player()->index() != player->index();
         });
         ant.setInterruptReason(Interrupt::CloseEnemy, enemyIsPresent);
     }
@@ -227,7 +236,7 @@ void Battle::processingInterrupt(Ant& ant)
         auto player = ant.player();
         auto result = m_map->processingAntsInRadius(ant.position(), ant.visibility() / Constant::DivFarRadius, [&enemyIsPresent, player](Ant* cellAnt)
         {
-            enemyIsPresent = cellAnt->player() != player;
+            enemyIsPresent = cellAnt->player()->index() != player->index();
         });
         ant.setInterruptReason(Interrupt::FarEnemy, enemyIsPresent);
     }
@@ -322,84 +331,66 @@ bool Battle::commandAttack(Ant& ant)
 
     LOGD("%s: command ATTACK %s", ant.toString().c_str(), ant.command().m_pos.toString().c_str());
 
+    // Checking enemies in the range 1 cell
+    std::vector<Ant*> enemies;
+    auto player = ant.player();
 
-    может быть пойти от обратного, найти в радиусе 1 вражеские муравьи, если они есть, то атаковать
-    если их нет, то проверить радиус Constant::CommandRadius, если они там есть, то сделать шаг к ближайшему
-    если их нет, то аборт
-
-
-    switch(cmd.m_value)
+    auto result = m_map->processingAntsInRadius(ant.position(), 1, [&enemies, player](Ant* cellAnt)
     {
-        case Command::StageMovingToPoint:
+        if (cellAnt->player()->index() != player->index())
         {
-            auto dist = moveAntToPoint(ant, ant.command().m_pos);
-            ant.setInterruptReason(Interrupt::CommandAborted, dist < 0);
-            cmd.m_value = (dist >= 0 && dist <= 1) ? Command::StageMovingToAttack : cmd.m_value;
+            enemies.push_back(cellAnt);
         }
-        break;
+    });
 
-        case Command::StageMovingToAttack:
-        {
-            Ant* enemy = nullptr;
-            uint32_t minDist = 0xffffffff;
-
-            auto result = m_map->processingAntsInRadius(ant.command().m_pos, Constant::CommandRadius, [&enemy, &minDist, &ant](Ant* cellAnt)
-            {
-                if (cellAnt->player() == ant.player())
-                {
-                    return;
-                }
-
-                auto dist = Math::distanceTo(ant.position(), cellAnt->position());
-                if (dist < minDist)
-                {
-                    minDist = dist;
-                    enemy = cellAnt;
-                }
-            });
-            
-            if (!result)
-            {
-                ant.setInterruptReason(Interrupt::CommandAborted, true);
-                return true;
-            }
-
-            if (minDist == 1)
-            {
-                if (!enemy->damage(ant.attack()))
-                {
-                    killAnt(*enemy);
-                }
-            }
-            else
-            {
-                auto dist = moveAntToPoint(ant, enemy->position());
-                ant.setInterruptReason(Interrupt::CommandAborted, dist < 0);
-            }
-        }
-        break;
-    }
-
-/*
-    auto arrayOfEnemy = m_map->nearestEnemies(ant.position(), 1);
-
-    if (arrayOfEnemy.empty())
+    if (enemies.size())
     {
-        ant.clearCommand();
+        Ant* enemy = enemies[Math::random(0, enemies.size() - 1)];
+
+        LOGD("%s dealt %i damage to %s", ant.toString().c_str(), ant.attack(), enemy->toString().c_str());
+
+        if (!enemy->damage(ant))
+        {
+            m_map->forceCellChange(enemy->position());
+            killAnt(*enemy);
+        }
+
+        m_map->forceCellChange(ant.position());
+        m_logService->attack(ant, *enemy);
         return true;
     }
 
-    int index = (int)Math::random(0, arrayOfEnemy.size() - 1);
-    auto enemy = arrayOfEnemy[index];
-
-    //TODO Нужно ли тут проверять, что атакуемый муравей умер? и соответственно вызывать player->antIsDied()
-    //     или же дать муравью ответить на удар или другое действие и убить его в его фазу хода?
-    if (!enemy->damage(ant.attack()))
+    // No enemies in range 1 cell, check range in the Constant::CommandRadius value
+    size_t minDist = 0xffff;
+    result = m_map->processingAntsInRadius(ant.position(), Constant::CommandRadius, [&enemies, &minDist, &ant](Ant* cellAnt)
     {
-        killAnt(enemy);
+        if (cellAnt->player()->index() != ant.player()->index())
+        {
+            auto dist = Math::distanceTo(cellAnt->position(), ant.command().m_pos);
+            if (dist < minDist)
+            {
+                enemies.clear();
+                enemies.push_back(cellAnt);
+                return;
+            }
+            if (dist == minDist)
+            {
+                enemies.push_back(cellAnt);
+                return;
+            }
+            return;
+        }
+    });
+
+    if (enemies.size())
+    {
+        Ant* enemy = enemies[Math::random(0, enemies.size() - 1)];
+        auto dist = moveAntToPoint(ant, enemy->position());
+        ant.setInterruptReason(Interrupt::CommandAborted, dist < 0);
     }
-*/
-    return false;
+
+    ant.setInterruptReason(Interrupt::CommandCompleted, enemies.empty());
+    return true;
 }
 
 //void Battle::commandAntExplore(AntSharedPtr& ant)
@@ -519,11 +510,51 @@ int16_t Battle::moveAntToDirection(Ant& ant, const Direction& dir)
 
 bool Battle::killAnt(Ant& ant)
 {
+    LOGD("%s is died", ant.toString().c_str());
+
     auto player = ant.player();
     player->antIsDied(ant);
     m_map->removeAnt(ant.position());
 
+    m_logService->antIsDied(ant);
+
     return true;
+}
+
+bool Battle::checkEndGame()
+{
+    size_t numberOfliving = 0;
+
+    m_winner = nullptr;
+
+    for (const auto& plr : m_players)
+    {
+        if (plr->antQueen()->status() != Ant::Status::Life)
+        {
+            removePlayerFromGame(*plr.get());
+            continue;
+        }
+
+        m_winner = plr.get();
+        ++numberOfliving;
+    }
+
+    return numberOfliving <= 1 ? true : false;
+}
+
+void Battle::removePlayerFromGame(Player& plr)
+{
+    for (auto& ant : m_ants)
+    {
+        if (ant->player()->index() == plr.index())
+        {
+            ant->kill(Ant::DeathReason::PlayerLoose);
+            killAnt(*ant);
+        }
+    }
+
+    m_logService->playerLost(plr);
+    LOGD("'%s' #%i lost!", plr.teamName().c_str(), plr.index());
 }
 
 //void Battle::generateAntInfo(AntSharedPtr& ant, AntInfo& ai)

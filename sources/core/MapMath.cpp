@@ -42,6 +42,10 @@ size_t random(size_t min, size_t max)
         init = true;
     }
     size_t range = max >= min ? max - min : min - max;
+    if (!range) // range of one number
+    {
+        return max;
+    }
     int r = std::rand();
     double normalize_rand = static_cast<double>(r) / RAND_MAX;
     return static_cast<size_t>(normalize_rand * range + 0.5);
@@ -270,7 +274,8 @@ VectorPosition visibleCells(const Position& pos, int16_t visibility)
         return result;
     }
 
-    result.reserve(int64_t(visibility) * int64_t(visibility));
+    size_t side = 2 * visibility + 1;
+    result.reserve(side * side);
 
     if (visibility == 1)
     {

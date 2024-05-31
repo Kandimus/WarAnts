@@ -6,8 +6,6 @@
 #include "../asm/asm_defines.h"
 #include "wacfile.h"
 
-#include "Ant.h"
-
 namespace WarAnts
 {
 
@@ -44,33 +42,15 @@ void Player::changeTeamName(uint32_t count)
     m_info.teamName += " " + std::to_string(count);
 }
 
-void Player::antIsBorn(AntType type)
+void Player::antIsBorn(Ant::Type type)
 {
-    switch (type)
+    if (type >= Ant::Type::__MAX)
     {
-        case AntType::Queen:
-            ++m_maxCount.m_all;
-            ++m_maxCount.m_queens;
-            ++m_curCount.m_all;
-            ++m_curCount.m_queens;
-            break;
-
-        case AntType::Solder:
-            ++m_maxCount.m_all;
-            ++m_maxCount.m_solders;
-            ++m_curCount.m_all;
-            ++m_curCount.m_solders;
-            break;
-
-        case AntType::Worker:
-            ++m_maxCount.m_all;
-            ++m_maxCount.m_workers;
-            ++m_curCount.m_all;
-            ++m_curCount.m_workers;
-            break;
-
-        default: break;
+        return;
     }
+
+    ++m_maxCount[type];
+    ++m_curCount[type];
 }
 
 void Player::antIsDied(Ant& ant)
@@ -81,33 +61,39 @@ void Player::antIsDied(Ant& ant)
         return;
     }
 
-    switch (ant.type())
+    --m_curCount[ant.type()];
+    m_maxLifeCount[ant.type()] = std::max(m_maxLifeCount[ant.type()], ant.lifeCount());
+    ++m_died[ant.type()];
+}
+
+void Player::addReceivedDamage(Ant::Type type, int16_t damage)
+{
+    if (type >= Ant::Type::__MAX)
     {
-        case AntType::Queen:
-            --m_curCount.m_all;
-            --m_curCount.m_queens;
-            m_maxLifeCount.m_queens = std::max(m_maxLifeCount.m_queens, ant.lifeCount());
-            m_maxLifeCount.m_all = std::max(m_maxLifeCount.m_all, ant.lifeCount());
-            break;
-
-        case AntType::Solder:
-            --m_curCount.m_all;
-            --m_curCount.m_solders;
-            m_maxLifeCount.m_solders = std::max(m_maxLifeCount.m_solders, ant.lifeCount());
-            m_maxLifeCount.m_all = std::max(m_maxLifeCount.m_all, ant.lifeCount());
-            break;
-
-        case AntType::Worker:
-            --m_curCount.m_all;
-            --m_curCount.m_workers;
-            m_maxLifeCount.m_workers = std::max(m_maxLifeCount.m_workers, ant.lifeCount());
-            m_maxLifeCount.m_all = std::max(m_maxLifeCount.m_all, ant.lifeCount());
-            break;
-
-        default: break;
+        return;
     }
 
+    m_receivedDamage[type] += damage;
+}
 
+void Player::addDealtDamage(Ant::Type type, int16_t damage)
+{
+    if (type >= Ant::Type::__MAX)
+    {
+        return;
+    }
+
+    m_dealtDamage[type] += damage;
+}
+
+void Player::addKilled(Ant::Type type)
+{
+    if (type >= Ant::Type::__MAX)
+    {
+        return;
+    }
+
+    ++m_killed[type];
 }
 
 };
