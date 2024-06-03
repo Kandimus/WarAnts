@@ -254,7 +254,7 @@ bool VirtualMachine::run()
             case Asm::BCode::CMOV: result = commandPositionArg(cmd); break;
             case Asm::BCode::CATT: result = commandPositionArg(cmd); break;
             case Asm::BCode::CTKF: result = commandPositionArg(cmd); break;
-            case Asm::BCode::CGVF: result = commandPositionArg(cmd); break;
+            case Asm::BCode::CFD:  result = commandPositionArg(cmd); break;
             case Asm::BCode::CCSL: result = commandNoArgs(cmd); break;
             case Asm::BCode::CCWR: result = commandNoArgs(cmd); break;
 
@@ -661,8 +661,8 @@ bool VirtualMachine::commandPositionArg(int8_t cmd)
     {
         case Asm::BCode::CMOV: m_ant->setCommand(Command::MovePos, pos); break;
         case Asm::BCode::CATT: m_ant->setCommand(Command::Attack, pos, Command::StageMovingToPoint); break;
+        case Asm::BCode::CFD:  m_ant->setCommand(Command::Feed, pos); break;
         case Asm::BCode::CTKF: m_ant->setCommand(Command::TakeFood, pos); break;
-        case Asm::BCode::CGVF: m_ant->setCommand(Command::Feed, pos); break;
         default:
             LOGE("Command %02x (%04x): Undefined the position command", (int)cmd, cmdPos);
             SU_BREAKPOINT();

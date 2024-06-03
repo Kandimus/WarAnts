@@ -223,10 +223,11 @@ void Battle::processingInterrupt(Ant& ant)
     {
         bool enemyIsPresent = false;
         auto player = ant.player();
-        auto result = m_map->processingAntsInRadius(ant.position(), ant.visibility() / Constant::DivCloseRadius, [&enemyIsPresent, player](Ant* cellAnt)
-        {
-            enemyIsPresent = cellAnt->player()->index() != player->index();
-        });
+        auto result = m_map->processingAntsInRadius(ant.position(), ant.visibility() / Constant::DivCloseRadius,
+            [&enemyIsPresent, player](Ant* cellAnt)
+            {
+                enemyIsPresent = cellAnt->player()->index() != player->index();
+            });
         ant.setInterruptReason(Interrupt::CloseEnemy, enemyIsPresent);
     }
 
@@ -234,27 +235,44 @@ void Battle::processingInterrupt(Ant& ant)
     {
         bool enemyIsPresent = false;
         auto player = ant.player();
-        auto result = m_map->processingAntsInRadius(ant.position(), ant.visibility() / Constant::DivFarRadius, [&enemyIsPresent, player](Ant* cellAnt)
-        {
-            enemyIsPresent = cellAnt->player()->index() != player->index();
-        });
+        auto result = m_map->processingAntsInRadius(ant.position(), ant.visibility() / Constant::DivFarRadius,
+            [&enemyIsPresent, player](Ant* cellAnt)
+            {
+                enemyIsPresent = cellAnt->player()->index() != player->index();
+            });
         ant.setInterruptReason(Interrupt::FarEnemy, enemyIsPresent);
     }
 
     if (ant.interruptFlags() & Interrupt::CloseFood)
     {
+        bool foodIsPresent = false;
+        auto result = m_map->processingRadius(ant.position(), ant.visibility() / Constant::DivCloseRadius,
+            [&foodIsPresent](const Cell& cell)
+            {
+                foodIsPresent |= !!cell.food();
+            });
+        ant.setInterruptReason(Interrupt::CloseFood, foodIsPresent);
     }
 
     if (ant.interruptFlags() & Interrupt::FarFood)
     {
-
+        bool foodIsPresent = false;
+        auto result = m_map->processingRadius(ant.position(), ant.visibility() / Constant::DivFarRadius,
+            [&foodIsPresent](const Cell& cell)
+            {
+                foodIsPresent |= !!cell.food();
+            });
+        ant.setInterruptReason(Interrupt::FarFood, foodIsPresent);
     }
 
     // Queen has been attacked!
+    ant.setInterruptReason(Interrupt::QueenUnderAttack,
+        ant.player()->antQueen()->isUnderAttack() && (ant.interruptFlags() & Interrupt::QueenUnderAttack));
 
     if (ant.interruptReason())
     {
-        LOGD("%s have %sintrrupt 0x%04x", ant.toString().c_str(), ant.interruptReason() & ant.interruptFlags() ? "" : "masked ", ant.interruptReason());
+        LOGD("%s have %sintrrupt 0x%04x", ant.toString().c_str(),
+            ant.interruptReason() & ant.interruptFlags() ? "" : "masked ", ant.interruptReason());
     }
 }
 
@@ -274,6 +292,7 @@ void Battle::doAntCommand(Ant& ant)
         case Command::Idle: commandIdle(ant); break;
         case Command::MovePos: commandMove(ant); break;
         case Command::Attack: commandAttack(ant); break;
+        case Command::Eat: commandEat(ant); break;
         //case CommandType::MoveAndIdle: commandMoveAndIdle(ant); break;
         //case CommandType::MoveAndAttack: commandMoveAndAttack(ant);break;
 //		case CommandType::MoveToFood: doAntMoveToFood(ant); break;
@@ -378,7 +397,6 @@ bool Battle::commandAttack(Ant& ant)
                 enemies.push_back(cellAnt);
                 return;
             }
-            return;
         }
     });
 
@@ -390,6 +408,92 @@ bool Battle::commandAttack(Ant& ant)
     }
 
     ant.setInterruptReason(Interrupt::CommandCompleted, enemies.empty());
+    return true;
+}
+
+bool Battle::commandFeed(Ant& ant)
+{
+    return true;
+}
+
+bool Battle::commandTakeFood(Ant& ant)
+{
+    auto cmd = ant.command();
+
+    LOGD("%s: command TAKE FOOD %s", ant.toString().c_str(), ant.command().m_pos.toString().c_str());
+
+    // Checking food in the range 1 cell
+    std::vector<Position> foods;
+
+    auto result = m_map->processingRadius(ant.position(), 1, [&foods](const Cell& cell)
+    {
+        if (cell.food())
+        {
+            foods.push_back(cell.position());
+        }
+    });
+
+    if (foods.size())
+    {
+        Position foodPos(-1);
+
+        // check for the user set position 
+        for (const auto& pos: foods)
+        {
+            if (pos == cmd.m_pos)
+            {
+                foodPos = pos;
+            }
+        }
+
+        if (foodPos.x() == -1)
+        {
+            foodPos = foods[Math::random(0, foods.size() - 1)];
+        }
+
+        LOGD("%s take the food on %s", ant.toString().c_str(), foodPos.toString().c_str());
+
+        auto food = m_map->takeFood(foodPos, ant.foodPerTurn());
+
+        if (!food)
+        {
+            LOGE("%s cannot take the food on %s", ant.toString().c_str(), foodPos.toString().c_str());
+            ant.setInterruptReason(Interrupt::CommandAborted, true);
+            return false;
+        }
+
+        return true;
+    }
+
+    // No foods in range 1 cell, check range in the Constant::CommandRadius value
+    size_t minDist = 0xffff;
+    result = m_map->processingAntsInRadius(ant.position(), Constant::CommandRadius, [&foods, &minDist, &ant](const Cell& cell)
+    {
+        if (cell.food())
+        {
+            auto dist = Math::distanceTo(cell.position(), ant.command().m_pos);
+            if (dist < minDist)
+            {
+                foods.clear();
+                foods.push_back(cell.position());
+                return;
+            }
+            if (dist == minDist)
+            {
+                foods.push_back(cell.position());
+                return;
+            }
+        }
+    });
+
+    if (foods.size())
+    {
+        Position foodPos = foods[Math::random(0, foods.size() - 1)];
+        auto dist = moveAntToPoint(ant, foodPos);
+        ant.setInterruptReason(Interrupt::CommandAborted, dist < 0);
+    }
+
+    ant.setInterruptReason(Interrupt::CommandCompleted, foods.empty());
     return true;
 }
 

@@ -60,6 +60,7 @@ bool Ant::damage(Ant& ant)
     ant.player()->addDealtDamage(ant.type(), damage);
 
     m_health -= damage;
+    m_isUnderAttack = true;
 
     if (checkDie())
     {
@@ -92,6 +93,8 @@ void Ant::killed(Type type)
 bool Ant::beginTurn()
 {
     ++m_lifeCount;
+    m_isUnderAttack = false;
+
     return true;
 }
 

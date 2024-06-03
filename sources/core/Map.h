@@ -56,7 +56,8 @@ public:
     void forceCellChange(const Position& pos);
 
     Position closestAvaliblePosition(const Position& pos) const;
-    Position closestFood(const Position& pos, uint32_t visible) const;
+    
+    int16_t takeFood(const Position& pos, int16_t count);
 
     void moveAnt(Ant& ant, const Position& pos);
     void removeAnt(const Position& pos);
@@ -78,7 +79,7 @@ public:
             {
                 continue;
             }
-            f(pCell);
+            f(*pCell);
         }
         return true;
     }

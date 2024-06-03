@@ -201,35 +201,22 @@ Position Map::closestAvaliblePosition(const Position& pos) const
     return pos + curPos;
 }
 
-Position Map::closestFood(const Position& pos, uint32_t visible) const
+int16_t Map::takeFood(const Position& pos, int16_t count)
 {
-    std::vector<const Position*> arrMinDist;
-    //auto visibleCells = Math::visibleCells(pos, visible);
-    //uint32_t minDist = 0xFFFFFFFFU;
+    int32_t idx = absPosition(pos);
 
-    //for (auto& posCell : visibleCells) {
-    //	auto pCell = cell(posCell).lock();
+    if (idx < 0 || idx >= m_map.size() || count < 1)
+    {
+        return 0;
+    }
 
-    //	if (!pCell->food()) {
-    //		continue;
-    //	}
+    Cell* cell = m_map[idx].get();
 
-    //	uint32_t dist = Math::distanceTo(pos, posCell);
-    //	if (dist < minDist) {
-    //		arrMinDist.clear();
-    //		arrMinDist.push_back(&posCell);
-    //	} else if (dist == minDist) {
-    //		arrMinDist.push_back(&posCell);
-    //	}
-    //}
+    int16_t out = cell->food() < count ? cell->food() : count;
 
-    //if (arrMinDist.empty()) {
-    //	return Position(-1, -1);
-    //}
+    cell->setFood(cell->food() - out);
 
-    uint32_t idx = static_cast<uint32_t>(Math::random(0, arrMinDist.size() - 1));
-
-    return *arrMinDist[idx];
+    return out;
 }
 
 void Map::moveAnt(Ant& ant, const Position& pos)

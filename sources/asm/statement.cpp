@@ -282,9 +282,8 @@ bool Statement::compile(Code* code)
         case AsmCommand::CIDL: compile1Args(BCode::CIDL, Table::RValNP,   code); break;
         case AsmCommand::CMOV: compile1Args(BCode::CMOV, Table::Position, code); break;
         case AsmCommand::CATT: compile1Args(BCode::CATT, Table::Position, code); break;
+        case AsmCommand::CFD:  compile1Args(BCode::CFD,  Table::Position, code); break;
         case AsmCommand::CTKF: compile1Args(BCode::CTKF, Table::Position, code); break;
-        case AsmCommand::CGVF: compile1Args(BCode::CGVF, Table::Position, code); break;
-        case AsmCommand::CEAT: compile1Args(BCode::CEAT, Table::RValNP,   code); break;
         case AsmCommand::CCSL: compileNoArgs(BCode::CCSL, code); break;
         case AsmCommand::CCWR: compileNoArgs(BCode::CCWR, code); break;
 

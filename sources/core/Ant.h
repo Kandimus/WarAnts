@@ -35,7 +35,7 @@ enum Type : uint16_t
     MiddleSatiety = 0x0100,
     LowHealth = 0x0200,
     MiddleHealth = 0x0400,
-    Queen = 0x0800,              // ????
+    QueenUnderAttack = 0x0800,              // ????
 };
 
 }
@@ -85,10 +85,12 @@ public:
     Type type() const { return m_type; }
     std::string typeToString() const;
     Status status() const { return m_status; }
+    int16_t foodPerTurn() const { return m_foodPerTurn; }
 
     bool isWorker() const { return m_type == Type::Worker; }
     bool isSolder() const { return m_type == Type::Solder; }
     bool isQueen() const { return m_type == Type::Queen; }
+    bool isUnderAttack() const { return m_isUnderAttack; }
 
     float healthPercent() const { return m_health * 100.f / m_maxHealth; }
     float satietyPercent() const { return m_satiety * 100.f / m_maxSatiety; }
@@ -163,6 +165,7 @@ protected:
     std::vector<su::UniInt64> m_received; //TODO clear up after calling vm.run
     int16_t m_interruptFlags = 0;
     int16_t m_interruptReason = Interrupt::CommandAborted | Interrupt::CommandCompleted;
+    bool    m_isUnderAttack = false;
 
     AntCommand m_command;
     PlayerPtr m_player;

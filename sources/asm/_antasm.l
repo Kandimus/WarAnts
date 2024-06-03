@@ -128,9 +128,8 @@ comment   ";"[^\n\r]*
 "cidl"                      { return CIDL; }
 "cmov"                      { return CMOV; }
 "catt"                      { return CATT; }
+"cfd"                       { return CFD;  }
 "ctkf"                      { return CTKF; }
-"cgvf"                      { return CGVF; }
-"ceat"                      { return CEAT; }
 "ccsl"                      { return CCSL; }
 "ccwr"                      { return CCWR; }
 

@@ -153,9 +153,8 @@ enum class AsmCommand
     CIDL,
     CMOV,
     CATT,
+    CFD,
     CTKF,
-    CGVF,
-    CEAT,
     CCSL,
     CCWR,
 
@@ -250,8 +249,8 @@ enum Command : uint8_t
 
     CMOV,
     CATT,
+    CFD,
     CTKF,
-    CGVF,
     CCSL,
     CCWR,
 
@@ -273,9 +272,8 @@ enum Command : uint8_t
     LDEN = 0x68,
     LDAL = 0x6c,
     CIDL = 0x70,
-    CEAT = 0x74,
-    DBG  = 0x78,
-    // max 0x7c (1 free)
+    DBG  = 0x74,
+    // max 0x7c (2 free)
 };
 }; // namespace BCode
 

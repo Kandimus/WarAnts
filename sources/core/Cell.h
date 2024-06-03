@@ -24,6 +24,7 @@ public:
     inline bool isStone () const { return m_status == STONE; }
     inline uint32_t food() const { return isStone() ? 0 : m_status; }
     inline Ant* ant() const { return m_ant; }
+    inline Position position() const { return m_pos; }
 
     void setFood(uint32_t count)
     {
