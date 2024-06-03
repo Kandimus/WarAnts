@@ -15,9 +15,8 @@ enum Type
     Idle,         //    -     | turn count, if it is 0, then the command will be completed
     MovePos,      //    +     | -
     Attack,       //    +     | 0 - movint to position, 1 - attack enemy
-    Eat,          //    -     | 
-    TakeFood,
     Feed,
+    TakeFood,
 
     CreateSolder,
     CreateWorker,

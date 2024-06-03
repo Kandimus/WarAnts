@@ -192,13 +192,13 @@ std::shared_ptr<TestAnt> runBCode(bool isBounded, const std::string& filename)
     std::shared_ptr<PublicMap> map = std::make_shared<PublicMap>();
     map->setBounded(isBounded);
 
-    map->getCell( 4,  0)->setFood(100);
-    map->getCell(13,  2)->setFood(50);
-    map->getCell( 0,  5)->setFood(75);
-    map->getCell( 5,  7)->setFood(10);
-    map->getCell( 4,  7)->setFood(20);
-    map->getCell( 2, 12)->setFood(250);
-    map->getCell(12, 12)->setFood(1000);
+    map->getCell( 4,  0)->modifyFood(100);
+    map->getCell(13,  2)->modifyFood(50);
+    map->getCell( 0,  5)->modifyFood(75);
+    map->getCell( 5,  7)->modifyFood(10);
+    map->getCell( 4,  7)->modifyFood(20);
+    map->getCell( 2, 12)->modifyFood(250);
+    map->getCell(12, 12)->modifyFood(1000);
 
     map->setAnt(ant);
     map->setAnt(qAlly_1);

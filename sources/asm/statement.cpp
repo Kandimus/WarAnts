@@ -470,9 +470,8 @@ void Statement::print(std::ofstream& file) const
         case AsmCommand::CIDL: print1Expr(file, "CIDL", m_src); break;
         case AsmCommand::CMOV: print1Expr(file, "CMOV", m_dst); break;
         case AsmCommand::CATT: print1Expr(file, "CATT", m_dst); break;
+        case AsmCommand::CFD:  print1Expr(file, "CFD",  m_dst); break;
         case AsmCommand::CTKF: print1Expr(file, "CTKF", m_dst); break;
-        case AsmCommand::CGVF: print1Expr(file, "CGVF", m_dst); break;
-        case AsmCommand::CEAT: print1Expr(file, "CEAT", m_src); break;
         case AsmCommand::CCSL: print0Expr(file, "CCSL"); break;
         case AsmCommand::CCWR: print0Expr(file, "CCWR"); break;
 

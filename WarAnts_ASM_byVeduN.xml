@@ -24,7 +24,7 @@
             <Keywords name="Folders in comment, open"></Keywords>
             <Keywords name="Folders in comment, middle"></Keywords>
             <Keywords name="Folders in comment, close"></Keywords>
-            <Keywords name="Keywords1">add and dec div inc mod mul neg not or sub xor min max bsf bsr bt btr bts btc shl shr rol ror eq neq gt ge lt le test jmp jz jnz jf jt jo jno js jns jcz jcnz loop call mov len dist ret mpsz ldrc ldfd lden ldal cidl cmov catt ctkf cgvf ceat cps cpw nop</Keywords>
+            <Keywords name="Keywords1">add and dec div inc mod mul neg not or sub xor min max bsf bsr bt btr bts btc shl shr rol ror eq neq gt ge lt le test jmp jz jnz jf jt jo jno js jns jcz jcnz loop call mov len dist ret dbg mpsz ldrc ldfd lden ldal cidl cmov catt ctkf cfd cps cpw nop</Keywords>
             <Keywords name="Keywords2">r0 r1 r2 rc rf p0 p1 p2 x y</Keywords>
             <Keywords name="Keywords3">define core name version class </Keywords>
             <Keywords name="Keywords4">. </Keywords>

@@ -1,5 +1,6 @@
 #include "Map.h"
 
+#include <algorithm>
 #include <fstream>
 #include <vector>
 
@@ -201,22 +202,30 @@ Position Map::closestAvaliblePosition(const Position& pos) const
     return pos + curPos;
 }
 
-int16_t Map::takeFood(const Position& pos, int16_t count)
+bool Map::takeFood(const Position& pos, Ant& ant)
 {
     int32_t idx = absPosition(pos);
 
-    if (idx < 0 || idx >= m_map.size() || count < 1)
+    if (idx < 0 || idx >= m_map.size() || ant.foodPerTurn() < 1)
     {
         return 0;
     }
 
     Cell* cell = m_map[idx].get();
 
-    int16_t out = cell->food() < count ? cell->food() : count;
+    int16_t freeCargo = ant.maxCargo() - ant.cargo();
 
-    cell->setFood(cell->food() - out);
+    if (freeCargo <= 0)
+    {
+        return false;
+    }
 
-    return out;
+    int16_t out = std::min(std::min(cell->food(), ant.foodPerTurn()), freeCargo);
+
+    ant.modifyCargo(out);
+    cell->modifyFood(-out);
+
+    return true;
 }
 
 void Map::moveAnt(Ant& ant, const Position& pos)
@@ -340,7 +349,7 @@ bool Map::load(std::vector<Position>& start)
             auto apos = absPosition(Position(value[0], value[1]));
             if (apos > 0)
             {
-                m_map[apos]->setFood(value[2]);
+                m_map[apos]->modifyFood(value[2]);
             }
         }
     }

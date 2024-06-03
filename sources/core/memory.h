@@ -41,9 +41,9 @@ enum Addess : uint16_t
     AllyCoordY = 0x1a,
         Reserved27 = 0x1b,
     Food = 0x1c,
-    FoodCoordX = 0x1c,
-    FoodCoordY = 0x1d,
-        Reserved30 = 0x1e,
+    FoodCount = 0x1c,
+    FoodCoordX = 0x1d,
+    FoodCoordY = 0x1e,
         Reserved31 = 0x1f,
 
     // writebly data

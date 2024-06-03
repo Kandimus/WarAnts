@@ -292,7 +292,7 @@ void Battle::doAntCommand(Ant& ant)
         case Command::Idle: commandIdle(ant); break;
         case Command::MovePos: commandMove(ant); break;
         case Command::Attack: commandAttack(ant); break;
-        case Command::Eat: commandEat(ant); break;
+        case Command::TakeFood: commandTakeFood(ant); break;
         //case CommandType::MoveAndIdle: commandMoveAndIdle(ant); break;
         //case CommandType::MoveAndAttack: commandMoveAndAttack(ant);break;
 //		case CommandType::MoveToFood: doAntMoveToFood(ant); break;
@@ -453,7 +453,9 @@ bool Battle::commandTakeFood(Ant& ant)
 
         LOGD("%s take the food on %s", ant.toString().c_str(), foodPos.toString().c_str());
 
-        auto food = m_map->takeFood(foodPos, ant.foodPerTurn());
+        auto food = m_map->takeFood(foodPos, ant);
+
+        LOGD("%s free cargo %.2f, remain food at cell %i", ant.toString().c_str(), 100.f - ant.cargoPercent(), m_map->cell(foodPos)->food());
 
         if (!food)
         {
@@ -467,7 +469,7 @@ bool Battle::commandTakeFood(Ant& ant)
 
     // No foods in range 1 cell, check range in the Constant::CommandRadius value
     size_t minDist = 0xffff;
-    result = m_map->processingAntsInRadius(ant.position(), Constant::CommandRadius, [&foods, &minDist, &ant](const Cell& cell)
+    result = m_map->processingRadius(ant.position(), Constant::CommandRadius, [&foods, &minDist, &ant](const Cell& cell)
     {
         if (cell.food())
         {

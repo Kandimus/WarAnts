@@ -8,6 +8,7 @@
 %class "black"
 
 #define iteration       00h
+#define cargo           04h
 #define allies_count    07h
 #define enemies_count   06h
 #define food_count      07h
@@ -60,9 +61,9 @@ return:
 ;-----------------------------------------------
 ; return R0 as index the closest food or -1
 .GetClosestFood
-    ; R0 - index of the nearest food
-    ; R1 - min distance to an food
-    ; R2 - the current distance to an food
+    ; R0 - index of the closest food cell
+    ; R1 - min distance to the food cell
+    ; R2 - the current distance to the food cell
     mov   r0, -1
     mov   rc, [food_count]
     ; if no foods in the ant radius then exit
@@ -72,7 +73,7 @@ return:
     
     ; main loop
 beg_loop:
-    lden  rc
+    ldfd  rc
     dist  <food_pos> ; r2 contain the distantion to the food cell
     gt    r2, r1
     jt    end_loop
@@ -82,6 +83,24 @@ end_loop:
     loop  beg_loop
 return:
     ret
+
+
+;------------------------------------------------------------------------------
+; R0 != 0 interrupt is set
+.EnableFoodInterrupt
+    eq    r0, 0
+    jt    disable_food_interrupt
+    ge    [cargo], 1000
+    jt    disable_food_interrupt
+    bts   [IF], IF_CF
+    bts   [IF], IF_FF
+    ret
+    
+disable_food_interrupt:
+    btr   [IF], IF_CF
+    btr   [IF], IF_FF
+    ret
+
 
 ;------------------------------------------------------------------------------
 ;
@@ -104,12 +123,15 @@ main:
     jt    takefood
     bt    [IR], IF_FF
     jt    takefood
-
+    
     ; no enemies, simple moving
 simple_move:
     mov   [Attacking], 0
-    bts   [IF], IF_CE
+    bts   [IF], IF_CE ; можно заменить на команду AND [IF], ~(CE | FE | CF | FF)
     bts   [IF], IF_FE
+    mov   r0, 1
+    call  EnableFoodInterrupt
+    
     eq    [Direction], 1
     jt    goto_end
     eq    [Direction], 2
@@ -137,10 +159,24 @@ attack:
     eq    r0, -1
     jt    end
     lden  r0
-    dbg  777
+    dbg   777
     catt  <enemy_pos>
     btr   [IF], IF_CE
     btr   [IF], IF_FE
+    mov   r0, 0
+    call  EnableFoodInterrupt
+    jmp   end
+    
+takefood:
+    mov   [Attacking], 55
+    call  GetClosestFood
+    eq    r0, -1
+    jt    end
+    ldfd  r0
+    dbg   888
+    ctkf  <food_pos>
+    mov   r0, 0
+    call  EnableFoodInterrupt
     jmp   end
     
 end:

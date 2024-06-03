@@ -53,41 +53,36 @@ VirtualMachine::VirtualMachine(uint32_t iteration, const std::shared_ptr<Map>& m
 
 void VirtualMachine::prepare(uint32_t iteration)
 {
-    auto visibleCells = Math::visibleCells(m_ant->position(), m_ant->visibility());
-
-    for (auto& pos : visibleCells)
+    m_map->processingRadius(m_ant->position(), m_ant->visibility(), [this](const Cell& cell)
     {
-        auto cell = m_map->cell(pos);
-
-        if (!cell || cell->isEmpty())
+        if (cell.food())
         {
-            continue;
+            m_foods.push_back(FoodInfo());
+            m_foods.back().count = cell.food();
+            m_foods.back().pos = cell.position();
+            return;
         }
 
-        if (cell->food())
+        auto ant = cell.ant();
+        if (!ant)
         {
-            m_foods.push_back(pos);
-            continue;
+            return;
         }
 
-        auto cellAnt = cell->ant();
-        if (cellAnt)
+        if (m_ant.get() == ant)
         {
-            if (m_ant.get() == cellAnt)
-            {
-                continue;
-            }
-
-            if (cellAnt->player() == m_ant->player())
-            {
-                m_allies.push_back(cellAnt);
-            }
-            else
-            {
-                m_enemies.push_back(cellAnt);
-            }
+            return;
         }
-    }
+
+        if (ant->player() == m_ant->player())
+        {
+            m_allies.push_back(ant);
+        }
+        else
+        {
+            m_enemies.push_back(ant);
+        }
+    });
 
     su::UniInt32 iter;
     iter.u32 = iteration;
@@ -100,7 +95,7 @@ void VirtualMachine::prepare(uint32_t iteration)
     m_memory[Memory::SatietyPercent] = int16_t(m_ant->satietyPercent() * 10);
     m_memory[Memory::SatietyPercent] = int16_t(m_ant->satietyPercent() * 10);
     m_memory[Memory::HealthPercent] = int16_t(m_ant->healthPercent() * 10);
-    m_memory[Memory::Cargo] = m_ant->cargo(); //TODO может тут нужно в процентах?
+    m_memory[Memory::Cargo] = int16_t(m_ant->cargoPercent() * 10);
     m_memory[Memory::CountOfAllies] = (int16_t)m_allies.size();
     m_memory[Memory::CountOfEnemies] = (int16_t)m_enemies.size();
     m_memory[Memory::CountOfFoods] = (int16_t)m_foods.size();
@@ -253,8 +248,8 @@ bool VirtualMachine::run()
 
             case Asm::BCode::CMOV: result = commandPositionArg(cmd); break;
             case Asm::BCode::CATT: result = commandPositionArg(cmd); break;
-            case Asm::BCode::CTKF: result = commandPositionArg(cmd); break;
             case Asm::BCode::CFD:  result = commandPositionArg(cmd); break;
+            case Asm::BCode::CTKF: result = commandPositionArg(cmd); break;
             case Asm::BCode::CCSL: result = commandNoArgs(cmd); break;
             case Asm::BCode::CCWR: result = commandNoArgs(cmd); break;
 
@@ -275,7 +270,6 @@ bool VirtualMachine::run()
             case Asm::BCode::LDEN: result = value1(cmd, value.i16, valType); break;
             case Asm::BCode::LDAL: result = value1(cmd, value.i16, valType); break;
             case Asm::BCode::CIDL: result = value1(cmd, value.i16, valType); break;
-            case Asm::BCode::CEAT: result = value1(cmd, value.i16, valType); break;
             case Asm::BCode::DBG:  result = value1(cmd, value.i16, valType); break;
         }
 
@@ -587,7 +581,6 @@ bool VirtualMachine::value1(uint8_t cmd, uint16_t value, uint8_t valueType)
         case Asm::BCode::LDEN: result = loadEnemy(value); break;
         case Asm::BCode::LDAL: result = loadAlly(value); break;
         case Asm::BCode::CIDL: result = true; m_ant->setCommand(Command::Type::Idle, value); break;
-        case Asm::BCode::CEAT: result = true; m_ant->setCommand(Command::Type::Eat, value); break;
         case Asm::BCode::DBG:  result = printDebug(value); break;
         default:
             LOGE("Command %02x (%04x): Undefined the logical command", (int)cmd, cmdPos);
@@ -865,8 +858,9 @@ bool VirtualMachine::loadFood(int16_t value)
         return true;
     }
 
-    m_memory[Memory::FoodCoordX] = m_foods[value].x();
-    m_memory[Memory::FoodCoordY] = m_foods[value].y();
+    m_memory[Memory::FoodCount] = m_foods[value].count;
+    m_memory[Memory::FoodCoordX] = m_foods[value].pos.x();
+    m_memory[Memory::FoodCoordY] = m_foods[value].pos.y();
 
     return true;
 }

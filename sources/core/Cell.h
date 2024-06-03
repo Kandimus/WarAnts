@@ -21,16 +21,16 @@ public:
 
     inline bool isChanged() const { return m_isChanged; }
     inline bool isEmpty() const { return !m_status && !m_ant; }
-    inline bool isStone () const { return m_status == STONE; }
-    inline uint32_t food() const { return isStone() ? 0 : m_status; }
+    inline bool isStone () const { return m_status & STONE; }
+    inline int16_t food() const { return isStone() ? 0 : m_status; }
     inline Ant* ant() const { return m_ant; }
     inline Position position() const { return m_pos; }
 
-    void setFood(uint32_t count)
+    void modifyFood(int16_t count)
     {
         if (!m_ant && !isStone())
         {
-            m_status += count & 0x7FFFFFFF;
+            m_status += count & 0x7FFF;
             m_isChanged = true;
         }
         else
@@ -91,9 +91,9 @@ public:
     }
 
 protected:
-    const uint32_t STONE = 0xFFFFFFFF;
+    const int16_t STONE = -32768; // 0x8000
     Position m_pos;
-    uint32_t m_status = 0;
+    int16_t m_status = 0;
     Ant* m_ant = nullptr;
     bool m_isChanged = false;
 };

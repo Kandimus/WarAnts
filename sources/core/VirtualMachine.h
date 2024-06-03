@@ -74,6 +74,12 @@ protected:
     bool printDebug(int16_t value);
 
 protected:
+    struct FoodInfo
+    {
+        int16_t count;
+        Position pos;
+    };
+
     const std::vector<int8_t>& m_bcode;
     std::vector<int16_t>& m_memory;
 
@@ -83,7 +89,7 @@ protected:
 
     std::vector<Ant*> m_allies;
     std::vector<Ant*> m_enemies;
-    VectorPosition m_foods;
+    std::vector<FoodInfo> m_foods;
     std::vector<uint16_t> m_callstack;
     
     int16_t m_registers[Asm::Register::COUNT];

@@ -57,7 +57,7 @@ public:
 
     Position closestAvaliblePosition(const Position& pos) const;
     
-    int16_t takeFood(const Position& pos, int16_t count);
+    bool takeFood(const Position& pos, Ant& ant);
 
     void moveAnt(Ant& ant, const Position& pos);
     void removeAnt(const Position& pos);

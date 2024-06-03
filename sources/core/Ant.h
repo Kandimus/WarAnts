@@ -87,6 +87,8 @@ public:
     Status status() const { return m_status; }
     int16_t foodPerTurn() const { return m_foodPerTurn; }
 
+    void modifyCargo(int16_t val) { m_cargo = (m_cargo + val) > 0 ? m_cargo + val : 0; }
+
     bool isWorker() const { return m_type == Type::Worker; }
     bool isSolder() const { return m_type == Type::Solder; }
     bool isQueen() const { return m_type == Type::Queen; }
@@ -94,6 +96,7 @@ public:
 
     float healthPercent() const { return m_health * 100.f / m_maxHealth; }
     float satietyPercent() const { return m_satiety * 100.f / m_maxSatiety; }
+    float cargoPercent() const { return m_cargo * 100.f / m_maxCargo; }
     
     //	virtual std::string strType() const = 0;
     
