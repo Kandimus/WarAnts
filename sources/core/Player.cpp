@@ -3,7 +3,8 @@
 #include "stringex.h"
 #include "Log.h"
 
-#include "../asm/asm_defines.h"
+#include "asm_defines.h"
+#include "Compiler.h"
 #include "wacfile.h"
 
 namespace WarAnts
@@ -13,11 +14,49 @@ Player::Player(uint32_t index, const std::string& libname)
     : m_libName(libname)
     , m_index(index)
 {
-    //TODO может быть разрешить компиляцию на ходу????
-    //     тогда тут нужно смотреть на расширение файла
-    if (!Asm::loadWacFile(libname, m_info))
+    std::string ext = su::String_extensionFilename(m_libName);
+
+    if (ext == "wasm")
     {
-        LOGE("Player %i: Cannot load wac file '%s'", index, libname.c_str());
+        StringArray errors;
+        StringArray warnings;
+
+        LOGI("Player %i: compile the source asm file '%s'...", index, libname.c_str());
+
+        auto result = Asm::compileFile(libname, warnings, errors, m_info);
+
+        if (errors.size())
+        {
+            LOGE("Player %i: compiler errors...");
+            for (const auto& str : errors)
+            {
+                LOGE(str.c_str());
+            }
+            return;
+        }
+
+        if (warnings.size())
+        {
+            LOGE("Player %i: compiler warnings...");
+            for (const auto& str : warnings)
+            {
+                LOGW(str.c_str());
+            }
+        }
+    }
+    else if (ext == "wac")
+    {
+        LOGI("Player %i: load the compiled asm file '%s'...", index, libname.c_str());
+
+        if (!Asm::loadWacFile(libname, m_info))
+        {
+            LOGE("Player %i: Cannot load wac file '%s'", index, libname.c_str());
+            return;
+        }
+    }
+    else
+    {
+        LOGE("Player %i: Unknown extension '%s'", index, ext.c_str());
         return;
     }
 
