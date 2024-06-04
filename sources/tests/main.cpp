@@ -84,6 +84,8 @@ public:
 
     void setType(WarAnts::Ant::Type type) { m_type = type; }
     void setHealth(int16_t health) { m_health = health; }
+    void setMaxCargo(int16_t v) { m_maxCargo = v; }
+    void setFoodPerTurn(int16_t v) { m_foodPerTurn = v; }
 };
 
 int main(int argc, char* argv[])
@@ -315,6 +317,57 @@ TEST_CASE("nearAvaliblePosition", "[Map]")
     CHECK(test2b);
     CHECK((test2a + test2b) == test2max);
 }
+
+TEST_CASE("takeFood", "[Map]")
+{
+    WarAnts::Asm::WacFile wac;
+    std::shared_ptr<TestPlayer> plr = std::make_shared<TestPlayer>(wac);
+    plr->setLibname("---");
+
+    // The ant
+    std::shared_ptr<TestAnt> ant = std::make_shared<TestAnt>(WarAnts::Ant::Type::Worker, 2, 2, plr);
+    ant->setFoodPerTurn(15);
+    ant->setMaxCargo(30);
+    ant->clearCargo();
+
+    // Map
+    std::shared_ptr<PublicMap> map = std::make_shared<PublicMap>();
+    map->setBounded(true);
+    map->getCell(1, 1)->modifyFood(20);
+    map->getCell(3, 3)->modifyFood(50);
+
+    // 
+    bool result = map->takeFood(WarAnts::Position(1, 1), *ant);
+
+    CHECK(result == true);
+    CHECK(ant->cargo() == 15);
+    CHECK(int16_t(ant->cargoPercent() * 10) == 500);
+    CHECK(map->getCell(1, 1)->food() == 5);
+
+    // 
+    result = map->takeFood(WarAnts::Position(1, 1), *ant);
+
+    CHECK(result == true);
+    CHECK(ant->cargo() == 20);
+    CHECK(int16_t(ant->cargoPercent() * 10) == 666);
+    CHECK(map->getCell(1, 1)->food() == 0);
+
+    // 
+    result = map->takeFood(WarAnts::Position(3, 3), *ant);
+
+    CHECK(result == true);
+    CHECK(ant->cargo() == 30);
+    CHECK(int16_t(ant->cargoPercent() * 10) == 1000);
+    CHECK(map->getCell(3, 3)->food() == 40);
+
+    //
+    result = map->takeFood(WarAnts::Position(3, 3), *ant);
+    CHECK(result == false);
+    CHECK(ant->cargo() == 30);
+    CHECK(int16_t(ant->cargoPercent() * 10) == 1000);
+    CHECK(map->getCell(3, 3)->food() == 40);
+}
+
 
 TEST_CASE("basic", "[VM]")
 {

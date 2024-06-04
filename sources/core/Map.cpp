@@ -208,7 +208,7 @@ bool Map::takeFood(const Position& pos, Ant& ant)
 
     if (idx < 0 || idx >= m_map.size() || ant.foodPerTurn() < 1)
     {
-        return 0;
+        return false;
     }
 
     Cell* cell = m_map[idx].get();

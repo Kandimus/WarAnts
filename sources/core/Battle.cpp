@@ -9,6 +9,7 @@
 #include "Map.h"
 #include "MapMath.h"
 #include "Player.h"
+#include "vectorMin.h"
 #include "VirtualMachine.h"
 
 #include "battlelog/BattleLogService.h"
@@ -25,10 +26,10 @@ Battle::Battle(const std::string& confname, const std::string& mapname, const st
     su::Log::instance().setTimeStamp(false);
     su::Log::instance().setFilename(m_conf->UBID());
 
-    // init ant fabric
+    // init the ant fabric
     AntFabric::init(m_conf->antsFileSettings());
 
-    // create the player list
+    // create the players list
     uint32_t player_index = 0;
     for (auto& libname : players)
     {
@@ -69,7 +70,6 @@ Battle::Battle(const std::string& confname, const std::string& mapname, const st
     m_logService->add(std::make_shared<FileProvider>(logDir + m_conf->UBID() + ".json"));
     m_logService->add(std::make_shared<TextScreenProvider>(logDir + m_conf->UBID() + "_screen.txt"));
 
-    //TODO может быть перенести карту в функцию `run`?
     m_map = std::make_shared<Map>(m_conf, mapname);
     LOGI("Created new battle [%s]", m_conf->UBID().c_str());
 
@@ -271,8 +271,7 @@ void Battle::processingInterrupt(Ant& ant)
 
     if (ant.interruptReason())
     {
-        LOGD("%s have %sintrrupt 0x%04x", ant.toString().c_str(),
-            ant.interruptReason() & ant.interruptFlags() ? "" : "masked ", ant.interruptReason());
+        LOGD("%s have intrrupt 0x%04x", ant.toString().c_str(), ant.interruptReason());
     }
 }
 
@@ -351,7 +350,7 @@ bool Battle::commandAttack(Ant& ant)
     LOGD("%s: command ATTACK %s", ant.toString().c_str(), ant.command().m_pos.toString().c_str());
 
     // Checking enemies in the range 1 cell
-    std::vector<Ant*> enemies;
+    vectorMin<Ant*> enemies;
     auto player = ant.player();
 
     auto result = m_map->processingAntsInRadius(ant.position(), 1, [&enemies, player](Ant* cellAnt)
@@ -379,24 +378,12 @@ bool Battle::commandAttack(Ant& ant)
         return true;
     }
 
-    // No enemies in range 1 cell, check range in the Constant::CommandRadius value
-    size_t minDist = 0xffff;
-    result = m_map->processingAntsInRadius(ant.position(), Constant::CommandRadius, [&enemies, &minDist, &ant](Ant* cellAnt)
+    // No enemies in range 1 cell, check within the Constant::CommandRadius radius of the command point
+    result = m_map->processingAntsInRadius(cmd.m_pos, Constant::CommandRadius, [&enemies, &ant](Ant* cellAnt)
     {
         if (cellAnt->player()->index() != ant.player()->index())
         {
-            auto dist = Math::distanceTo(cellAnt->position(), ant.command().m_pos);
-            if (dist < minDist)
-            {
-                enemies.clear();
-                enemies.push_back(cellAnt);
-                return;
-            }
-            if (dist == minDist)
-            {
-                enemies.push_back(cellAnt);
-                return;
-            }
+            enemies.add(cellAnt, Math::distanceTo(cellAnt->position(), ant.position()));
         }
     });
 
@@ -420,10 +407,10 @@ bool Battle::commandTakeFood(Ant& ant)
 {
     auto cmd = ant.command();
 
-    LOGD("%s: command TAKE FOOD %s", ant.toString().c_str(), ant.command().m_pos.toString().c_str());
+    LOGD("%s: command TAKE FOOD %s", ant.toString().c_str(), cmd.m_pos.toString().c_str());
 
     // Checking food in the range 1 cell
-    std::vector<Position> foods;
+    vectorMin<Position> foods;
 
     auto result = m_map->processingRadius(ant.position(), 1, [&foods](const Cell& cell)
     {
@@ -455,11 +442,12 @@ bool Battle::commandTakeFood(Ant& ant)
 
         auto food = m_map->takeFood(foodPos, ant);
 
-        LOGD("%s free cargo %.2f, remain food at cell %i", ant.toString().c_str(), 100.f - ant.cargoPercent(), m_map->cell(foodPos)->food());
+        LOGD("%s free cargo %.2f, the remain of the food cell is %i",
+            ant.toString().c_str(), 100.f - ant.cargoPercent(), m_map->cell(foodPos)->food());
 
         if (!food)
         {
-            LOGE("%s cannot take the food on %s", ant.toString().c_str(), foodPos.toString().c_str());
+            LOGE("%s cannot take the food at %s", ant.toString().c_str(), foodPos.toString().c_str());
             ant.setInterruptReason(Interrupt::CommandAborted, true);
             return false;
         }
@@ -468,23 +456,11 @@ bool Battle::commandTakeFood(Ant& ant)
     }
 
     // No foods in range 1 cell, check range in the Constant::CommandRadius value
-    size_t minDist = 0xffff;
-    result = m_map->processingRadius(ant.position(), Constant::CommandRadius, [&foods, &minDist, &ant](const Cell& cell)
+    result = m_map->processingRadius(cmd.m_pos, Constant::CommandRadius, [&foods, &ant](const Cell& cell)
     {
         if (cell.food())
         {
-            auto dist = Math::distanceTo(cell.position(), ant.command().m_pos);
-            if (dist < minDist)
-            {
-                foods.clear();
-                foods.push_back(cell.position());
-                return;
-            }
-            if (dist == minDist)
-            {
-                foods.push_back(cell.position());
-                return;
-            }
+            foods.add(cell.position(), Math::distanceTo(cell.position(), ant.position()));
         }
     });
 
@@ -520,16 +496,6 @@ bool Battle::commandMoveAndIdle(AntPtr ant)
     {
         ant->clearCommand();
         return true;
-    }
-    return false;
-}
-
-bool Battle::commandMoveAndAttack(AntPtr ant)
-{
-    if (commandMove(ant))
-    {
-        //ant->setCommand(CommandType::Attack, 0, 0);
-        LOGD("The ant got the new command: Attack");
     }
     return false;
 }
@@ -663,60 +629,4 @@ void Battle::removePlayerFromGame(Player& plr)
     LOGD("'%s' #%i lost!", plr.teamName().c_str(), plr.index());
 }
 
-//void Battle::generateAntInfo(AntSharedPtr& ant, AntInfo& ai)
-//{
-//	auto visible = Math::visibleCells(ant->position(), ant->maxVisibility());
-//	auto owner = ant->player().lock();
-//	auto quuen = owner->antQueen().lock();
-//	uint32_t min_dist_food = 0xffffffff;
-//	uint32_t min_dist_enemy = 0xffffffff;
-//
-//	ai.healthPrecent = ant->healthPercent();
-//	ai.satietyPrecent = ant->satietyPercent();
-//	ai.cargo = ant->cargo();
-////	ai.directionToQueen = Math::directionTo(ant->position(), quuen->position());
-//	ai.distanceToQueen = Math::distanceTo(ant->position(), quuen->position());
-//	ai.directionToLabel = Direction::Nord; //TODO fix it
-//	ai.distanceToLabel = 0; //TODO fix it
-//	ai.directionToNearEnemy = Direction::Nord;
-//	ai.directionToNearFood = Direction::Nord;
-//
-//	for (auto& pos : visible) {
-//		if (m_map->cell(pos).expired()) {
-//			continue;
-//		}
-//
-//		auto cell = m_map->cell(pos).lock();
-//
-//		if (cell->isEmpty() || cell->isStone()) {
-//			continue;
-//		} else if(cell->food()) {
-//			uint32_t dist = Math::distanceTo(ant->position(), pos);
-//
-//			if (dist < min_dist_food) {
-//				min_dist_food = dist;
-//				ai.directionToNearFood = Math::directionTo(ant->position(), pos);
-//			}
-//
-//			ai.countOfVisibleFood++;
-//		} else {
-//			auto cell_ant = cell->ant().lock();
-//			auto cell_player = cell_ant->player().lock();
-//
-//			if (owner->index() == cell_player->index()) {
-//				ai.countOfVisibleAlly++;
-//			} else {
-//				uint32_t dist = Math::distanceTo(ant->position(), pos);
-//
-//				if (dist < min_dist_enemy) {
-//					min_dist_enemy = dist;
-//					ai.directionToNearEnemy = Math::directionTo(ant->position(), pos);
-//				}
-//
-//				ai.countOfVisibleEnemies++;
-//			}
-//		}
-//	}
-//}
-
-};
+} //namespace WarAnts

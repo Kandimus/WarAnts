@@ -24,18 +24,18 @@ namespace Interrupt
 
 enum Type : uint16_t
 {
-    CommandAborted = 0x0001,     // set in the postVM function
-    CommandCompleted = 0x0002,   // set in the postVM function
-    WasAttacked = 0x0004,        // set in the damage function
-    CloseEnemy = 0x0008,         // set in 
-    FarEnemy = 0x0010,           //
-    CloseFood = 0x0020,
-    FarFood = 0x0040,
-    LowSatiety = 0x0080,         
-    MiddleSatiety = 0x0100,
-    LowHealth = 0x0200,
-    MiddleHealth = 0x0400,
-    QueenUnderAttack = 0x0800,              // ????
+    CommandAborted = 0x0001,     // 
+    CommandCompleted = 0x0002,   // 
+    WasAttacked = 0x0004,        // set in Ant::damage
+    CloseEnemy = 0x0008,         // set in Battle::processingInterrupt
+    FarEnemy = 0x0010,           // set in Battle::processingInterrupt
+    CloseFood = 0x0020,          // set in Battle::processingInterrupt
+    FarFood = 0x0040,            // set in Battle::processingInterrupt
+    LowSatiety = 0x0080,         // set in Ant::endTurn
+    MiddleSatiety = 0x0100,      // set in Ant::endTurn
+    LowHealth = 0x0200,          // set in Ant::endTurn
+    MiddleHealth = 0x0400,       // set in Ant::endTurn
+    QueenUnderAttack = 0x0800,   // set in Battle::processingInterrupt
 };
 
 }
@@ -87,6 +87,7 @@ public:
     Status status() const { return m_status; }
     int16_t foodPerTurn() const { return m_foodPerTurn; }
 
+    void clearCargo() { m_cargo = 0; }
     void modifyCargo(int16_t val) { m_cargo = (m_cargo + val) > 0 ? m_cargo + val : 0; }
 
     bool isWorker() const { return m_type == Type::Worker; }

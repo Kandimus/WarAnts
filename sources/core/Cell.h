@@ -10,6 +10,11 @@
 namespace WarAnts
 {
 
+namespace
+{
+    const int16_t STONE = -32768; // 0x8000
+}
+
 class Ant;
 
 class Cell
@@ -30,7 +35,8 @@ public:
     {
         if (!m_ant && !isStone())
         {
-            m_status += count & 0x7FFF;
+            m_status += count;
+            m_status = m_status < 0 ? 0 : m_status;
             m_isChanged = true;
         }
         else
@@ -91,7 +97,6 @@ public:
     }
 
 protected:
-    const int16_t STONE = -32768; // 0x8000
     Position m_pos;
     int16_t m_status = 0;
     Ant* m_ant = nullptr;

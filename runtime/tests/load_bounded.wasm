@@ -29,7 +29,7 @@
 ; 0x40..0x4f position of food/allies/enemies
 
 .Test_FOOD
-    inc   [30h]
+    inc   [30h]      ; accumulator
     ; food on <4, 0>
     mov   [40h], 4
     mov   [41h], 0
@@ -50,17 +50,23 @@
     
 begin_loop:
     ldfd  rc
-    eq    <1Ch>, <40h>
+    eq    <1Dh>, <40h>
     jf    check_2
+    eq    [1Ch], 100
+    jf    abort
     or    r0, 1
     jmp   end_loop
 check_2:
-    eq    <1Ch>, <42h>
+    eq    <1dh>, <42h>
     jf    check_3
+    eq    [1Ch], 75
+    jf    abort
     or    r0, 2
     jmp   end_loop
 check_3:
-    eq    <1Ch>, <44h>
+    eq    <1Dh>, <44h>
+    jf    abort
+    eq    [1Ch], 20
     jf    abort
     or    r0, 4
 end_loop:
@@ -71,6 +77,7 @@ end_loop:
     RET
     
 abort:
+    dbg   07h
     mov   [31h], 0
     RET
 
@@ -114,6 +121,7 @@ end_loop:
     RET
     
 abort:
+    dbg   05h
     mov   [31h], 0
     RET
 
@@ -177,6 +185,7 @@ end_loop:
     RET
     
 abort:
+    dbg   06h
     mov   [31h], 0
     RET
 
