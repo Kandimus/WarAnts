@@ -291,6 +291,7 @@ void Battle::doAntCommand(Ant& ant)
         case Command::Idle: commandIdle(ant); break;
         case Command::MovePos: commandMove(ant); break;
         case Command::Attack: commandAttack(ant); break;
+        case Command::Feed: commandFeed(ant); break;
         case Command::TakeFood: commandTakeFood(ant); break;
         //case CommandType::MoveAndIdle: commandMoveAndIdle(ant); break;
         //case CommandType::MoveAndAttack: commandMoveAndAttack(ant);break;
@@ -400,14 +401,9 @@ bool Battle::commandAttack(Ant& ant)
 
 bool Battle::commandFeed(Ant& ant)
 {
-    return true;
-}
-
-bool Battle::commandTakeFood(Ant& ant)
-{
     auto cmd = ant.command();
 
-    LOGD("%s: command TAKE FOOD %s", ant.toString().c_str(), cmd.m_pos.toString().c_str());
+    LOGD("%s: command FEED %s", ant.toString().c_str(), cmd.m_pos.toString().c_str());
 
     // Checking food in the range 1 cell
     vectorMin<Position> foods;
@@ -451,6 +447,80 @@ bool Battle::commandTakeFood(Ant& ant)
             ant.setInterruptReason(Interrupt::CommandAborted, true);
             return false;
         }
+
+        return true;
+    }
+
+    // No foods in range 1 cell, check range in the Constant::CommandRadius value
+    result = m_map->processingRadius(cmd.m_pos, Constant::CommandRadius, [&foods, &ant](const Cell& cell)
+    {
+        if (cell.food())
+        {
+            foods.add(cell.position(), Math::distanceTo(cell.position(), ant.position()));
+        }
+    });
+
+    if (foods.size())
+    {
+        Position foodPos = foods[Math::random(0, foods.size() - 1)];
+        auto dist = moveAntToPoint(ant, foodPos);
+        ant.setInterruptReason(Interrupt::CommandAborted, dist < 0);
+    }
+
+    ant.setInterruptReason(Interrupt::CommandCompleted, foods.empty());
+    return true;
+}
+
+bool Battle::commandTakeFood(Ant& ant)
+{
+    auto cmd = ant.command();
+
+    LOGD("%s: command TAKE FOOD %s", ant.toString().c_str(), cmd.m_pos.toString().c_str());
+
+    // Checking food in the range 1 cell
+    vectorMin<Position> foods;
+
+    auto result = m_map->processingRadius(ant.position(), 1, [&foods](const Cell& cell)
+    {
+        if (cell.food())
+        {
+            foods.push_back(cell.position());
+        }
+    });
+
+    if (foods.size())
+    {
+        Position foodPos(-1);
+
+        // check for the user set position 
+        for (const auto& pos: foods)
+        {
+            if (pos == cmd.m_pos)
+            {
+                foodPos = pos;
+            }
+        }
+
+        if (foodPos.x() == -1)
+        {
+            foodPos = foods[Math::random(0, foods.size() - 1)];
+        }
+
+        LOGD("%s take the food on %s", ant.toString().c_str(), foodPos.toString().c_str());
+
+        auto food = m_map->takeFood(foodPos, ant, true);
+
+        LOGD("%s free cargo %.2f, the remain of the food cell is %i",
+            ant.toString().c_str(), 100.f - ant.cargoPercent(), m_map->cell(foodPos)->food());
+
+        if (food <= 0)
+        {
+            LOGE("%s cannot take the food at %s", ant.toString().c_str(), foodPos.toString().c_str());
+            ant.setInterruptReason(Interrupt::CommandAborted, true);
+            return false;
+        }
+
+        ant.modifyCargo(food);
 
         return true;
     }

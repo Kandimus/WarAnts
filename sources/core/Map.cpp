@@ -202,13 +202,13 @@ Position Map::closestAvaliblePosition(const Position& pos) const
     return pos + curPos;
 }
 
-bool Map::takeFood(const Position& pos, Ant& ant)
+int16_t Map::takeFood(const Position& pos, Ant& ant, bool checkCargo)
 {
     int32_t idx = absPosition(pos);
 
     if (idx < 0 || idx >= m_map.size() || ant.foodPerTurn() < 1)
     {
-        return false;
+        return -1;
     }
 
     Cell* cell = m_map[idx].get();
@@ -217,15 +217,18 @@ bool Map::takeFood(const Position& pos, Ant& ant)
 
     if (freeCargo <= 0)
     {
-        return false;
+        return -1;
     }
 
-    int16_t out = std::min(std::min(cell->food(), ant.foodPerTurn()), freeCargo);
+    int16_t out = std::min(cell->food(), ant.foodPerTurn());
+    if (checkCargo)
+    {
+        out = std::min(out, freeCargo);
+    }
 
-    ant.modifyCargo(out);
     cell->modifyFood(-out);
 
-    return true;
+    return out;
 }
 
 void Map::moveAnt(Ant& ant, const Position& pos)
