@@ -130,6 +130,7 @@ comment   ";"[^\n\r]*
 "catt"                      { return CATT; }
 "cfd"                       { return CFD;  }
 "ctkf"                      { return CTKF; }
+"ceat"                      { return CEAT; }
 "ccsl"                      { return CCSL; }
 "ccwr"                      { return CCWR; }
 

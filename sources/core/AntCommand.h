@@ -17,6 +17,7 @@ enum Type
     Attack,       //    +     | 0 - movint to position, 1 - attack enemy
     Feed,
     TakeFood,
+    EatFromCargo,
 
     CreateSolder,
     CreateWorker,

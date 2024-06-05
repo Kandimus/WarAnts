@@ -250,6 +250,7 @@ bool VirtualMachine::run()
             case Asm::BCode::CATT: result = commandPositionArg(cmd); break;
             case Asm::BCode::CFD:  result = commandPositionArg(cmd); break;
             case Asm::BCode::CTKF: result = commandPositionArg(cmd); break;
+            case Asm::BCode::CEAT: result = commandNoArgs(cmd); break;
             case Asm::BCode::CCSL: result = commandNoArgs(cmd); break;
             case Asm::BCode::CCWR: result = commandNoArgs(cmd); break;
 
@@ -671,6 +672,7 @@ bool VirtualMachine::commandNoArgs(int8_t cmd)
 
     switch (cmd)
     {
+        case Asm::BCode::CEAT: m_ant->setCommand(Command::EatFromCargo, 0); break;
         case Asm::BCode::CCSL: m_ant->setCommand(Command::CreateSolder, 0); break;
         case Asm::BCode::CCWR: m_ant->setCommand(Command::CreateWorker, 0); break;
         default:

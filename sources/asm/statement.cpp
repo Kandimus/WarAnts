@@ -284,6 +284,7 @@ bool Statement::compile(Code* code)
         case AsmCommand::CATT: compile1Args(BCode::CATT, Table::Position, code); break;
         case AsmCommand::CFD:  compile1Args(BCode::CFD,  Table::Position, code); break;
         case AsmCommand::CTKF: compile1Args(BCode::CTKF, Table::Position, code); break;
+        case AsmCommand::CEAT: compileNoArgs(BCode::CEAT, code); break;
         case AsmCommand::CCSL: compileNoArgs(BCode::CCSL, code); break;
         case AsmCommand::CCWR: compileNoArgs(BCode::CCWR, code); break;
 
@@ -472,6 +473,7 @@ void Statement::print(std::ofstream& file) const
         case AsmCommand::CATT: print1Expr(file, "CATT", m_dst); break;
         case AsmCommand::CFD:  print1Expr(file, "CFD",  m_dst); break;
         case AsmCommand::CTKF: print1Expr(file, "CTKF", m_dst); break;
+        case AsmCommand::CEAT: print0Expr(file, "CEAT"); break;
         case AsmCommand::CCSL: print0Expr(file, "CCSL"); break;
         case AsmCommand::CCWR: print0Expr(file, "CCWR"); break;
 

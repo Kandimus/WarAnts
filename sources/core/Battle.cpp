@@ -444,11 +444,13 @@ bool Battle::commandFoodOperation(Ant& ant, bool isFeed)
         if (isFeed)
         {
             ant.eat(food);
-            LOGD("%s eats %i of food. The Satiety is %.2f now", ant.toString().c_str(), ant.satietyPercent());
+            ant.setInterruptReason(Interrupt::CommandCompleted, ant.satiety() >= ant.maxSatiety());
+            LOGD("%s eats %i of food. The Satiety is %.2f now", ant.toString().c_str(), food, ant.satietyPercent());
         }
         else
         {
             ant.modifyCargo(food);
+            ant.setInterruptReason(Interrupt::CommandCompleted, ant.cargo() >= ant.maxCargo());
             LOGD("%s free cargo %.2f", ant.toString().c_str(), 100.f - ant.cargoPercent());
         }
 
@@ -473,6 +475,10 @@ bool Battle::commandFoodOperation(Ant& ant, bool isFeed)
 
     ant.setInterruptReason(Interrupt::CommandCompleted, foods.empty());
     return true;
+}
+
+bool Battle::commandEatFromCargo(Ant& ant)
+{
 }
 
 //void Battle::commandAntExplore(AntSharedPtr& ant)

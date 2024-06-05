@@ -1,7 +1,8 @@
 %core "0100"
 %name "Black stupid ants III"
 ;
-; Moving form 0 to end and back again, attack enemies along the way.
+; Moving form 0 to end and back again.
+; Attack enemies along the way.
 ; If not attacking then taking foods
 ; Feeds when ant is hungry
 ;
@@ -191,7 +192,7 @@ feed:
     jt    end
     ldfd  r0
     dbg   6666h
-    ctfd  <food_pos>
+    cfd   <food_pos>
     mov   r0, 0
     call  EnableFoodInterrupt
     jmp   end

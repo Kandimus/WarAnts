@@ -85,6 +85,7 @@ public:
     void setType(WarAnts::Ant::Type type) { m_type = type; }
     void setHealth(int16_t health) { m_health = health; }
     void setSatiety(int16_t v) { m_satiety = v; }
+    void setCargo(int16_t v) { m_cargo = v; }
     void setMaxSatiety(int16_t v) { m_maxSatiety = v; }
     void setMaxCargo(int16_t v) { m_maxCargo = v; }
     void setFoodPerTurn(int16_t v) { m_foodPerTurn = v; }
@@ -360,7 +361,7 @@ TEST_CASE("takeFood", "[Map]")
     food = map->takeFood(WarAnts::Position(3, 3), *ant, true);
     ant->modifyCargo(food);
 
-    CHECK(food == 15);
+    CHECK(food == 10);
     CHECK(ant->cargo() == 30);
     CHECK(int16_t(ant->cargoPercent() * 10) == 1000);
     CHECK(map->getCell(3, 3)->food() == 40);
@@ -408,8 +409,38 @@ TEST_CASE("feed", "[Map]")
 
     CHECK(food == 10);
     CHECK(ant->satiety() == 150);
-    CHECK(int16_t(ant->satietyPercent() * 10) == 100);
+    CHECK(int16_t(ant->satietyPercent() * 10) == 1000);
     CHECK(map->getCell(3, 3)->food() == 40);
+}
+
+TEST_CASE("eat", "[Map]")
+{
+    WarAnts::Asm::WacFile wac;
+    std::shared_ptr<TestPlayer> plr = std::make_shared<TestPlayer>(wac);
+    plr->setLibname("---");
+
+    // The ant
+    std::shared_ptr<TestAnt> ant = std::make_shared<TestAnt>(WarAnts::Ant::Type::Worker, 2, 2, plr);
+    ant->setFoodPerTurn(20);
+    ant->setMaxSatiety(60);
+    ant->setSatiety(30);
+    ant->setMaxCargo(50);
+    ant->setCargo(50);
+
+    ant->eatFromCargo();
+
+    CHECK(ant->satiety() == 50);
+    CHECK(int16_t(ant->satietyPercent() * 10) == 833);
+    CHECK(ant->cargo() == 30);
+    CHECK(int16_t(ant->cargoPercent() * 10) == 600);
+
+    // 
+    ant->eatFromCargo();
+
+    CHECK(ant->satiety() == 60);
+    CHECK(int16_t(ant->satietyPercent() * 10) == 1000);
+    CHECK(ant->cargo() == 20);
+    CHECK(int16_t(ant->cargoPercent() * 10) == 400);
 }
 
 
