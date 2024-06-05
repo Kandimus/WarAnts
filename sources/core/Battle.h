@@ -40,8 +40,7 @@ protected:
     bool commandIdle(Ant& ant);
     bool commandMove(Ant& ant);
     bool commandAttack(Ant& ant);
-    bool commandFeed(Ant& ant);
-    bool commandTakeFood(Ant& ant);
+    bool commandFoodOperation(Ant& ant, bool isFeed);
     
     //void commandAntEat(AntSharedPtr& ant);
 

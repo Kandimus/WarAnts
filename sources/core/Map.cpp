@@ -212,19 +212,22 @@ int16_t Map::takeFood(const Position& pos, Ant& ant, bool checkCargo)
     }
 
     Cell* cell = m_map[idx].get();
-
-    int16_t freeCargo = ant.maxCargo() - ant.cargo();
-
-    if (freeCargo <= 0)
+    if (cell->food() <= 0)
     {
         return -1;
     }
 
-    int16_t out = std::min(cell->food(), ant.foodPerTurn());
+    int16_t freeCargo = 0x7fff;
     if (checkCargo)
     {
-        out = std::min(out, freeCargo);
+        int16_t freeCargo = ant.maxCargo() - ant.cargo();
+        if (freeCargo <= 0)
+        {
+            return -1;
+        }
     }
+
+    int16_t out = std::min(std::min(cell->food(), ant.foodPerTurn()), freeCargo);
 
     cell->modifyFood(-out);
 

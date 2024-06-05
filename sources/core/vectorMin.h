@@ -2,6 +2,8 @@
 
 #include <vector>
 
+#include "MapMath.h"
+
 namespace WarAnts
 {
 
@@ -28,6 +30,7 @@ public:
         }
     }
     size_t value() const { return minimum; }
+    const T& randomIndex() const { return items[Math::random(0, items.size() - 1)]; }
 
     void push_back(const T& t) { items.push_back(t); }
     void push_back(T&& t) { items.push_back(t); }

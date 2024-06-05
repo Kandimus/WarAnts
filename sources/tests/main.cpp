@@ -84,6 +84,8 @@ public:
 
     void setType(WarAnts::Ant::Type type) { m_type = type; }
     void setHealth(int16_t health) { m_health = health; }
+    void setSatiety(int16_t v) { m_satiety = v; }
+    void setMaxSatiety(int16_t v) { m_maxSatiety = v; }
     void setMaxCargo(int16_t v) { m_maxCargo = v; }
     void setFoodPerTurn(int16_t v) { m_foodPerTurn = v; }
 };
@@ -337,34 +339,76 @@ TEST_CASE("takeFood", "[Map]")
     map->getCell(3, 3)->modifyFood(50);
 
     // 
-    bool result = map->takeFood(WarAnts::Position(1, 1), *ant);
+    int16_t food = map->takeFood(WarAnts::Position(1, 1), *ant, true);
+    ant->modifyCargo(food);
 
-    CHECK(result == true);
+    CHECK(food == 15);
     CHECK(ant->cargo() == 15);
     CHECK(int16_t(ant->cargoPercent() * 10) == 500);
     CHECK(map->getCell(1, 1)->food() == 5);
 
     // 
-    result = map->takeFood(WarAnts::Position(1, 1), *ant);
+    food = map->takeFood(WarAnts::Position(1, 1), *ant, true);
+    ant->modifyCargo(food);
 
-    CHECK(result == true);
+    CHECK(food == 5);
     CHECK(ant->cargo() == 20);
     CHECK(int16_t(ant->cargoPercent() * 10) == 666);
     CHECK(map->getCell(1, 1)->food() == 0);
 
     // 
-    result = map->takeFood(WarAnts::Position(3, 3), *ant);
+    food = map->takeFood(WarAnts::Position(3, 3), *ant, true);
+    ant->modifyCargo(food);
 
-    CHECK(result == true);
+    CHECK(food == 15);
     CHECK(ant->cargo() == 30);
     CHECK(int16_t(ant->cargoPercent() * 10) == 1000);
     CHECK(map->getCell(3, 3)->food() == 40);
 
     //
-    result = map->takeFood(WarAnts::Position(3, 3), *ant);
-    CHECK(result == false);
+    food = map->takeFood(WarAnts::Position(3, 3), *ant, true);
+    CHECK(food == -1);
     CHECK(ant->cargo() == 30);
     CHECK(int16_t(ant->cargoPercent() * 10) == 1000);
+    CHECK(map->getCell(3, 3)->food() == 40);
+}
+
+TEST_CASE("feed", "[Map]")
+{
+    WarAnts::Asm::WacFile wac;
+    std::shared_ptr<TestPlayer> plr = std::make_shared<TestPlayer>(wac);
+    plr->setLibname("---");
+
+    // The ant
+    std::shared_ptr<TestAnt> ant = std::make_shared<TestAnt>(WarAnts::Ant::Type::Worker, 2, 2, plr);
+    ant->setFoodPerTurn(20);
+    ant->setMaxSatiety(150);
+    ant->setSatiety(30);
+    ant->setMaxCargo(5);
+
+    // Map
+    std::shared_ptr<PublicMap> map = std::make_shared<PublicMap>();
+    map->setBounded(true);
+    map->getCell(1, 1)->modifyFood(20);
+    map->getCell(3, 3)->modifyFood(50);
+
+    // 
+    int16_t food = map->takeFood(WarAnts::Position(1, 1), *ant, false);
+    ant->eat(food);
+
+    CHECK(food == 20);
+    CHECK(ant->satiety() == 50);
+    CHECK(int16_t(ant->satietyPercent() * 10) == 333);
+    CHECK(map->getCell(1, 1)->food() == 0);
+
+    // 
+    ant->setSatiety(140);
+    food = map->takeFood(WarAnts::Position(3, 3), *ant, false);
+    ant->eat(food);
+
+    CHECK(food == 10);
+    CHECK(ant->satiety() == 150);
+    CHECK(int16_t(ant->satietyPercent() * 10) == 100);
     CHECK(map->getCell(3, 3)->food() == 40);
 }
 

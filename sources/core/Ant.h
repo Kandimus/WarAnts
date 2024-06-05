@@ -89,6 +89,7 @@ public:
 
     void clearCargo() { m_cargo = 0; }
     void modifyCargo(int16_t val) { m_cargo = (m_cargo + val) > 0 ? m_cargo + val : 0; }
+    void eat(int16_t food) { m_satiety += food; m_satiety > m_maxSatiety ? m_maxSatiety : m_satiety; }
 
     bool isWorker() const { return m_type == Type::Worker; }
     bool isSolder() const { return m_type == Type::Solder; }
