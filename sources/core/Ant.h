@@ -87,10 +87,6 @@ public:
     Status status() const { return m_status; }
     int16_t foodPerTurn() const { return m_foodPerTurn; }
 
-    void clearCargo() { m_cargo = 0; }
-    void modifyCargo(int16_t val) { m_cargo = (m_cargo + val) > 0 ? m_cargo + val : 0; }
-    void eat(int16_t food) { m_satiety += food; m_satiety > m_maxSatiety ? m_maxSatiety : m_satiety; }
-
     bool isWorker() const { return m_type == Type::Worker; }
     bool isSolder() const { return m_type == Type::Solder; }
     bool isQueen() const { return m_type == Type::Queen; }
@@ -135,6 +131,10 @@ public:
     bool damage(Ant& ant);
     void kill(DeathReason reason);
     void killed(Type type);
+    void clearCargo() { m_cargo = 0; }
+    void modifyCargo(int16_t val) { m_cargo = (m_cargo + val) > 0 ? m_cargo + val : 0; }
+    int16_t eat(int16_t food);
+    int16_t eatFromCargo();
 
     bool beginTurn();
     bool postVM();
@@ -146,6 +146,7 @@ public:
 
 protected:
     bool checkDie();
+    int16_t missingSatiety() const { return m_maxSatiety - m_satiety; }
 
 protected:
     uint32_t m_id = 0;

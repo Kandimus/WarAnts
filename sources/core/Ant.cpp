@@ -90,6 +90,23 @@ void Ant::killed(Type type)
     m_player->addKilled(type);
 }
 
+int16_t Ant::eat(int16_t food)
+{
+    food = food + m_satiety > m_maxSatiety ? m_maxSatiety - m_satiety : food;
+    m_satiety += food;
+    return food;
+}
+
+int16_t Ant::eatFromCargo()
+{
+    int16_t food = std::min(std::min(m_cargo, m_foodPerTurn), missingSatiety());
+
+    m_cargo -= food;
+    m_satiety += food;
+
+    return food;
+}
+
 bool Ant::beginTurn()
 {
     ++m_lifeCount;

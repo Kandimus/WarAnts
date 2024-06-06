@@ -479,6 +479,26 @@ bool Battle::commandFoodOperation(Ant& ant, bool isFeed)
 
 bool Battle::commandEatFromCargo(Ant& ant)
 {
+    auto cmd = ant.command();
+
+    LOGD("%s: command EAT", ant.toString().c_str());
+
+    if (!ant.isWorker())
+    {
+        LOGE("%s: is not a worker! Command aborted", ant.toString().c_str());
+        ant.setInterruptReason(Interrupt::CommandAborted, true);
+        return true;
+    }
+
+    int16_t food = ant.eatFromCargo();
+
+    LOGD("%s: eatted % of food, satiety: %i, cargo: %i", ant.toString().c_str(),
+        food, ant.satiety(), ant.cargo());
+
+    ant.setInterruptReason(Interrupt::CommandCompleted, food <= 0);
+    ant.setInterruptReason(Interrupt::CommandAborted, food < 0);
+
+    return true;
 }
 
 //void Battle::commandAntExplore(AntSharedPtr& ant)
