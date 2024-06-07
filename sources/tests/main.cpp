@@ -443,6 +443,35 @@ TEST_CASE("eat", "[Map]")
     CHECK(int16_t(ant->cargoPercent() * 10) == 400);
 }
 
+TEST_CASE("victual", "[Map]")
+{
+    WarAnts::Asm::WacFile wac;
+    std::shared_ptr<TestPlayer> plr = std::make_shared<TestPlayer>(wac);
+    plr->setLibname("---");
+
+    // The ant
+    std::shared_ptr<TestAnt> ant = std::make_shared<TestAnt>(WarAnts::Ant::Type::Worker, 2, 2, plr);
+    ant->setFoodPerTurn(20);
+    ant->setMaxSatiety(60);
+    ant->setSatiety(30);
+    ant->setMaxCargo(50);
+    ant->setCargo(50);
+
+    ant->eatFromCargo();
+
+    CHECK(ant->satiety() == 50);
+    CHECK(int16_t(ant->satietyPercent() * 10) == 833);
+    CHECK(ant->cargo() == 30);
+    CHECK(int16_t(ant->cargoPercent() * 10) == 600);
+
+    // 
+    ant->eatFromCargo();
+
+    CHECK(ant->satiety() == 60);
+    CHECK(int16_t(ant->satietyPercent() * 10) == 1000);
+    CHECK(ant->cargo() == 20);
+    CHECK(int16_t(ant->cargoPercent() * 10) == 400);
+}
 
 TEST_CASE("basic", "[VM]")
 {

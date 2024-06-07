@@ -291,10 +291,10 @@ void Battle::doAntCommand(Ant& ant)
         case Command::Idle: commandIdle(ant); break;
         case Command::MovePos: commandMove(ant); break;
         case Command::Attack: commandAttack(ant); break;
-        case Command::Feed: commandFoodOperation(ant, true); break;
-        case Command::TakeFood: commandFoodOperation(ant, false); break;
-        //case CommandType::MoveAndIdle: commandMoveAndIdle(ant); break;
-        //case CommandType::MoveAndAttack: commandMoveAndAttack(ant);break;
+        case Command::Feed: commandFoodCellOperation(ant, true); break;
+        case Command::TakeFood: commandFoodCellOperation(ant, false); break;
+        case Command::Eat: commandEatFromCargo(ant); break;
+        case Command::Victual: commandVictual(ant);break;
 //		case CommandType::MoveToFood: doAntMoveToFood(ant); break;
 //		case CommandType::Attack: doAntAttack(ant); break;
 //		case CommandType::MoveAndAttack: doAntMoveAndAttack(ant); break;
@@ -399,12 +399,19 @@ bool Battle::commandAttack(Ant& ant)
     return true;
 }
 
-bool Battle::commandFoodOperation(Ant& ant, bool isFeed)
+bool Battle::commandFoodCellOperation(Ant& ant, bool isFeed)
 {
     auto cmd = ant.command();
 
     LOGD("%s: command %s %s", ant.toString().c_str(),
         isFeed ? "FEED" : "TAKE FOOD", cmd.m_pos.toString().c_str());
+
+    if (ant.isQueen())
+    {
+        LOGE("%s: is a queen! Command aborted", ant.toString().c_str());
+        ant.setInterruptReason(Interrupt::CommandAborted, true);
+        return;
+    }
 
     // Checking food in the range 1 cell
     vectorMin<Position> foods;
@@ -477,15 +484,16 @@ bool Battle::commandFoodOperation(Ant& ant, bool isFeed)
     return true;
 }
 
+// Из карго могут кушать только рабочий муравей и королева
 bool Battle::commandEatFromCargo(Ant& ant)
 {
     auto cmd = ant.command();
 
     LOGD("%s: command EAT", ant.toString().c_str());
 
-    if (!ant.isWorker())
+    if (ant.isSolder())
     {
-        LOGE("%s: is not a worker! Command aborted", ant.toString().c_str());
+        LOGE("%s: is a solder! Command aborted", ant.toString().c_str());
         ant.setInterruptReason(Interrupt::CommandAborted, true);
         return true;
     }
@@ -498,6 +506,11 @@ bool Battle::commandEatFromCargo(Ant& ant)
     ant.setInterruptReason(Interrupt::CommandCompleted, food <= 0);
     ant.setInterruptReason(Interrupt::CommandAborted, food < 0);
 
+    return true;
+}
+
+bool Battle::commandVictual(Ant& ant)
+{
     return true;
 }
 
