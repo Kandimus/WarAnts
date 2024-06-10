@@ -484,7 +484,7 @@ bool Battle::commandFoodCellOperation(Ant& ant, bool isFeed)
     return true;
 }
 
-// �� ����� ����� ������ ������ ������� ������� � ��������
+// Из карго могут кушать только рабочий муравей и королева
 bool Battle::commandEatFromCargo(Ant& ant)
 {
     auto cmd = ant.command();
@@ -509,8 +509,24 @@ bool Battle::commandEatFromCargo(Ant& ant)
     return true;
 }
 
-bool Battle::commandVictual(Ant& ant)
+bool Battle::commandCater(Ant& ant)
 {
+    LOGD("%s: command CATER %s", ant.toString().c_str(), ant.command().m_pos);
+
+    if (!ant.isWorker())
+    {
+        LOGE("%s: is not a worker! Command aborted", ant.toString().c_str());
+        ant.setInterruptReason(Interrupt::CommandAborted, true);
+        return true;
+    }
+
+    // проверить расстояние до точки цели, (нужно ли проверять что это тот же ант? может следить за ним в пределах радиуса?
+    // если на дистанция 1 и на этой точке стоит ант, то кормить его
+    // если дистанция больше 1 и на этой точке стоит ант, то идти туда
+    // если на этой точке нет анта, то как обычно (см. выше)
+
+
+
     return true;
 }
 

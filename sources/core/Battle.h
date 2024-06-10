@@ -42,7 +42,7 @@ protected:
     bool commandAttack(Ant& ant);
     bool commandFoodCellOperation(Ant& ant, bool isFeed);
     bool commandEatFromCargo(Ant& ant);
-    bool commandVictual(Ant& ant);
+    bool commandCater(Ant& ant);
     
     //void commandAntEat(AntSharedPtr& ant);
 

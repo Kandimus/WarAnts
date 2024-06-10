@@ -443,11 +443,11 @@ TEST_CASE("eat", "[Map]")
     CHECK(int16_t(ant->cargoPercent() * 10) == 400);
 }
 
-TEST_CASE("victual", "[Map]")
+TEST_CASE("cater", "[Map]")
 {
     WarAnts::Asm::WacFile wac;
     std::shared_ptr<TestPlayer> plr = std::make_shared<TestPlayer>(wac);
-    plr->setLibname("---");
+    plr->setLibname("---"); 
 
     // The ant
     std::shared_ptr<TestAnt> ant = std::make_shared<TestAnt>(WarAnts::Ant::Type::Worker, 2, 2, plr);
