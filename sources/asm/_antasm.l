@@ -131,6 +131,7 @@ comment   ";"[^\n\r]*
 "cfd"                       { return CFD;  }
 "ctkf"                      { return CTKF; }
 "ceat"                      { return CEAT; }
+"cctr"                      { return CCTR; }
 "ccsl"                      { return CCSL; }
 "ccwr"                      { return CCWR; }
 

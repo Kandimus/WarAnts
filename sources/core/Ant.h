@@ -136,6 +136,7 @@ public:
     void modifyCargo(int16_t val) { m_cargo = (m_cargo + val) > 0 ? m_cargo + val : 0; }
     int16_t eat(int16_t food);
     int16_t eatFromCargo();
+    int16_t cater(Ant& ant);
 
     bool beginTurn();
     bool postVM();

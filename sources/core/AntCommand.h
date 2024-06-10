@@ -18,7 +18,7 @@ enum Type
     Feed,
     TakeFood,
     Eat,
-    Victual,
+    Cater,
 
     CreateSolder,
     CreateWorker,
@@ -71,8 +71,8 @@ public:
         m_pos = 0;
         m_value = 0;
         m_isCompleted = false;
-        m_abortingCount = 0;
-        m_lengthToPoint = 0xffff;
+        //m_abortingCount = 0;
+        //m_lengthToPoint = 0xffff;
     }
 
     void setCompleted(bool val) { m_isCompleted = val; }
@@ -82,9 +82,9 @@ public:
     Command::Type m_type = Command::Idle;
     Position m_pos = 0;
     int16_t m_value = 0;
+    AntPtr m_target;
     bool m_isCompleted = false;
-    uint16_t m_abortingCount = 0;
-    uint16_t m_lengthToPoint = 0;
+    bool m_isFoodCell = false;
 };
 
 

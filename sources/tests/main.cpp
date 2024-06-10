@@ -454,23 +454,40 @@ TEST_CASE("cater", "[Map]")
     ant->setFoodPerTurn(20);
     ant->setMaxSatiety(60);
     ant->setSatiety(30);
-    ant->setMaxCargo(50);
-    ant->setCargo(50);
+    ant->setMaxCargo(200);
+    ant->setCargo(200);
 
-    ant->eatFromCargo();
+    std::shared_ptr<TestAnt> solder = std::make_shared<TestAnt>(WarAnts::Ant::Type::Solder, 1, 2, plr);
+    solder->setFoodPerTurn(25);
+    solder->setMaxSatiety(100);
+    solder->setSatiety(70);
+    solder->setMaxCargo(0);
+    solder->setCargo(0);
 
-    CHECK(ant->satiety() == 50);
-    CHECK(int16_t(ant->satietyPercent() * 10) == 833);
-    CHECK(ant->cargo() == 30);
-    CHECK(int16_t(ant->cargoPercent() * 10) == 600);
+    std::shared_ptr<TestAnt> queen = std::make_shared<TestAnt>(WarAnts::Ant::Type::Queen, 2, 1, plr);
+    queen->setFoodPerTurn(30);
+    queen->setMaxSatiety(100);
+    queen->setSatiety(85);
+    queen->setMaxCargo(300);
+    queen->setCargo(0);
 
-    // 
-    ant->eatFromCargo();
+    ant->cater(*solder.get());
+    CHECK(ant->cargo() == 180);
+    CHECK(solder->satiety() == 90);
 
-    CHECK(ant->satiety() == 60);
-    CHECK(int16_t(ant->satietyPercent() * 10) == 1000);
-    CHECK(ant->cargo() == 20);
-    CHECK(int16_t(ant->cargoPercent() * 10) == 400);
+    ant->cater(*solder.get());
+    CHECK(ant->cargo() == 170);
+    CHECK(solder->satiety() == 100);
+
+    ant->cater(*queen.get());
+    CHECK(ant->cargo() == 150);
+    CHECK(queen->satiety() == 100);
+    CHECK(queen->cargo() == 5);
+
+    ant->cater(*queen.get());
+    CHECK(ant->cargo() == 130);
+    CHECK(queen->satiety() == 100);
+    CHECK(queen->cargo() == 25);
 }
 
 TEST_CASE("basic", "[VM]")

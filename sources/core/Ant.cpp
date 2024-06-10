@@ -107,6 +107,36 @@ int16_t Ant::eatFromCargo()
     return food;
 }
 
+int16_t Ant::cater(Ant& ant)
+{
+    int16_t food = std::min(m_foodPerTurn, m_cargo);
+    int16_t toCargo = 0;
+    int16_t toCater = food;
+
+    if (ant.isQueen())
+    {
+        toCargo = toCater - ant.missingSatiety();
+        if (toCargo < 0)
+        {
+            toCargo = 0;
+        }
+        else
+        {
+            toCater -= toCargo;
+        }
+    }
+    else
+    {
+        food = std::min(food, ant.missingSatiety());
+    }
+
+    m_cargo -= food;
+    ant.eat(toCater);
+    ant.modifyCargo(toCargo);
+
+    return food;
+}
+
 bool Ant::beginTurn()
 {
     ++m_lifeCount;

@@ -294,13 +294,7 @@ void Battle::doAntCommand(Ant& ant)
         case Command::Feed: commandFoodCellOperation(ant, true); break;
         case Command::TakeFood: commandFoodCellOperation(ant, false); break;
         case Command::Eat: commandEatFromCargo(ant); break;
-        case Command::Victual: commandVictual(ant);break;
-//		case CommandType::MoveToFood: doAntMoveToFood(ant); break;
-//		case CommandType::Attack: doAntAttack(ant); break;
-//		case CommandType::MoveAndAttack: doAntMoveAndAttack(ant); break;
-//		case CommandType::Feed: doAntFeed(ant); break;
-//		case CommandType::FeedQueen: doAntFeedQueen(ant); break;
-//		case CommandType::Defense: doAntDefence(ant); break;
+        case Command::Cater: commandCater(ant);break;
 //		case CommandType::CreateOfWorker: doAntCreateWorker(ant); break;
 //		case CommandType::CreateOfSolder: doAntCreateSolder(ant); break;
         default: break;
@@ -326,24 +320,21 @@ bool Battle::commandMove(Ant& ant)
 {
     LOGD("%s: command MOVE %s", ant.toString().c_str(), ant.command().m_pos.toString().c_str());
 
+    --ant.command().m_value;
     auto dist = moveAntToPoint(ant, ant.command().m_pos);
 
-    if (dist < ant.command().m_lengthToPoint)
-    {
-        ant.command().m_lengthToPoint = dist;
-        ant.command().m_abortingCount = 0;
-    }
-    else
-    {
-        ++ant.command().m_abortingCount;
-    }
-
-    ant.setInterruptReason(Interrupt::CommandAborted, dist < 0 || ant.command().m_abortingCount >= Constant::CommandAborting);
+    ant.setInterruptReason(Interrupt::CommandAborted, dist < 0 || ant.command().m_value <= 0);
     ant.setInterruptReason(Interrupt::CommandCompleted, dist >= 0 && dist <= 1);
+
+    if (ant.interruptReason() | Interrupt::CommandCompleted)
+    {
+        LOGD("%s: command MOVE has been finished with the value %i", ant.toString().c_str(), ant.command().m_value);
+    }
 
     return true;
 }
 
+//TODO На переделку!!!!!!!!!
 bool Battle::commandAttack(Ant& ant)
 {
     auto cmd = ant.command();
@@ -399,6 +390,7 @@ bool Battle::commandAttack(Ant& ant)
     return true;
 }
 
+//TODO На переделку!!!!!!!!!
 bool Battle::commandFoodCellOperation(Ant& ant, bool isFeed)
 {
     auto cmd = ant.command();
@@ -410,7 +402,7 @@ bool Battle::commandFoodCellOperation(Ant& ant, bool isFeed)
     {
         LOGE("%s: is a queen! Command aborted", ant.toString().c_str());
         ant.setInterruptReason(Interrupt::CommandAborted, true);
-        return;
+        return false;
     }
 
     // Checking food in the range 1 cell

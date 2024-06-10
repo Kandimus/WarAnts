@@ -156,6 +156,7 @@ enum class AsmCommand
     CFD,
     CTKF,
     CEAT,
+    CCTR,
     CCSL,
     CCWR,
 
@@ -253,6 +254,7 @@ enum Command : uint8_t
     CFD,
     CTKF,
     CEAT,
+    CCTR,
     CCSL,
     CCWR,
 
