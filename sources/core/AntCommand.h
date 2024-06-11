@@ -7,6 +7,8 @@
 namespace WarAnts
 {
 
+class Ant;
+
 namespace Command
 {
 enum Type
@@ -22,13 +24,6 @@ enum Type
 
     CreateSolder,
     CreateWorker,
-};
-
-enum Stage : int16_t
-{
-    StageMovingToPoint = 0,
-    StageMovingToAttack,
-    StageAttacking,
 };
 
 }
@@ -82,7 +77,7 @@ public:
     Command::Type m_type = Command::Idle;
     Position m_pos = 0;
     int16_t m_value = 0;
-    AntPtr m_target;
+    Ant* m_target = nullptr;
     bool m_isCompleted = false;
     bool m_isFoodCell = false;
 };

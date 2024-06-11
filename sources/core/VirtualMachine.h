@@ -48,6 +48,8 @@ protected:
 
     void setRF(int16_t bit, bool value);
 
+    void setCommand(Command::Type cmd, const Position& pos);
+
     bool arithmetic1(uint8_t cmd);
     bool arithmetic2(uint8_t cmd);
     bool minmax(uint8_t cmd);

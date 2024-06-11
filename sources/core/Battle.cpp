@@ -504,12 +504,37 @@ bool Battle::commandEatFromCargo(Ant& ant)
 bool Battle::commandCater(Ant& ant)
 {
     LOGD("%s: command CATER %s", ant.toString().c_str(), ant.command().m_pos);
-
+    
     if (!ant.isWorker())
     {
         LOGE("%s: is not a worker! Command aborted", ant.toString().c_str());
         ant.setInterruptReason(Interrupt::CommandAborted, true);
         return true;
+    }
+    
+    auto cmd = ant.command();
+    
+    // if ant did not reach the target point
+    auto dist = Math::distanceTo(ant.position(), cmd.m_pos);
+    if (dist > Constant::CommandRadius)
+    {
+        auto dist = moveAntToPoint(ant, cmd.m_pos);
+        ant.setInterruptReason(Interrupt::CommandAborted, dist < 0);
+        return;
+    }
+    
+    // check target on radius
+    if (cmd.m_target)
+    {
+        if (Math::distanceTo(cmd.m_pos, cmd.m_target->position()) > Constant::CommandRadius)
+        {
+            // ant is lost target
+            cmd.m_target = nullptr;
+        }
+        else
+        {
+            auto distAntTarget = Math::distanceTo(ant.position(), cmd.m_target->position());
+        }
     }
 
     // проверить расстояние до точки цели, (нужно ли проверять что это тот же ант? может следить за ним в пределах радиуса?

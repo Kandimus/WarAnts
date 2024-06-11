@@ -296,6 +296,16 @@ void VirtualMachine::setRF(int16_t bit, bool value)
     }
 }
 
+void VirtualMachine::setCommand(Command::Type cmd, const Position& pos)
+{
+    m_ant->command().m_isCompleted = false;
+    m_ant->command().m_type = cmd;
+    m_ant->command().m_pos = pos;
+    m_ant->command().m_value = 2 * Math::distanceTo(m_ant->position(), pos);
+    m_ant->command().m_isFoodCell = !!m_map->cell(pos)->food();
+    m_ant->command().m_target = m_map->cell(pos)->ant();
+}
+
 #define CHECK_PTR(x)            if (!(x).ptr) { return false; }
 #define CHECK_LVAL(x)           if (!(x).ptr || !checkLVal(x)) { return false; }
 
@@ -654,11 +664,11 @@ bool VirtualMachine::commandPositionArg(int8_t cmd)
 
     switch (cmd)
     {
-        case Asm::BCode::CMOV: m_ant->setCommand(Command::MovePos, pos, 2 * Math::distanceTo(m_ant->position(), pos)); break;
-        case Asm::BCode::CATT: m_ant->setCommand(Command::Attack, pos, Command::StageMovingToPoint); break;
-        case Asm::BCode::CFD:  m_ant->setCommand(Command::Feed, pos); break;
-        case Asm::BCode::CTKF: m_ant->setCommand(Command::TakeFood, pos); break;
-        case Asm::BCode::CCTR: m_ant->setCommand(Command::Cater, pos); break;
+        case Asm::BCode::CMOV: setCommand(Command::MovePos, pos); break;
+        case Asm::BCode::CATT: setCommand(Command::Attack, pos); break;
+        case Asm::BCode::CFD:  setCommand(Command::Feed, pos); break;
+        case Asm::BCode::CTKF: setCommand(Command::TakeFood, pos); break;
+        case Asm::BCode::CCTR: setCommand(Command::Cater, pos); break;
         default:
             LOGE("Command %02x (%04x): Undefined the position command", (int)cmd, cmdPos);
             SU_BREAKPOINT();
@@ -674,9 +684,9 @@ bool VirtualMachine::commandNoArgs(int8_t cmd)
 
     switch (cmd)
     {
-        case Asm::BCode::CEAT: m_ant->setCommand(Command::Eat, 0); break;
-        case Asm::BCode::CCSL: m_ant->setCommand(Command::CreateSolder, 0); break;
-        case Asm::BCode::CCWR: m_ant->setCommand(Command::CreateWorker, 0); break;
+        case Asm::BCode::CEAT: setCommand(Command::Eat, m_ant->position()); break;
+        case Asm::BCode::CCSL: setCommand(Command::CreateSolder, m_ant->position()); break;
+        case Asm::BCode::CCWR: setCommand(Command::CreateWorker, m_ant->position()); break;
         default:
             LOGE("Command %02x (%04x): Undefined the command", (int)cmd, cmdPos);
             SU_BREAKPOINT();
