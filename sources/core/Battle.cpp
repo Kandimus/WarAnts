@@ -175,16 +175,17 @@ int Battle::run()
             }
         } // ants
 
-        // delete dead ants
-        for (auto pAnt = m_ants.begin(); pAnt != m_ants.end(); )
+        // Remove dead ants from game (map)
+        for (auto iter = m_ants.begin(); iter != m_ants.end(); )
         {
-            if ((*pAnt)->status() == Ant::Status::Dead)
+            if ((*iter)->status() == Ant::Status::Dead)
             {
-                pAnt = m_ants.erase(pAnt);
+                m_deadAnts.push_back(*iter);
+                iter = m_ants.erase(iter);
             }
             else
             {
-                ++pAnt;
+                ++iter;
             }
         }
 
@@ -512,30 +513,51 @@ bool Battle::commandCater(Ant& ant)
         return true;
     }
     
-    auto cmd = ant.command();
+    auto& cmd = ant.command();
     
     // if ant did not reach the target point
-    auto dist = Math::distanceTo(ant.position(), cmd.m_pos);
+    int16_t dist = Math::distanceTo(ant.position(), cmd.m_pos);
     if (dist > Constant::CommandRadius)
     {
         auto dist = moveAntToPoint(ant, cmd.m_pos);
-        ant.setInterruptReason(Interrupt::CommandAborted, dist < 0);
-        return;
+        --cmd.m_value;
+        ant.setInterruptReason(Interrupt::CommandAborted, dist < 0 || cmd.m_value <= 0);
+        return true;
     }
     
+    // Now the ant is in the command's radius
     // check target on radius
     if (cmd.m_target)
     {
-        if (Math::distanceTo(cmd.m_pos, cmd.m_target->position()) > Constant::CommandRadius)
+        if (Math::distanceTo(cmd.m_pos, cmd.m_target->position()) > Constant::CommandRadius ||
+            cmd.m_target->status() == Ant::Status::Dead)
         {
-            // ant is lost target
+            // The ant is lost the target because the target leave out from the command's radius
             cmd.m_target = nullptr;
         }
-        else
+    }
+
+    if (!cmd.m_target)
+    {
+        vectorMin<Ant*> allies;
+        auto result = m_map->processingAntsInRadius(cmd.m_pos, Constant::CommandRadius, [&allies, &ant](Ant* cellAnt)
         {
-            auto distAntTarget = Math::distanceTo(ant.position(), cmd.m_target->position());
+            if (cellAnt->player()->index() == ant.player()->index() &&
+                cellAnt->id() != ant.id() &&
+                cellAnt->status() != Ant::Status::Dead)
+            {
+                allies.add(cellAnt, Math::distanceTo(cellAnt->position(), ant.position()));
+            }
+        });
+
+        if (allies.size())
+        {
+            cmd.m_target = enemies.randomIndex();
+            auto dist = moveAntToPoint(ant, enemy->position());
+            ant.setInterruptReason(Interrupt::CommandAborted, dist < 0);
         }
     }
+    auto distAntTarget = Math::distanceTo(ant.position(), cmd.m_target->position());
 
     // проверить расстояние до точки цели, (нужно ли проверять что это тот же ант? может следить за ним в пределах радиуса?
     // если на дистанция 1 и на этой точке стоит ант, то кормить его

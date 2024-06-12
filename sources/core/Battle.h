@@ -62,6 +62,7 @@ protected:
     std::shared_ptr<Map> m_map;
     std::vector<PlayerPtr> m_players;
     ListAnts m_ants;
+    ListAnts m_deadAnts;
     Player* m_winner = nullptr;
 
     std::shared_ptr<BattleLogService> m_logService;
