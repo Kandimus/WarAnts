@@ -66,17 +66,25 @@ public:
         m_pos = 0;
         m_value = 0;
         m_isCompleted = false;
-        //m_abortingCount = 0;
-        //m_lengthToPoint = 0xffff;
     }
 
-    void setCompleted(bool val) { m_isCompleted = val; }
     bool isCompleted() const { return m_isCompleted; }
+    void setCompleted(bool val) { m_isCompleted = val; }
+
+    bool isFoodCell() const { return m_isFoodCell; }
+    void setFoodCell(bool val) { m_isFoodCell = val; }
+
+    inline Ant* target() { return m_target; }
+    inline const Ant* target() const { return m_target; }
+    inline void setTarget(Ant* target) { m_target = target; }
 
 public:
     Command::Type m_type = Command::Idle;
     Position m_pos = 0;
     int16_t m_value = 0;
+    
+
+protected:
     Ant* m_target = nullptr;
     bool m_isCompleted = false;
     bool m_isFoodCell = false;

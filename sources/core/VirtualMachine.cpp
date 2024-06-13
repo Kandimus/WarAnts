@@ -298,12 +298,12 @@ void VirtualMachine::setRF(int16_t bit, bool value)
 
 void VirtualMachine::setCommand(Command::Type cmd, const Position& pos)
 {
-    m_ant->command().m_isCompleted = false;
+    m_ant->command().setCompleted(false);
     m_ant->command().m_type = cmd;
     m_ant->command().m_pos = pos;
     m_ant->command().m_value = 2 * Math::distanceTo(m_ant->position(), pos);
-    m_ant->command().m_isFoodCell = !!m_map->cell(pos)->food();
-    m_ant->command().m_target = m_map->cell(pos)->ant();
+    m_ant->command().setFoodCell(m_map->cell(pos)->food() > 0);
+    m_ant->command().setTarget(m_map->cell(pos)->ant());
 }
 
 #define CHECK_PTR(x)            if (!(x).ptr) { return false; }

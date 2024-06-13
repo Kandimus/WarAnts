@@ -1,0 +1,206 @@
+%core "0100"
+%name "Black stupid ants IV"
+;
+; Moving from 0 to end and back again.
+; If the worker seen the food cell then it move to this cell and take food.
+; When it cargo is full, the ant to go 0 and back again
+; If the ant seen any another ant who is hungry then the ant go to this the hungred ant and cater it.
+;
+%version "1"
+%class "black"
+
+#define iteration       00h
+#define cargo           04h
+#define allies_count    07h
+#define enemies_count   06h
+#define food_count      07h
+#define IR              0Bh
+#define enemy_info      14h
+#define enemy_pos       15h
+#define food_info       1Ch
+#define food_pos        1Dh
+#define IF              24h
+
+; interrupt flag bit numbers
+#define IF_CA           0 ; Command Aborted
+#define IF_CC           1
+#define IF_AT           2
+#define IF_CE           3
+#define IF_FE           4
+#define IF_CF           5
+#define IF_FF           6
+#define IF_LS           7
+#define IF_MS           8
+
+#define Direction       32h
+#define Attacking       33h
+
+;-----------------------------------------------
+; return R0 as index the closest enemy or -1
+.GetClosestEnemy
+    ; R0 - index of the nearest enemy
+    ; R1 - min distance to an enemy
+    ; R2 - the current distance to an enemy
+    mov   r0, -1
+    mov   rc, [enemies_count]
+    ; if no enemies in the ant radius then exit
+    jz    return
+    dec   rc
+    mov   r1, 7fffh ; max len
+    
+    ; main loop
+beg_loop:
+    lden  rc
+    dist  <enemy_pos> ; r2 contain the distantion to the enemy
+    gt    r2, r1
+    jt    end_loop
+    mov   r1, r2
+    mov   r0, rc
+end_loop:
+    loop  beg_loop
+return:
+    ret
+
+
+;-----------------------------------------------
+; return R0 as index the closest food or -1
+.GetClosestFood
+    ; R0 - index of the closest food cell
+    ; R1 - min distance to the food cell
+    ; R2 - the current distance to the food cell
+    mov   r0, -1
+    mov   rc, [food_count]
+    ; if no foods in the ant radius then exit
+    jz    return
+    dec   rc
+    mov   r1, 7fffh ; max len
+    
+    ; main loop
+beg_loop:
+    ldfd  rc
+    dist  <food_pos> ; r2 contain the distantion to the food cell
+    gt    r2, r1
+    jt    end_loop
+    mov   r1, r2
+    mov   r0, rc
+end_loop:
+    loop  beg_loop
+return:
+    ret
+
+
+;------------------------------------------------------------------------------
+; R0 != 0 interrupt is set
+.EnableFoodInterrupt
+    eq    r0, 0
+    jt    disable_food_interrupt
+    ge    [cargo], 1000
+    jt    disable_food_interrupt
+    bts   [IF], IF_CF
+    bts   [IF], IF_FF
+    ret
+    
+disable_food_interrupt:
+    btr   [IF], IF_CF
+    btr   [IF], IF_FF
+    ret
+
+
+;------------------------------------------------------------------------------
+;
+.Worker
+    eq    [iteration], 0
+    jf    main
+init:
+    mov   [IF], 00E3h      ; CA CC CF FF LS
+    mov   [Direction], 2
+    
+main:
+    ; checking the interrupt reason
+    bt    [IR], IF_CA ; command aborted
+    jt    simple_move
+    bt    [IR], IF_LS
+    jt    feed
+    bt    [IR], IF_CF
+    jt    takefood
+    bt    [IR], IF_FF
+    jt    takefood
+    
+    ; simple moving
+simple_move:
+    mov   [Attacking], 0
+    bts   [IF], IF_CE ; можно заменить на команду AND [IF], ~(CE | FE | CF | FF)
+    bts   [IF], IF_FE
+    mov   r0, 1
+    call  EnableFoodInterrupt
+    
+    eq    [Direction], 1
+    jt    goto_end
+    eq    [Direction], 2
+    jt    goto_begin
+    dbg   -1
+    jmp   goto_begin
+    
+goto_end:
+    mov   [Direction], 2
+    mpsz  p0
+    dec   p0
+    cmov  p0
+    jmp   end
+    
+goto_begin:
+    mov   [Direction], 1
+    mov   p0:x, 0
+    mov   p0:y, 0
+    cmov  p0
+    jmp   end
+    
+attack:
+    mov   [Attacking], 3
+    call  GetClosestEnemy
+    eq    r0, -1
+    jt    end
+    lden  r0
+    dbg   777
+    catt  <enemy_pos>
+    btr   [IF], IF_CE
+    btr   [IF], IF_FE
+    mov   r0, 0
+    call  EnableFoodInterrupt
+    jmp   end
+    
+takefood:
+    mov   [Attacking], 55
+    call  GetClosestFood
+    eq    r0, -1
+    jt    end
+    ldfd  r0
+    dbg   888
+    ctkf  <food_pos>
+    mov   r0, 0
+    call  EnableFoodInterrupt
+    jmp   end
+    
+feed:
+    mov   [Attacking], 6666h
+    call  GetClosestFood
+    eq    r0, -1
+    jt    end
+    ldfd  r0
+    dbg   6666h
+    cfd   <food_pos>
+    mov   r0, 0
+    call  EnableFoodInterrupt
+    jmp   end
+    
+end:
+    dbg  [Direction]
+    RET
+
+
+.SOLDER
+    ret
+
+
+.QUEEN
+    ret

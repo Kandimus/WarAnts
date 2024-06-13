@@ -504,12 +504,21 @@ bool Battle::commandEatFromCargo(Ant& ant)
 
 bool Battle::commandCater(Ant& ant)
 {
-    LOGD("%s: command CATER %s", ant.toString().c_str(), ant.command().m_pos);
+    LOGD("%s: command CATER %s, target %s",
+        ant.toString().c_str(), ant.command().m_pos,
+        ant.command().target() ? ant.command().target()->toString().c_str() : "null");
     
     if (!ant.isWorker())
     {
         LOGE("%s: is not a worker! Command aborted", ant.toString().c_str());
         ant.setInterruptReason(Interrupt::CommandAborted, true);
+        return true;
+    }
+
+    if (!ant.cargo())
+    {
+        LOGD("    The empty cargo! command aborted!");
+        ant.setInterruptReason(Interrupt::CommandCompleted, true);
         return true;
     }
     
@@ -526,18 +535,20 @@ bool Battle::commandCater(Ant& ant)
     }
     
     // Now the ant is in the command's radius
+
     // check target on radius
-    if (cmd.m_target)
+    if (cmd.target())
     {
-        if (Math::distanceTo(cmd.m_pos, cmd.m_target->position()) > Constant::CommandRadius ||
-            cmd.m_target->status() == Ant::Status::Dead)
+        if (Math::distanceTo(cmd.m_pos, cmd.target()->position()) > Constant::CommandRadius ||
+            cmd.target()->status() == Ant::Status::Dead)
         {
             // The ant is lost the target because the target leave out from the command's radius
-            cmd.m_target = nullptr;
+            cmd.setTarget(nullptr);
         }
     }
 
-    if (!cmd.m_target)
+    // Find a new target. Hint - it is a closest ant :)
+    if (!cmd.target())
     {
         vectorMin<Ant*> allies;
         auto result = m_map->processingAntsInRadius(cmd.m_pos, Constant::CommandRadius, [&allies, &ant](Ant* cellAnt)
@@ -550,21 +561,27 @@ bool Battle::commandCater(Ant& ant)
             }
         });
 
-        if (allies.size())
+        if (allies.empty())
         {
-            cmd.m_target = enemies.randomIndex();
-            auto dist = moveAntToPoint(ant, enemy->position());
-            ant.setInterruptReason(Interrupt::CommandAborted, dist < 0);
+            ant.setInterruptReason(Interrupt::CommandAborted, true);
+            return true;
         }
+
+        cmd.setTarget(allies.randomIndex());
     }
-    auto distAntTarget = Math::distanceTo(ant.position(), cmd.m_target->position());
 
-    // проверить расстояние до точки цели, (нужно ли проверять что это тот же ант? может следить за ним в пределах радиуса?
-    // если на дистанция 1 и на этой точке стоит ант, то кормить его
-    // если дистанция больше 1 и на этой точке стоит ант, то идти туда
-    // если на этой точке нет анта, то как обычно (см. выше)
-
-
+    // The ant have the target
+    dist = Math::distanceTo(ant.position(), cmd.target()->position());
+    if (dist <= 1)
+    {
+        ant.cater(*cmd.target());
+        ant.setInterruptReason(Interrupt::CommandCompleted, !ant.cargo() || cmd.target()->satietyPercent() >= 100.0f);
+    }
+    else
+    {
+        dist = moveAntToPoint(ant, cmd.target()->position());
+        ant.setInterruptReason(Interrupt::CommandAborted, dist < 0);
+    }
 
     return true;
 }
