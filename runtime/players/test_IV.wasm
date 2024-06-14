@@ -17,6 +17,10 @@
 #define IR              0Bh
 #define enemy_info      14h
 #define enemy_pos       15h
+#define ally_type       18h
+#define ally_pos        19h
+#define ally_pos_x      19h
+#define ally_pos_y      1Ah
 #define food_info       1Ch
 #define food_pos        1Dh
 #define IF              24h
@@ -35,23 +39,24 @@
 #define Direction       32h
 #define Attacking       33h
 
+
 ;-----------------------------------------------
-; return R0 as index the closest enemy or -1
-.GetClosestEnemy
-    ; R0 - index of the nearest enemy
-    ; R1 - min distance to an enemy
-    ; R2 - the current distance to an enemy
+; return R0 as index the hungrest ally or -1
+.getHugryAlly
+    ; R0 - index of the hungrest enemy
+    ; R1 - min satiety
+    ; R2 - the current satiety
     mov   r0, -1
-    mov   rc, [enemies_count]
-    ; if no enemies in the ant radius then exit
+    mov   rc, [allies_count]
+    ; if no allies in the ant radius then exit
     jz    return
     dec   rc
-    mov   r1, 7fffh ; max len
+    mov   r1, 03E7h ; начальная сытость 99.9, если установить меньше, то мы будем отсекать более сытых муравьев
     
-    ; main loop
 beg_loop:
-    lden  rc
-    dist  <enemy_pos> ; r2 contain the distantion to the enemy
+    ldal  rc
+    mov   r2, [ally_type]
+    and   r2, 0FFFh         ; get only satiety
     gt    r2, r1
     jt    end_loop
     mov   r1, r2
@@ -64,14 +69,14 @@ return:
 
 ;-----------------------------------------------
 ; return R0 as index the closest food or -1
-.GetClosestFood
+.getClosestFood
     ; R0 - index of the closest food cell
     ; R1 - min distance to the food cell
     ; R2 - the current distance to the food cell
     mov   r0, -1
     mov   rc, [food_count]
     ; if no foods in the ant radius then exit
-    jz    return
+    jz    end
     dec   rc
     mov   r1, 7fffh ; max len
     
@@ -85,7 +90,37 @@ beg_loop:
     mov   r0, rc
 end_loop:
     loop  beg_loop
-return:
+end:
+    ret
+
+
+;------------------------------------------------
+;
+; Return
+;   r0: 1 we commanded ant to cater ally, 0 no command
+.checkClosestAllyForCater
+    ; если нет груза, то выходим
+    gt    [cargo], 0
+    jf    return_false
+    
+    ; если нашли голодного 
+    call  getHugryAlly
+    ge    r0, 0
+    jf    return_false
+    
+    ldal  r0
+    cctr  <ally_pos>
+    jmp   return_true
+    
+return_false:
+    move  r0, 0
+    jmp   end
+    
+return_true:
+    move  r0, 1
+    jmp   end
+    
+end:
     ret
 
 
@@ -128,9 +163,6 @@ main:
     
     ; simple moving
 simple_move:
-    mov   [Attacking], 0
-    bts   [IF], IF_CE ; можно заменить на команду AND [IF], ~(CE | FE | CF | FF)
-    bts   [IF], IF_FE
     mov   r0, 1
     call  EnableFoodInterrupt
     
@@ -140,6 +172,8 @@ simple_move:
     jt    goto_begin
     dbg   -1
     jmp   goto_begin
+    
+    call  checkClosestAllyForCater
     
 goto_end:
     mov   [Direction], 2
@@ -155,7 +189,7 @@ goto_begin:
     cmov  p0
     jmp   end
     
-attack:
+cater:
     mov   [Attacking], 3
     call  GetClosestEnemy
     eq    r0, -1
@@ -170,25 +204,24 @@ attack:
     jmp   end
     
 takefood:
-    mov   [Attacking], 55
+    mov   [Attacking], 5555h
     call  GetClosestFood
     eq    r0, -1
     jt    end
     ldfd  r0
-    dbg   888
+    dbg   5555h
     ctkf  <food_pos>
     mov   r0, 0
     call  EnableFoodInterrupt
     jmp   end
     
 feed:
+    ; Если мы голодны, если есть еда, то кушаем ее, если еды нет, то переключаемся на takefood
     mov   [Attacking], 6666h
-    call  GetClosestFood
-    eq    r0, -1
-    jt    end
-    ldfd  r0
-    dbg   6666h
-    cfd   <food_pos>
+    gt    [cargo], 0
+    jf    takefood
+    ceat
+    ; EnableFoodInterrupt(0)
     mov   r0, 0
     call  EnableFoodInterrupt
     jmp   end
@@ -203,4 +236,30 @@ end:
 
 
 .QUEEN
+    ret
+
+;-----------------------------------------------
+; return R0 as index the closest enemy or -1
+.GetClosestEnemy
+    ; R0 - index of the nearest enemy
+    ; R1 - min distance to an enemy
+    ; R2 - the current distance to an enemy
+    mov   r0, -1
+    mov   rc, [enemies_count]
+    ; if no enemies in the ant radius then exit
+    jz    return
+    dec   rc
+    mov   r1, 7fffh ; max len
+    
+    ; main loop
+beg_loop:
+    lden  rc
+    dist  <enemy_pos> ; r2 contain the distantion to the enemy
+    gt    r2, r1
+    jt    end_loop
+    mov   r1, r2
+    mov   r0, rc
+end_loop:
+    loop  beg_loop
+return:
     ret
