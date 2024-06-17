@@ -37,7 +37,8 @@ enum Type : uint16_t
     MiddleHealth = 0x0400,       // set in Ant::endTurn
     QueenUnderAttack = 0x0800,   // set in Battle::processingInterrupt
     ReceivedMessage = 0x1000,    //TODO Not implemented
-
+    Reserved_2000,
+    Reserved_4000,
     Timer = 0x8000,              //TODO Not implemented
 };
 

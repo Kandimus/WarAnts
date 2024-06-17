@@ -319,13 +319,15 @@ bool Battle::commandIdle(Ant& ant)
 
 bool Battle::commandMove(Ant& ant)
 {
-    LOGD("%s: command MOVE %s", ant.toString().c_str(), ant.command().m_pos.toString().c_str());
+    auto& cmd = ant.command();
 
-    --ant.command().m_value;
-    auto dist = moveAntToPoint(ant, ant.command().m_pos);
+    LOGD("%s: command MOVE %s, value %i", ant.toString().c_str(), cmd.m_pos.toString().c_str(), cmd.m_value);
 
-    ant.setInterruptReason(Interrupt::CommandAborted, dist < 0 || ant.command().m_value <= 0);
-    ant.setInterruptReason(Interrupt::CommandCompleted, dist >= 0 && dist <= 1);
+    --cmd.m_value;
+    auto dist = moveAntToPoint(ant, cmd.m_pos);
+
+    ant.setInterruptReason(Interrupt::CommandAborted, dist < 0 || cmd.m_value <= 0);
+    ant.setInterruptReason(Interrupt::CommandCompleted, dist == 0 || dist == 1);
 
     if (ant.interruptReason() | Interrupt::CommandCompleted)
     {

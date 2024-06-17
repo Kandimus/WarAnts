@@ -74,6 +74,11 @@ void VirtualMachine::prepare(uint32_t iteration)
             return;
         }
 
+        if (ant->status() != Ant::Status::Life)
+        {
+            return;
+        }
+
         if (ant->player() == m_ant->player())
         {
             m_allies.push_back(ant);

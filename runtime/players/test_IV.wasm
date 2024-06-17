@@ -11,10 +11,11 @@
 
 #define iteration       00h
 #define cargo           04h
-#define allies_count    07h
+#define allies_count    05h
 #define enemies_count   06h
-#define food_count      07h
+#define foods_count     07h
 #define IR              0Bh
+#define CmdType         0Ch
 #define enemy_info      14h
 #define enemy_pos       15h
 #define ally_type       18h
@@ -24,6 +25,8 @@
 #define food_info       1Ch
 #define food_pos        1Dh
 #define IF              24h
+
+#define COMMAND_TAKE    4
 
 ; interrupt flag bit numbers
 #define IF_CA           0 ; Command Aborted
@@ -37,7 +40,7 @@
 #define IF_MS           8
 
 #define Direction       32h
-#define Attacking       33h
+#define CurStatus       33h
 
 
 ;-----------------------------------------------
@@ -74,7 +77,7 @@ return:
     ; R1 - min distance to the food cell
     ; R2 - the current distance to the food cell
     mov   r0, -1
-    mov   rc, [food_count]
+    mov   rc, [foods_count]
     ; if no foods in the ant radius then exit
     jz    end
     dec   rc
@@ -99,25 +102,30 @@ end:
 ; Return
 ;   r0: 1 we commanded ant to cater ally, 0 no command
 .checkClosestAllyForCater
+    dbg   123
     ; если нет груза, то выходим
     gt    [cargo], 0
     jf    return_false
     
+    dbg   234
     ; если нашли голодного 
     call  getHugryAlly
     ge    r0, 0
     jf    return_false
     
+    dbg   345
+    mov   [CurStatus], 2222h
     ldal  r0
     cctr  <ally_pos>
+    dbg   2222h
     jmp   return_true
     
 return_false:
-    move  r0, 0
+    mov   r0, 0
     jmp   end
     
 return_true:
-    move  r0, 1
+    mov   r0, 1
     jmp   end
     
 end:
@@ -147,13 +155,17 @@ disable_food_interrupt:
     eq    [iteration], 0
     jf    main
 init:
-    mov   [IF], 00E3h      ; CA CC CF FF LS
+    bts   [IF], IF_CA
+    bts   [IF], IF_CC
+    bts   [IF], IF_CF
+    bts   [IF], IF_FF
+    bts   [IF], IF_LS
     mov   [Direction], 2
     
 main:
     ; checking the interrupt reason
-    bt    [IR], IF_CA ; command aborted
-    jt    simple_move
+    bt    [IR], IF_CC
+    jt    command_finished
     bt    [IR], IF_LS
     jt    feed
     bt    [IR], IF_CF
@@ -161,19 +173,27 @@ main:
     bt    [IR], IF_FF
     jt    takefood
     
+command_finished:
+    ; Если последняя команда была взять еду 
+    ; пытаемся накормить обездоленных
+    eq    [CmdType], COMMAND_TAKE
+    jf    simple_move
+    call  checkClosestAllyForCater
+    eq    r0, 0
+    jf    end
+    
     ; simple moving
 simple_move:
     mov   r0, 1
     call  EnableFoodInterrupt
     
+    mov   [CurStatus], 1111h
     eq    [Direction], 1
     jt    goto_end
     eq    [Direction], 2
     jt    goto_begin
     dbg   -1
     jmp   goto_begin
-    
-    call  checkClosestAllyForCater
     
 goto_end:
     mov   [Direction], 2
@@ -189,22 +209,8 @@ goto_begin:
     cmov  p0
     jmp   end
     
-cater:
-    mov   [Attacking], 3
-    call  GetClosestEnemy
-    eq    r0, -1
-    jt    end
-    lden  r0
-    dbg   777
-    catt  <enemy_pos>
-    btr   [IF], IF_CE
-    btr   [IF], IF_FE
-    mov   r0, 0
-    call  EnableFoodInterrupt
-    jmp   end
-    
 takefood:
-    mov   [Attacking], 5555h
+    mov   [CurStatus], 5555h
     call  GetClosestFood
     eq    r0, -1
     jt    end
@@ -217,7 +223,7 @@ takefood:
     
 feed:
     ; Если мы голодны, если есть еда, то кушаем ее, если еды нет, то переключаемся на takefood
-    mov   [Attacking], 6666h
+    mov   [CurStatus], 6666h
     gt    [cargo], 0
     jf    takefood
     ceat
