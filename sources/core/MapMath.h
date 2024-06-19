@@ -14,6 +14,7 @@ namespace WarAnts
 namespace Math
 {
 
+void initRandom(uint32_t seed);
 size_t random(size_t min, size_t max);
 
 #ifndef _WIN32

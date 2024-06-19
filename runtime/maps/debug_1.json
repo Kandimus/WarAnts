@@ -6,7 +6,7 @@
   "player": [
     {
       "id": 0,
-      "spawn": [ 40, 20 ]
+      "spawn": [ 30, 20 ]
     }
   ],
   "stone": [

@@ -25,7 +25,7 @@ using PlayerPtr = std::shared_ptr<Player>;
 class Battle
 {
 public:
-    Battle(const std::string& confname, const std::string& mapname, const std::vector<std::string>& players);
+    Battle(const std::string& confname, const std::string& mapname, const std::vector<std::string>& players, uint32_t seed);
     virtual ~Battle() = default;
 
     int run();

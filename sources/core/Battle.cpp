@@ -19,7 +19,7 @@
 namespace WarAnts
 {
 
-Battle::Battle(const std::string& confname, const std::string& mapname, const std::vector<std::string>& players)
+Battle::Battle(const std::string& confname, const std::string& mapname, const std::vector<std::string>& players, uint32_t seed)
 {
     m_conf = std::make_shared<Config>(Constant::dirConfig + confname);
     m_conf->setUBID(createUBID());
@@ -69,6 +69,9 @@ Battle::Battle(const std::string& confname, const std::string& mapname, const st
     m_logService = std::make_shared<BattleLogService>();
     m_logService->add(std::make_shared<FileProvider>(logDir + m_conf->UBID() + ".json"));
     m_logService->add(std::make_shared<TextScreenProvider>(logDir + m_conf->UBID() + "_screen.txt"));
+
+    Math::initRandom(seed);
+    LOGW("Battle seed: %u", seed);
 
     m_map = std::make_shared<Map>(m_conf, mapname);
     LOGI("Created new battle [%s]", m_conf->UBID().c_str());

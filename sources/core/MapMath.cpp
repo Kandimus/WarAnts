@@ -14,7 +14,7 @@ namespace Math
 {
 
 #ifndef _WIN32
-std::random_device g_randDev;
+std::random_device g_randDev; //SEEEEED!!!!!!!!!!!!!!
 std::mt19937 g_randGenerator(g_randDev());
 
 std::mt19937& randGenerator()
@@ -31,16 +31,17 @@ SimpleRandomClass& randGenerator()
 }
 #endif
 
+void initRandom(uint32_t seed)
+{
+#ifdef _WIN32
+    std::srand(seed);
+#else
+#endif
+}
+
 size_t random(size_t min, size_t max)
 {
 #ifdef _WIN32
-    static bool init = false;
-
-    if (!init)
-    {
-        std::srand(static_cast<unsigned int>(std::time(0)));
-        init = true;
-    }
     size_t range = max >= min ? max - min : min - max;
     if (!range) // range of one number
     {
