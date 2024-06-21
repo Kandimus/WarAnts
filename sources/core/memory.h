@@ -39,7 +39,7 @@ enum Addess : uint16_t
     AllyType = 0x18,
     AllyCoordX = 0x19,
     AllyCoordY = 0x1a,
-        Reserved27 = 0x1b,
+    AllySatiety = 0x1b,
     Food = 0x1c,
     FoodCount = 0x1c,
     FoodCoordX = 0x1d,

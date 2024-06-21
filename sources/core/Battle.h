@@ -12,6 +12,7 @@ namespace WarAnts
 {
 
 class Ant;
+class AntCommand;
 class BattleLogService;
 class Config;
 class Map;
@@ -35,6 +36,14 @@ protected:
     //std::vector<std::weak_ptr<Ant>> sortAnts();
 
     void processingInterrupt(Ant& ant);
+
+    template<typename F>
+    bool commandPrepare(Ant& ant, bool isEnemy, const F& f);
+
+    bool movingToCommandRadius(Ant& ant);
+    void checkCommandTarget(AntCommand& cmd);
+    bool findNewAntTarget(Ant& ant, bool isEnemy);
+    bool findNewFoodTarget(Ant& ant);
 
     void doAntCommand(Ant& ant);
     bool commandIdle(Ant& ant);

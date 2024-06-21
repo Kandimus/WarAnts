@@ -22,6 +22,7 @@
 #define ally_pos        19h
 #define ally_pos_x      19h
 #define ally_pos_y      1Ah
+#define ally_satiety    1Bh
 #define food_info       1Ch
 #define food_pos        1Dh
 #define IF              24h
@@ -58,8 +59,7 @@
     
 beg_loop:
     ldal  rc
-    mov   r2, [ally_type]
-    and   r2, 0FFFh         ; get only satiety
+    mov   r2, [ally_satiety]
     gt    r2, r1
     jt    end_loop
     mov   r1, r2

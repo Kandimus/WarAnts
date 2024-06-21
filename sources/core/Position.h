@@ -4,47 +4,48 @@
 
 #include <string>
 #include <vector>
+#include "uniint.h"
 
 namespace WarAnts
 {
 
-class Position
+struct Position
 {
-public:
     Position() = default;
     Position(const Position& p) { init(p.x(), p.y()); }
     Position(int16_t x, int16_t y) { init(x, y); }
     Position(int16_t v) { init(v, v); }
     virtual ~Position() = default;
 
-    int16_t x() const { return m_x; }
-    int16_t y() const { return m_y; }
+    inline int16_t x() const { return value.i16[0]; }
+    inline int16_t y() const { return value.i16[1]; }
 
-    void init(int16_t x, int16_t y) { m_x = x; m_y = y; }
-    void setX(int16_t x) { m_x = x; }
-    void setY(int16_t y) { m_y = y; }
-    void addX(int16_t x) { m_x += x; }
-    void addY(int16_t y) { m_y += y; }
-    void subX(int16_t x) { m_x -= x; }
-    void subY(int16_t y) { m_y -= y; }
-    void inc() { ++m_x; ++m_y; }
-    void dec() { --m_x; --m_y; }
-    void neg() { m_x = -m_x; m_y = -m_y; }
+    inline void init(int16_t x, int16_t y) { value.i16[0] = x; value.i16[1] = y; }
+    inline void setX(int16_t x) { value.i16[0] = x; }
+    inline void setY(int16_t y) { value.i16[1] = y; }
+    inline void addX(int16_t x) { value.i16[0] += x; }
+    inline void addY(int16_t y) { value.i16[1] += y; }
+    inline void subX(int16_t x) { value.i16[0] -= x; }
+    inline void subY(int16_t y) { value.i16[1] -= y; }
+    inline void inc() { ++value.i16[0]; ++value.i16[1]; }
+    inline void dec() { --value.i16[0]; --value.i16[1]; }
+    inline void neg() { value.i16[0] = -value.i16[0]; value.i16[1] = -value.i16[1]; }
 
-    Position min(const Position& p) const { return Position(m_x < p.m_x ? m_x : p.m_x, m_y < p.m_y ? m_y : p.m_y); }
-    Position max(const Position& p) const { return Position(m_x > p.m_x ? m_x : p.m_x, m_y > p.m_y ? m_y : p.m_y); }
+    Position min(const Position& p) const { return Position(std::min(x(), p.x()), std::min(y(), p.y())); }
+    Position max(const Position& p) const { return Position(std::max(x(), p.x()), std::max(y(), p.y())); }
 
-    Position min(int16_t v) const { return Position(m_x < v ? m_x : v, m_y < v ? m_y : v); }
-    Position max(int16_t v) const { return Position(m_x > v ? m_x : v, m_y > v ? m_y : v); }
+    Position min(int16_t v) const { return Position(std::min(x(), v), std::min(y() ,v)); }
+    Position max(int16_t v) const { return Position(std::max(x(), v), std::max(y(), v)); }
 
-    Position abs() const { return Position(std::abs(m_x), std::abs(m_y)); }
+    Position abs() const { return Position(std::abs(x()), std::abs(y())); }
     
-    int16_t minAxis() const { return m_x <= m_y ? m_x : m_y; }
+    int16_t minAxis() const { return std::min(x(), y()); }
+    int16_t maxAxis() const { return std::max(x(), y()); }
 
-    void store(int16_t* p) const { p[0] = m_x; p[1] = m_y; }
+    void store(int16_t* p) const { p[0] = x(); p[1] = y(); }
 
-    bool operator==(const Position& p) const { return m_x == p.x() && m_y == p.y(); }
-    bool operator!=(const Position& p) const { return m_x != p.x() || m_y != p.y(); }
+    bool operator==(const Position& p) const { return x() == p.x() && y() == p.y(); }
+    bool operator!=(const Position& p) const { return x() != p.x() || y() != p.y(); }
 
     Position operator+(const Position& p) const
     {
@@ -74,7 +75,7 @@ public:
         return out;
     }
 
-    inline Position& operator =(int v) { m_x = m_y = static_cast<int16_t>(v); return *this; }
+    inline Position& operator =(int v) { value.i16[0] = value.i16[1] = static_cast<int16_t>(v); return *this; }
     inline Position& operator =(const Position& p)
     {
         setX(p.x());
@@ -83,24 +84,23 @@ public:
         return *this;
     }
 
-    void operator+=(const Position& p) { m_x += p.x(); m_y += p.y(); }
-    void operator-=(const Position& p) { m_x -= p.x(); m_y -= p.y(); }
-    void operator*=(const Position& p) { m_x *= p.x(); m_y *= p.y(); }
-    void operator/=(const Position& p) { m_x /= p.x(); m_y /= p.y(); }
+    void operator+=(const Position& p) { value.i16[0] += p.x(); value.i16[1] += p.y(); }
+    void operator-=(const Position& p) { value.i16[0] -= p.x(); value.i16[1] -= p.y(); }
+    void operator*=(const Position& p) { value.i16[0] *= p.x(); value.i16[1] *= p.y(); }
+    void operator/=(const Position& p) { value.i16[0] /= p.x(); value.i16[1] /= p.y(); }
 
-    void operator+=(int16_t val) { m_x += val; m_y += val; }
-    void operator-=(int16_t val) { m_x -= val; m_y -= val; }
-    void operator*=(int16_t val) { m_x *= val; m_y *= val; }
-    void operator/=(int16_t val) { m_x -= val; m_y -= val; }
+    void operator+=(int16_t val) { value.i16[0] += val; value.i16[1] += val; }
+    void operator-=(int16_t val) { value.i16[0] -= val; value.i16[1] -= val; }
+    void operator*=(int16_t val) { value.i16[0] *= val; value.i16[1] *= val; }
+    void operator/=(int16_t val) { value.i16[0] -= val; value.i16[1] -= val; }
 
     std::string toString() const
     {
-        return "<" + std::to_string(m_x) + ", " + std::to_string(m_y) + ">";
+        return "<" + std::to_string(x()) + ", " + std::to_string(y()) + ">";
     }
 
 private:
-    int16_t m_x = 0;
-    int16_t m_y = 0;
+    su::UniInt32 value;
 };
 
 using VectorPosition = std::vector<Position>;

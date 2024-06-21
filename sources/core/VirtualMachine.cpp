@@ -301,14 +301,14 @@ void VirtualMachine::setRF(int16_t bit, bool value)
     }
 }
 
-void VirtualMachine::setCommand(Command::Type cmd, const Position& pos)
+void VirtualMachine::setCommand(Command::Type cmd, const Position& pos, Command::Target target)
 {
     m_ant->command().setCompleted(false);
     m_ant->command().m_type = cmd;
-    m_ant->command().m_pos = pos;
+    m_ant->command().setPosition(pos);
     m_ant->command().m_value = 2 * Math::distanceTo(m_ant->position(), pos);
-    m_ant->command().setFoodCell(m_map->cell(pos)->food() > 0);
-    m_ant->command().setTarget(m_map->cell(pos)->ant());
+    m_ant->command().setTarget(target);
+    m_ant->command().setAnt(target == Command::Ant ? m_map->cell(pos)->ant() : nullptr);
 }
 
 #define CHECK_PTR(x)            if (!(x).ptr) { return false; }
@@ -597,7 +597,7 @@ bool VirtualMachine::value1(uint8_t cmd, uint16_t value, uint8_t valueType)
         case Asm::BCode::LDFD: result = loadFood(value); break;
         case Asm::BCode::LDEN: result = loadEnemy(value); break;
         case Asm::BCode::LDAL: result = loadAlly(value); break;
-        case Asm::BCode::CIDL: result = true; m_ant->setCommand(Command::Type::Idle, value); break;
+        case Asm::BCode::CIDL: result = true; m_ant->setCommand(Command::Type::Idle, value, Target::None); break;
         case Asm::BCode::DBG:  result = printDebug(value); break;
         default:
             LOGE("Command %02x (%04x): Undefined the logical command", (int)cmd, cmdPos);
@@ -669,11 +669,11 @@ bool VirtualMachine::commandPositionArg(int8_t cmd)
 
     switch (cmd)
     {
-        case Asm::BCode::CMOV: setCommand(Command::MovePos, pos); break;
-        case Asm::BCode::CATT: setCommand(Command::Attack, pos); break;
-        case Asm::BCode::CFD:  setCommand(Command::Feed, pos); break;
-        case Asm::BCode::CTKF: setCommand(Command::TakeFood, pos); break;
-        case Asm::BCode::CCTR: setCommand(Command::Cater, pos); break;
+        case Asm::BCode::CMOV: setCommand(Command::MovePos, pos, Target::None); break;
+        case Asm::BCode::CATT: setCommand(Command::Attack, pos, Target::Ant); break;
+        case Asm::BCode::CFD:  setCommand(Command::Feed, pos, Target::Food); break;
+        case Asm::BCode::CTKF: setCommand(Command::TakeFood, pos, Target::Food); break;
+        case Asm::BCode::CCTR: setCommand(Command::Cater, pos, Target::Ant); break;
         default:
             LOGE("Command %02x (%04x): Undefined the position command", (int)cmd, cmdPos);
             SU_BREAKPOINT();
@@ -689,9 +689,9 @@ bool VirtualMachine::commandNoArgs(int8_t cmd)
 
     switch (cmd)
     {
-        case Asm::BCode::CEAT: setCommand(Command::Eat, m_ant->position()); break;
-        case Asm::BCode::CCSL: setCommand(Command::CreateSolder, m_ant->position()); break;
-        case Asm::BCode::CCWR: setCommand(Command::CreateWorker, m_ant->position()); break;
+        case Asm::BCode::CEAT: setCommand(Command::Eat, m_ant->position(), Target::None); break;
+        case Asm::BCode::CCSL: setCommand(Command::CreateSolder, m_ant->position(), Target::None); break;
+        case Asm::BCode::CCWR: setCommand(Command::CreateWorker, m_ant->position(), Target::None); break;
         default:
             LOGE("Command %02x (%04x): Undefined the command", (int)cmd, cmdPos);
             SU_BREAKPOINT();
@@ -899,6 +899,7 @@ bool VirtualMachine::loadAlly(int16_t value)
     m_memory[Memory::AllyType] = (int16_t(m_allies[value]->healthPercent() * 10)) | type;
     m_memory[Memory::AllyCoordX] = m_allies[value]->position().x();
     m_memory[Memory::AllyCoordY] = m_allies[value]->position().y();
+    m_memory[Memory::AllySatiety] = m_allies[value]->satietyPercent() * 10;
 
     return true;
 }
