@@ -17,7 +17,7 @@ class BattleLogService;
 class Config;
 class Map;
 class Player;
-class Position;
+struct Position;
 
 using AntPtr = std::shared_ptr<Ant>;
 using ListAnts = std::list<AntPtr>;
@@ -38,18 +38,18 @@ protected:
     void processingInterrupt(Ant& ant);
 
     template<typename F>
-    bool commandPrepare(Ant& ant, bool isEnemy, const F& f);
-
+    bool commandProcessing(Ant& ant, bool isEnemy, bool isEmptyAbort, const F& f);
     bool movingToCommandRadius(Ant& ant);
-    void checkCommandTarget(AntCommand& cmd);
-    bool findNewAntTarget(Ant& ant, bool isEnemy);
-    bool findNewFoodTarget(Ant& ant);
+    bool checkCommandTargetInRadius(AntCommand& cmd);
+    bool confirmationCommandAntTarget(Ant& ant, bool isEnemy, bool isEmptyAbort);
+    bool confirmationCommandFoodTarget(Ant& ant);
 
     void doAntCommand(Ant& ant);
     bool commandIdle(Ant& ant);
     bool commandMove(Ant& ant);
     bool commandAttack(Ant& ant);
-    bool commandFoodCellOperation(Ant& ant, bool isFeed);
+    bool commandTakeFood(Ant& ant);
+    bool commandFeed(Ant& ant);
     bool commandEatFromCargo(Ant& ant);
     bool commandCater(Ant& ant);
     

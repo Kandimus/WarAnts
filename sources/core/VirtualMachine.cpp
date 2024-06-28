@@ -108,10 +108,10 @@ void VirtualMachine::prepare(uint32_t iteration)
     //CountOfWorkers = 0x09,
     //CountOfSolders = 0x0a,
     m_memory[Memory::InterruptReason] = m_ant->interruptReason();
-    m_memory[Memory::CommandId] = (int16_t)m_ant->command().m_type;
-    m_memory[Memory::CommandX] = m_ant->command().m_pos.x();
-    m_memory[Memory::CommandY] = m_ant->command().m_pos.y();
-    m_memory[Memory::CommandValue] = m_ant->command().m_value;
+    m_memory[Memory::CommandId] = (int16_t)m_ant->command().type();
+    m_memory[Memory::CommandX] = m_ant->command().position().x();
+    m_memory[Memory::CommandY] = m_ant->command().position().y();
+    m_memory[Memory::CommandValue] = m_ant->command().value();
 
     m_memory[Memory::InterruptFlags] = m_ant->interruptFlags();
 }
@@ -301,14 +301,14 @@ void VirtualMachine::setRF(int16_t bit, bool value)
     }
 }
 
-void VirtualMachine::setCommand(Command::Type cmd, const Position& pos, Command::Target target)
+void VirtualMachine::setCommand(Command::Type cmd, const Position& pos, Target::Type target)
 {
-    m_ant->command().setCompleted(false);
-    m_ant->command().m_type = cmd;
-    m_ant->command().setPosition(pos);
-    m_ant->command().m_value = 2 * Math::distanceTo(m_ant->position(), pos);
-    m_ant->command().setTarget(target);
-    m_ant->command().setAnt(target == Command::Ant ? m_map->cell(pos)->ant() : nullptr);
+    m_ant->command().set(
+        cmd,
+        target,
+        pos,
+        2 * Math::distanceTo(m_ant->position(), pos),
+        target == Target::Ant ? m_map->cell(pos)->ant() : nullptr);
 }
 
 #define CHECK_PTR(x)            if (!(x).ptr) { return false; }
@@ -597,7 +597,7 @@ bool VirtualMachine::value1(uint8_t cmd, uint16_t value, uint8_t valueType)
         case Asm::BCode::LDFD: result = loadFood(value); break;
         case Asm::BCode::LDEN: result = loadEnemy(value); break;
         case Asm::BCode::LDAL: result = loadAlly(value); break;
-        case Asm::BCode::CIDL: result = true; m_ant->setCommand(Command::Type::Idle, value, Target::None); break;
+        case Asm::BCode::CIDL: result = true; setCommand(Command::Type::Idle, value, Target::None); break;
         case Asm::BCode::DBG:  result = printDebug(value); break;
         default:
             LOGE("Command %02x (%04x): Undefined the logical command", (int)cmd, cmdPos);
@@ -899,7 +899,7 @@ bool VirtualMachine::loadAlly(int16_t value)
     m_memory[Memory::AllyType] = (int16_t(m_allies[value]->healthPercent() * 10)) | type;
     m_memory[Memory::AllyCoordX] = m_allies[value]->position().x();
     m_memory[Memory::AllyCoordY] = m_allies[value]->position().y();
-    m_memory[Memory::AllySatiety] = m_allies[value]->satietyPercent() * 10;
+    m_memory[Memory::AllySatiety] = static_cast<int16_t>(m_allies[value]->satietyPercent() * 10);
 
     return true;
 }

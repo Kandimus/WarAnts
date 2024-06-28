@@ -104,9 +104,6 @@ public:
     
     void reset();
 
-    void setCommand(Command::Type cmd, int16_t value) { m_command.set(cmd, Position(0, 0), value); }
-    void setCommand(Command::Type cmd, const Position& pos) { m_command.set(cmd, pos, 0); }
-    void setCommand(Command::Type cmd, const Position& pos, int16_t value) { m_command.set(cmd, pos, value); }
     AntCommand& command() { return m_command; }
 
     int16_t getValue(size_t idx) const { return idx < m_memory.size() ? m_memory[idx] : 0; }

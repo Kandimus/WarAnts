@@ -55,29 +55,8 @@ public:
     //    : m_type(cmd), m_value(value)
     //{}
 
-    //void set(Command::Type cmd, int16_t x, int16_t y, int16_t value)
-    //{
-    //    set(cmd, Position(x, y), value);
-    //}
-
-    //void set(Command::Type cmd, const Position& pos, int16_t value)
-    //{
-    //    clear();
-
-    //    m_type = cmd;
-    //    m_pos = pos;
-    //    m_value = value;
-    //}
-
-    //void clear()
-    //{
-    //    m_type = Command::Idle;
-    //    m_pos = 0;
-    //    m_value = 0;
-    //    m_isCompleted = false;
-    //    m_ant = nullptr;
-    //    m_target = Target::None;
-    //}
+    inline Command::Type type() const { return m_type; }
+    inline void setType(Command::Type t)    { m_type = t; }
 
     inline bool isCompleted() const { return m_isCompleted; }
     inline void setCompleted(bool val) { m_isCompleted = val; }
@@ -92,15 +71,27 @@ public:
     inline const Position& position() const { return m_pos; }
     inline void setPosition(const Position& pos) { m_pos = pos; }
 
-public:
-    Command::Type m_type = Command::Idle;
-    int16_t m_value = 0;
+    inline int16_t value() const { return m_value; }
+    inline void setValue(int16_t v) { m_value = v; }
+    inline void incValue() { m_value++; }
+    inline void decValue() { m_value--; }
+
+    inline const Position& pointGoto() const { return m_pointGoto; }
+    inline void setPointGoto(const Position& pos) { m_pointGoto = pos; }
+
+    void clear();
+    void set(Command::Type cmd, Target::Type target, const Position& pos, int16_t value = 0, Ant* ant = nullptr);
+    Position targetPosition() const;
 
 protected:
-    Position m_pos = 0;
-    Ant* m_ant = nullptr;
-    bool m_isCompleted = false;
+    Command::Type m_type = Command::Idle;
     Target::Type m_target = Target::None;
+    Position m_pos = 0;
+    int16_t m_value = 0;
+    Ant* m_ant = nullptr;
+
+    bool m_isCompleted = false;
+    Position m_pointGoto = 0;
 };
 
 

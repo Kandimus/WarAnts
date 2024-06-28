@@ -116,5 +116,8 @@
     <ClCompile Include="MapMath.cpp">
       <Filter>Sources</Filter>
     </ClCompile>
+    <ClCompile Include="AntCommand.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

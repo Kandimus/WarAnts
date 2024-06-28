@@ -287,16 +287,16 @@ void Battle::doAntCommand(Ant& ant)
     // then the Idle command is temporarily forced for 1 turn
     if (cmd.isCompleted())
     {
-        cmd.set(Command::Idle, Position(0, 0), 1);
+        cmd.set(Command::Idle, Target::None, Position(0), 1);
     }
 
-    switch(cmd.m_type)
+    switch(cmd.type())
     {
         case Command::Idle: commandIdle(ant); break;
         case Command::MovePos: commandMove(ant); break;
         case Command::Attack: commandAttack(ant); break;
-        case Command::Feed: commandFoodCellOperation(ant, true); break;
-        case Command::TakeFood: commandFoodCellOperation(ant, false); break;
+        case Command::Feed: commandFeed(ant); break;
+        case Command::TakeFood: commandTakeFood(ant); break;
         case Command::Eat: commandEatFromCargo(ant); break;
         case Command::Cater: commandCater(ant);break;
 //		case CommandType::CreateOfWorker: doAntCreateWorker(ant); break;
@@ -309,190 +309,117 @@ void Battle::doAntCommand(Ant& ant)
 
 bool Battle::commandIdle(Ant& ant)
 {
+    auto& cmd = ant.command();
     //LOGD("%s: command IDLE %i", ant.toString().c_str(), ant.command().m_value);
 
-    if (ant.command().m_value >= 0)
+    if (cmd.value() >= 0)
     {
-        --ant.command().m_value;
+        cmd.decValue();
     }
 
-    ant.setInterruptReason(Interrupt::CommandCompleted, ant.command().m_value <= 0);
+    ant.setInterruptReason(Interrupt::CommandCompleted, cmd.value() <= 0);
     return true;
 }
 
 bool Battle::commandMove(Ant& ant)
 {
-    LOGD("%s: command MOVE %s, value %i",
-        ant.toString().c_str(), ant.command().position().toString().c_str(), cmd.m_value);
+    auto& cmd = ant.command();
 
-    ant.setInterruptReason(Interrupt::CommandCompleted, movingToCommandRadius(ant, 1));
+    LOGD("%s: command MOVE %s, value %i",
+        ant.toString().c_str(), cmd.position().toString().c_str(), cmd.value());
+
+    ant.setInterruptReason(Interrupt::CommandCompleted, movingToCommandRadius(ant));
 
     if (ant.interruptReason() | Interrupt::CommandCompleted)
     {
-        LOGD("%s: command MOVE has been finished with the value %i", ant.toString().c_str(), ant.command().m_value);
+        LOGD("%s: command MOVE has been finished with the value %i", ant.toString().c_str(), cmd.value());
     }
 
     return true;
 }
 
 //TODO На переделку!!!!!!!!!
-bool Battle::commandAttack(Ant& ant)
-{
-    auto cmd = ant.command();
-
-    LOGD("%s: command ATTACK %s", ant.toString().c_str(), ant.command().m_pos.toString().c_str());
-
-    // Checking enemies in the range 1 cell
-    vectorMin<Ant*> enemies;
-    auto player = ant.player();
-
-    auto result = m_map->processingAntsInRadius(ant.position(), 1, [&enemies, player](Ant* cellAnt)
-    {
-        if (cellAnt->player()->index() != player->index())
-        {
-            enemies.push_back(cellAnt);
-        }
-    });
-
-    if (enemies.size())
-    {
-        Ant* enemy = enemies.randomIndex();
-
-        LOGD("%s dealt %i damage to %s", ant.toString().c_str(), ant.attack(), enemy->toString().c_str());
-
-        if (!enemy->damage(ant))
-        {
-            m_map->forceCellChange(enemy->position());
-            killAnt(*enemy);
-        }
-
-        m_map->forceCellChange(ant.position());
-        m_logService->attack(ant, *enemy);
-        return true;
-    }
-
-    // No enemies in range 1 cell, check within the Constant::CommandRadius radius of the command point
-    result = m_map->processingAntsInRadius(cmd.m_pos, Constant::CommandRadius, [&enemies, &ant](Ant* cellAnt)
-    {
-        if (cellAnt->player()->index() != ant.player()->index())
-        {
-            enemies.add(cellAnt, Math::distanceTo(cellAnt->position(), ant.position()));
-        }
-    });
-
-    if (enemies.size())
-    {
-        Ant* enemy = enemies.randomIndex();
-        auto dist = moveAntToPoint(ant, enemy->position());
-        ant.setInterruptReason(Interrupt::CommandAborted, dist < 0);
-    }
-
-    ant.setInterruptReason(Interrupt::CommandCompleted, enemies.empty());
-    return true;
-}
-
-bool Battle::movingToCommandRadius(Ant& ant)
-{
-    auto& cmd = ant.command();
-    int16_t radius = cmd.target() == Target::None ? 1 : Constant::CommandRadius;
-
-    // if ant did not reach the target point
-    int16_t dist = Math::distanceTo(ant.position(), cmd.position());
-    if (dist > radius)
-    {
-        auto dist = moveAntToPoint(ant, cmd.position());
-        --cmd.m_value;
-        ant.setInterruptReason(Interrupt::CommandAborted, dist < 0 || cmd.m_value <= 0);
-        return false;
-    }
-
-    // Now the ant is in the command's radius
-    return true;
-}
-
-//TODO интергрировать в findNewTarget
-void Battle::checkCommandTarget(AntCommand& cmd)
-{
-    if (!cmd.ant())
-    {
-        return;
-    }
-
-    if (Math::distanceTo(cmd.position(), cmd.ant()->position()) > Constant::CommandRadius ||
-        cmd.ant()->status() == Ant::Status::Dead)
-    {
-        // The ant is lost the target because the target leave out from the command's radius
-        cmd.setAnt(nullptr);
-        return;
-    }
-}
-
-bool Battle::findNewAntTarget(Ant& ant, bool isEnemy)
+bool Battle::commandTakeFood(Ant& ant)
 {
     auto& cmd = ant.command();
 
-    checkCommandTarget(cmd);
+    LOGD("%s: command TAKEFOOD %s", ant.toString().c_str(),
+        cmd.position().toString().c_str());
 
-    if (cmd.ant())
+    if (ant.isQueen())
     {
-        return true;
-    }
-
-    // Find a new target. Hint - it is a closest ant :)
-    vectorMin<Ant*> list;
-    auto result = m_map->processingAntsInRadius(cmd.position(), Constant::CommandRadius, [&list, &ant, isEnemy](Ant* cellAnt)
-    {
-        if (((cellAnt->player()->index() == ant.player()->index() && !isEnemy) ||
-             (cellAnt->player()->index() != ant.player()->index() && isEnemy)) &&
-            cellAnt->id() != ant.id() &&
-            cellAnt->status() != Ant::Status::Dead)
-        {
-            list.add(cellAnt, Math::distanceTo(cellAnt->position(), ant.position()));
-        }
-    });
-
-    if (list.empty())
-    {
+        LOGE("%s: is a queen! Command aborted", ant.toString().c_str());
         ant.setInterruptReason(Interrupt::CommandAborted, true);
         return false;
     }
 
-    cmd.setAnt(list.randomIndex());
+    commandProcessing(ant, false, true, [this](Ant& ant)
+    {
+        Position foodPos = ant.command().pointGoto();
+        LOGD("%s take the food on %s", ant.toString().c_str(), foodPos.toString().c_str());
+
+        int16_t food = m_map->takeFood(foodPos, ant, false);
+
+        if (food <= 0)
+        {
+            LOGE("%s cannot take the food at %s", ant.toString().c_str(), foodPos.toString().c_str());
+            ant.setInterruptReason(Interrupt::CommandAborted, true);
+            return false;
+        }
+
+        LOGD("The remain of the food cell is %i", m_map->cell(foodPos)->food());
+
+        ant.modifyCargo(food);
+        ant.setInterruptReason(Interrupt::CommandCompleted, ant.cargo() >= ant.maxCargo());
+        LOGD("%s free cargo %.2f", ant.toString().c_str(), 100.f - ant.cargoPercent());
+
+        return ant.cargoPercent() >= 100.0f;
+    });
+
     return true;
 }
 
-bool Battle::findNewFoodTarget(Ant& ant)
+bool Battle::commandFeed(Ant& ant)
 {
-    auto& cmd = ant.command();
+    LOGD("%s: command FEED %s", ant.toString().c_str(),
+        ant.command().position().toString().c_str());
 
-    //checkCommandTarget(cmd);
-
-    // Find a new target. Hint - it is a closest ant :)
-    vectorMin<Position> list;
-    auto result = m_map->processingRadius(cmd.position(), Constant::CommandRadius, [&list, &ant, isEnemy](Ant* cellAnt)
-        {
-            if (((cellAnt->player()->index() == ant.player()->index() && !isEnemy) ||
-                (cellAnt->player()->index() != ant.player()->index() && isEnemy)) &&
-                cellAnt->id() != ant.id() &&
-                cellAnt->status() != Ant::Status::Dead)
-            {
-                list.add(cellAnt, Math::distanceTo(cellAnt->position(), ant.position()));
-            }
-        });
-
-    if (list.empty())
+    if (ant.isQueen())
     {
+        LOGE("%s: is a queen! Command aborted", ant.toString().c_str());
         ant.setInterruptReason(Interrupt::CommandAborted, true);
         return false;
     }
 
-    cmd.setAnt(list.randomIndex());
+    commandProcessing(ant, false, true, [this](Ant& ant)
+    {
+        Position foodPos = ant.command().pointGoto();
+        LOGD("%s take the food on %s", ant.toString().c_str(), foodPos.toString().c_str());
+
+        int16_t food = m_map->takeFood(foodPos, ant, false);
+
+        if (food <= 0)
+        {
+            LOGE("%s cannot take the food at %s", ant.toString().c_str(), foodPos.toString().c_str());
+            ant.setInterruptReason(Interrupt::CommandAborted, true);
+            return false;
+        }
+
+        LOGD("The remain of the food cell is %i", m_map->cell(foodPos)->food());
+
+        ant.eat(food);
+        ant.setInterruptReason(Interrupt::CommandCompleted, ant.satiety() >= ant.maxSatiety());
+        LOGD("%s eats %i of food. The Satiety is %.2f now", ant.toString().c_str(), food, ant.satietyPercent());
+
+        return !ant.cargo() || ant.command().ant()->satietyPercent() >= 100.0f;
+    });
+
     return true;
 }
 
 bool Battle::commandEatFromCargo(Ant& ant)
 {
-    auto cmd = ant.command();
+    auto& cmd = ant.command();
 
     LOGD("%s: command EAT", ant.toString().c_str());
 
@@ -508,136 +435,40 @@ bool Battle::commandEatFromCargo(Ant& ant)
     LOGD("%s: eatted % of food, satiety: %i, cargo: %i", ant.toString().c_str(),
         food, ant.satiety(), ant.cargo());
 
-    ant.setInterruptReason(Interrupt::CommandCompleted, food <= 0);
+    ant.setInterruptReason(Interrupt::CommandCompleted, food <= 0 || ant.satietyPercent() >= 100.0f);
     ant.setInterruptReason(Interrupt::CommandAborted, food < 0);
 
     return true;
 }
 
-template<typename F>
-bool Battle::commandPrepare(Ant& ant, bool isEnemy, const F& f)
+bool Battle::commandAttack(Ant& ant)
 {
-    if (!movingToCommandRadius(ant))
-    {
-        return false;
-    }
-
-    // check target on radius
-    if (!findNewAntTarget(ant, isEnemy))
-    {
-        return false;
-    }
-
-    // The ant have the target
     auto& cmd = ant.command();
-    uint16_t dist = Math::distanceTo(ant.position(), cmd.target()->position());
-    if (dist <= 1)
+
+    LOGD("%s: command ATTACK %s", ant.toString().c_str(), cmd.position().toString().c_str());
+
+    commandProcessing(ant, true, false, [this](Ant& ant)
     {
-        //ant.cater(*cmd.target());
-        //ant.setInterruptReason(Interrupt::CommandCompleted, !ant.cargo() || cmd.target()->satietyPercent() >= 100.0f);
-        ant.setInterruptReason(Interrupt::CommandCompleted, f());
-    }
-    else
-    {
-        dist = moveAntToPoint(ant, cmd.target()->position());
-        ant.setInterruptReason(Interrupt::CommandAborted, dist < 0);
-    }
+        auto& cmd = ant.command();
 
-    return true;
-}
-
-
-//TODO На переделку!!!!!!!!!
-bool Battle::commandFoodCellOperation(Ant& ant, bool isFeed)
-{
-    auto cmd = ant.command();
-
-    LOGD("%s: command %s %s", ant.toString().c_str(),
-        isFeed ? "FEED" : "TAKE FOOD", cmd.position().toString().c_str());
-
-    if (ant.isQueen())
-    {
-        LOGE("%s: is a queen! Command aborted", ant.toString().c_str());
-        ant.setInterruptReason(Interrupt::CommandAborted, true);
-        return false;
-    }
-
-    // Checking food in the range 1 cell
-    vectorMin<Position> foods;
-
-    auto result = m_map->processingRadius(ant.position(), 1, [&foods](const Cell& cell)
+        if (!cmd.ant()->damage(ant))
         {
-            if (cell.food())
-            {
-                foods.push_back(cell.position());
-            }
-        });
-
-    if (foods.size())
-    {
-        Position foodPos = foods.randomIndex();
-
-        // check for the user set position 
-        for (const auto& pos : foods)
-        {
-            if (pos == cmd.m_pos)
-            {
-                foodPos = pos;
-            }
+            m_map->forceCellChange(cmd.ant()->position());
+            killAnt(*cmd.ant());
         }
+        return false; // Do not complited command or TODO check enemies on radius
+    });
 
-        LOGD("%s take the food on %s", ant.toString().c_str(), foodPos.toString().c_str());
-
-        int16_t food = m_map->takeFood(foodPos, ant, !isFeed);
-        if (food <= 0)
-        {
-            LOGE("%s cannot take the food at %s", ant.toString().c_str(), foodPos.toString().c_str());
-            ant.setInterruptReason(Interrupt::CommandAborted, true);
-            return false;
-        }
-        LOGD("The remain of the food cell is %i", m_map->cell(foodPos)->food());
-
-        if (isFeed)
-        {
-            ant.eat(food);
-            ant.setInterruptReason(Interrupt::CommandCompleted, ant.satiety() >= ant.maxSatiety());
-            LOGD("%s eats %i of food. The Satiety is %.2f now", ant.toString().c_str(), food, ant.satietyPercent());
-        }
-        else
-        {
-            ant.modifyCargo(food);
-            ant.setInterruptReason(Interrupt::CommandCompleted, ant.cargo() >= ant.maxCargo());
-            LOGD("%s free cargo %.2f", ant.toString().c_str(), 100.f - ant.cargoPercent());
-        }
-
-        return true;
-    }
-
-    // No foods in range 1 cell, check range in the Constant::CommandRadius value
-    result = m_map->processingRadius(cmd.m_pos, Constant::CommandRadius, [&foods, &ant](const Cell& cell)
-        {
-            if (cell.food())
-            {
-                foods.add(cell.position(), Math::distanceTo(cell.position(), ant.position()));
-            }
-        });
-
-    if (foods.size())
-    {
-        Position foodPos = foods.randomIndex();
-        auto dist = moveAntToPoint(ant, foodPos);
-        ant.setInterruptReason(Interrupt::CommandAborted, dist < 0);
-    }
-
-    ant.setInterruptReason(Interrupt::CommandCompleted, foods.empty());
     return true;
 }
 
 bool Battle::commandCater(Ant& ant)
 {
+    auto& cmd = ant.command();
+
     LOGD("%s: command CATER %s, target %s",
-        ant.toString().c_str(), ant.command().m_pos.toString().c_str(),
-        ant.command().target() ? ant.command().target()->toString().c_str() : "null");
+        ant.toString().c_str(), cmd.position().toString().c_str(),
+        cmd.ant() ? cmd.ant()->position().toString().c_str() : "null");
     
     if (!ant.isWorker())
     {
@@ -653,57 +484,166 @@ bool Battle::commandCater(Ant& ant)
         return true;
     }
 
-    // main algorithm
+    commandProcessing(ant, false, true, [this](Ant& ant)
+    {
+        ant.cater(*ant.command().ant());
+        return !ant.cargo() || ant.command().ant()->satietyPercent() >= 100.0f;
+    });
     
+    return true;
+}
+
+bool Battle::movingToCommandRadius(Ant& ant)
+{
+    auto& cmd = ant.command();
+    int16_t radius = cmd.target() == Target::None ? 1 : Constant::CommandRadius;
+
+    // if ant did not reach the target point
+    int16_t dist = Math::distanceTo(ant.position(), cmd.position());
+    if (dist > radius)
+    {
+        auto dist = moveAntToPoint(ant, cmd.position());
+        cmd.decValue();
+        ant.setInterruptReason(Interrupt::CommandAborted, dist < 0 || cmd.value() <= 0);
+        return false;
+    }
+
+    // Now the ant is in the command's radius
+    return true;
+}
+
+bool Battle::confirmationCommandAntTarget(Ant& ant, bool isEnemy, bool isEmptyAbort)
+{
+    if (ant.command().target() != Target::Ant)
+    {
+        return true;
+    }
+
+    auto& cmd = ant.command();
+    // Checking the target ant stay in the command radius
+    if (cmd.ant())
+    {
+        if (Math::distanceTo(cmd.position(), cmd.ant()->position()) > Constant::CommandRadius ||
+            cmd.ant()->status() == Ant::Status::Dead)
+        {
+            // The ant is lost the target because the target leave out from the command's radius
+            cmd.setAnt(nullptr);
+        }
+        else
+        {
+            return true;
+        }
+    }
+
+    // Find a new target. Hint - it is a closest ant :)
+    vectorMin<Ant*> list;
+    auto result = m_map->processingAntsInRadius(cmd.position(), Constant::CommandRadius, [&list, &ant, isEnemy](Ant* cellAnt)
+        {
+            if (((cellAnt->player()->index() == ant.player()->index() && !isEnemy) ||
+                (cellAnt->player()->index() != ant.player()->index() && isEnemy)) &&
+                cellAnt->id() != ant.id() &&
+                cellAnt->status() != Ant::Status::Dead)
+            {
+                list.add(cellAnt, Math::distanceTo(cellAnt->position(), ant.position()));
+            }
+        });
+
+    if (list.empty())
+    {
+        ant.setInterruptReason(isEmptyAbort ? Interrupt::CommandAborted : Interrupt::CommandCompleted, true);
+        return false;
+    }
+
+    cmd.setAnt(list.randomIndex());
+    return true;
+}
+
+bool Battle::confirmationCommandFoodTarget(Ant& ant)
+{
+    auto& cmd = ant.command();
+
+    if (m_map->cell(cmd.position())->food())
+    {
+        return true;
+    }
+
+    // Find a new food cell. Hint - it is a closest ant :)
+    vectorMin<Position> list;
+    auto result = m_map->processingRadius(ant.position(), Constant::CommandRadius, [&list, &ant](const Cell& cell)
+    {
+        if (cell.food())
+        {
+            list.add(cell.position(), Math::distanceTo(ant.position(), cell.position()));
+        }
+    });
+
+    if (list.empty())
+    {
+        ant.setInterruptReason(Interrupt::CommandAborted, true);
+        return false;
+    }
+
+    cmd.setPointGoto(list.randomIndex());
+    return true;
+}
+
+template<typename F>
+bool Battle::commandProcessing(Ant& ant, bool isEnemy, bool isEmptyAbort, const F& f)
+{
     if (!movingToCommandRadius(ant))
     {
         return false;
     }
 
-    // check target on radius
-    if (!findNewAntTarget(ant, false))
+    auto& cmd = ant.command();
+
+    if (cmd.target() == Target::Ant)
+    {
+        // check target on radius
+        if (!confirmationCommandAntTarget(ant, isEnemy, isEmptyAbort))
+        {
+            return false;
+        }
+    }
+    else if (cmd.target() == Target::Food)
+    {
+        if (!confirmationCommandFoodTarget(ant))
+        {
+            return false;
+        }
+    }
+    else
     {
         return false;
     }
 
-    // The ant have the target
-    auto& cmd = ant.command();
-    uint16_t dist = Math::distanceTo(ant.position(), cmd.target()->position());
+    // Now the ant have the valid target
+    Position pos = cmd.targetPosition();
+    uint16_t dist = Math::distanceTo(ant.position(), pos);
+
     if (dist <= 1)
     {
-        ant.cater(*cmd.target());
-        ant.setInterruptReason(Interrupt::CommandCompleted, !ant.cargo() || cmd.target()->satietyPercent() >= 100.0f);
+        //ant.cater(*cmd.target());
+        //ant.setInterruptReason(Interrupt::CommandCompleted, !ant.cargo() || cmd.target()->satietyPercent() >= 100.0f);
+        ant.setInterruptReason(Interrupt::CommandCompleted, f(ant));
     }
     else
     {
-        dist = moveAntToPoint(ant, cmd.target()->position());
+        dist = moveAntToPoint(ant, pos);
         ant.setInterruptReason(Interrupt::CommandAborted, dist < 0);
     }
 
     return true;
 }
 
-//void Battle::commandAntExplore(AntSharedPtr& ant)
-//{
-//	std::shared_ptr<Player> player = ant->player().lock();
-//	std::shared_ptr<Ant> queen = player->antQueen().lock();
-//
-//	Direction dirToQueen = Math::directionTo(ant->position(), queen->position());
-//	Direction dirFromQueen =Math::inverseDirection(dirToQueen);
-//	Direction dir = Math::probabilisticDirection(dirFromQueen);
-//
-//	moveAnt(ant, dir);
-//
-//	--ant->command().count;
-//}
-
 int16_t Battle::moveAntToPoint(Ant& ant, const Position& pos)
 {
+    auto& cmd = ant.command();
     auto dirToPoint = Math::directionTo(ant.position(), pos);
     auto dir = Math::probabilisticDirection(dirToPoint);
     auto oldPos = ant.position();
 
-    LOGD("%s ---> %s: %s", ant.toString().c_str(), ant.command().m_pos.toString().c_str(), directionToString(dirToPoint, true).c_str());
+    LOGD("%s ---> %s: %s", ant.toString().c_str(), cmd.position().toString().c_str(), directionToString(dirToPoint, true).c_str());
     if (dirToPoint != dir)
     {
         LOGD("    dir %s changed to %s", directionToString(dirToPoint, true).c_str(), directionToString(dir, true).c_str());
@@ -735,7 +675,7 @@ int16_t Battle::moveAntToDirection(Ant& ant, const Direction& dir)
             // if the cell is empty then move the ant to it
             m_map->moveAnt(ant, newpos);
 
-            return Math::distanceTo(ant.position(), ant.command().m_pos);
+            return Math::distanceTo(ant.position(), ant.command().position());
         }
 
         // cell is not empty, go to next the direction and to check next

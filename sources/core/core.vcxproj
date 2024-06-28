@@ -59,6 +59,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Ant.cpp" />
+    <ClCompile Include="AntCommand.cpp" />
     <ClCompile Include="AntFabric.cpp" />
     <ClCompile Include="Battle.cpp" />
     <ClCompile Include="battlelog\BattleLogService.cpp" />
