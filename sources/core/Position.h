@@ -100,7 +100,7 @@ struct Position
     }
 
 private:
-    su::UniInt32 value;
+    su::UniInt32 value = {0};
 };
 
 using VectorPosition = std::vector<Position>;
