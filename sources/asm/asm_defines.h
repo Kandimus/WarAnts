@@ -43,9 +43,9 @@ enum class OperandType
 namespace Register
 {
 /*
-+-----+---+---+-----------+
-| 0 0 | 0 | 0 | X X X X X |
-+-----+---+---+-----------+
++-----+---+---+---------+
+| 0 0 | 0 | 0 | X X X X |
++-----+---+---+---------+
   ^     ^   ^   ^
   |     |   |   |
   |     |   |   +------ register
@@ -144,6 +144,7 @@ enum class AsmCommand
     RET,
     DBG,
     MPSZ,
+    RND,
 
     LDRC,
     LDFD,
@@ -248,6 +249,7 @@ enum Command : uint8_t
     DIST,
     RET,
     MPSZ,
+    RND,
 
     CMOV,
     CATT,

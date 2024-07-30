@@ -119,6 +119,7 @@ comment   ";"[^\n\r]*
 "ret"                       { return RET; }
 "dbg"                       { return DBG; }
 "mpsz"                      { return MPSZ; }
+"rnd"                       { return RND; }
 
 "ldrc"                      { return LDRC; }
 "ldfd"                      { return LDFD; }

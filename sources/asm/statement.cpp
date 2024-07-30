@@ -44,10 +44,10 @@ CheckTable LVal     = { {0, 0, 0, 0, 0},   // value   L
                         {1, 1, 0, 1, 0},   // []      t
                         {1, 1, 1, 1, 1} }; // <>
 
-CheckTable LValNP   = { {0, 0, 0, 0, 0},   // value
-                        {1, 1, 0, 1, 0},   // reg
-                        {0, 0, 0, 0, 0},   // pos
-                        {1, 1, 0, 1, 0},   // []
+CheckTable LValNP   = { {0, 0, 0, 0, 0},   // value   L
+                        {1, 1, 0, 1, 0},   // reg     e
+                        {0, 0, 0, 0, 0},   // pos     f
+                        {1, 1, 0, 1, 0},   // []      t
                         {0, 0, 0, 0, 0} }; // <>
 
 CheckTable RVal     = { {1, 0, 0, 0, 0},   // value   L
@@ -271,8 +271,9 @@ bool Statement::compile(Code* code)
         case AsmCommand::LEN:  compile2Args(BCode::LEN,  Table::Position, code); break;
         case AsmCommand::DIST: compile1Args(BCode::DIST, Table::Position, code); break;
         case AsmCommand::RET:  compileNoArgs(BCode::RET, code); break;
-        case AsmCommand::DBG:  compile1Args(BCode::DBG, Table::RVal,      code); break;
+        case AsmCommand::DBG:  compile1Args(BCode::DBG,  Table::RVal,     code); break;
         case AsmCommand::MPSZ: compile1Args(BCode::MPSZ, Table::Position, code); break;
+        case AsmCommand::RND:  compile2Args(BCode::RND,  Table::LValNP,   code); break;
 
         case AsmCommand::LDRC: compile1Args(BCode::LDRC, Table::RValNP, code); break;
         case AsmCommand::LDFD: compile1Args(BCode::LDFD, Table::RValNP, code); break;
@@ -463,6 +464,7 @@ void Statement::print(std::ofstream& file) const
         case AsmCommand::RET:  print0Expr(file, "RET"); break;
         case AsmCommand::DBG:  print1Expr(file, "DBG",  m_src); break;
         case AsmCommand::MPSZ: print1Expr(file, "MPSZ", m_dst); break;
+        case AsmCommand::RND:  print2Expr(file, "RND",  m_dst, m_src); break;
 
         case AsmCommand::LDRC: print1Expr(file, "LDRC", m_src); break;
         case AsmCommand::LDFD: print1Expr(file, "LDFD", m_src); break;

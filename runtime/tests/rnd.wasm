@@ -1,0 +1,50 @@
+%core "0100"
+%name "Test operation RND"
+%version "1"
+%class "black"
+
+; Run then seed is 1765432109
+
+.Test_RND
+    ; init
+    mov   [48], 0
+    mov   [49], 1
+
+    ; 1
+    ; 0...32567
+    inc   [48]
+    rnd   r0, 7FFFh
+    eq    r0, 11034
+    jf    abort
+
+    ; 2
+    ; 0..1
+    inc   [48]
+    rnd   r0, 1h
+    eq    r0, 0
+    jf    abort
+
+    ; 3
+    ; 0...map.width
+    inc   [48]
+    mpsz  p0
+    rnd   r0, p0:x
+    eq    r0, 1
+    jf    abort
+    jmp   end
+
+abort:
+    mov   [49], 0
+    
+end:
+    RET
+
+.worker
+    call Test_RND
+    RET
+
+.solder
+    RET
+
+.queen
+    RET

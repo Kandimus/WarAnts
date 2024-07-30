@@ -56,7 +56,7 @@ int  yylex();
 %token BSF BSR BT BTR BTS BTC SHL SHR ROL ROR
 %token EQ NEQ GT GE LT LE TEST
 %token JMP JZ JNZ JT JF JO JNO JS JNS JCZ JCNZ LOOP CALL
-%token MOV LEN DIST RET DBG MPSZ
+%token MOV LEN DIST RET DBG MPSZ RND
 %token LDRC LDFD LDEN LDAL
 %token CIDL CMOV CATT CFD CTKF CEAT CCTR CCSL CCWR
 
@@ -192,12 +192,13 @@ asm_command
     | CALL { UPD_LINENO } label                         { $$ = new WarAnts::Asm::Statement(WarAnts::Asm::AsmCommand::CALL, $3->get(), yy_code.get()); }
 
     // Other
-    | MOV  { UPD_LINENO } address COMMA address         { $$ = new WarAnts::Asm::Statement(WarAnts::Asm::AsmCommand::MOV , $3, $5, yy_code.get()); }
-    | LEN  { UPD_LINENO } address COMMA address         { $$ = new WarAnts::Asm::Statement(WarAnts::Asm::AsmCommand::LEN , $3, $5, yy_code.get()); }
+    | MOV  { UPD_LINENO } address COMMA address         { $$ = new WarAnts::Asm::Statement(WarAnts::Asm::AsmCommand::MOV , $3, $5,      yy_code.get()); }
+    | LEN  { UPD_LINENO } address COMMA address         { $$ = new WarAnts::Asm::Statement(WarAnts::Asm::AsmCommand::LEN , $3, $5,      yy_code.get()); }
     | DIST { UPD_LINENO } address                       { $$ = new WarAnts::Asm::Statement(WarAnts::Asm::AsmCommand::DIST, $3, nullptr, yy_code.get()); }
     | RET  { UPD_LINENO }                               { $$ = new WarAnts::Asm::Statement(WarAnts::Asm::AsmCommand::RET ,              yy_code.get()); }
     | DBG  { UPD_LINENO } address                       { $$ = new WarAnts::Asm::Statement(WarAnts::Asm::AsmCommand::DBG , nullptr, $3, yy_code.get()); }
     | MPSZ { UPD_LINENO } address                       { $$ = new WarAnts::Asm::Statement(WarAnts::Asm::AsmCommand::MPSZ, $3, nullptr, yy_code.get()); }
+    | RND  { UPD_LINENO } address COMMA address         { $$ = new WarAnts::Asm::Statement(WarAnts::Asm::AsmCommand::RND , $3, $5,      yy_code.get()); }
 
     // Load data to memory
     | LDRC { UPD_LINENO } address                       { $$ = new WarAnts::Asm::Statement(WarAnts::Asm::AsmCommand::LDRC, nullptr, $3, yy_code.get()); }

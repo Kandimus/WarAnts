@@ -250,6 +250,7 @@ bool VirtualMachine::run()
             case Asm::BCode::DIST: result = length(cmd); break;
             case Asm::BCode::RET:  result = ret(exit); break;
             case Asm::BCode::MPSZ: result = mapSize(); break;
+            case Asm::BCode::RND:  result = random(); break;
 
             case Asm::BCode::CMOV: result = commandPositionArg(cmd); break;
             case Asm::BCode::CATT: result = commandPositionArg(cmd); break;
@@ -712,6 +713,19 @@ bool VirtualMachine::mapSize()
     }
 
     m_map->size().store(arg.ptr);
+    return true;
+}
+
+bool VirtualMachine::random()
+{
+    auto dst = getRegisterArgument();
+    auto src = getRegisterArgument();
+
+    CHECK_LVAL(dst);
+
+    float frand = float(rand()) / 65535.0f * float(*src.ptr);
+    *dst.ptr = (uint16_t)frand;
+
     return true;
 }
 

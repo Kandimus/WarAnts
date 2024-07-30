@@ -500,6 +500,14 @@ TEST_CASE("basic", "[VM]")
     CHECK(ant->getValue(52) == 15);
 }
 
+TEST_CASE("rand", "[VM]")
+{
+    WarAnts::Math::initRandom(1765432109);
+    auto ant = runBCode(true, "rnd.wasm");
+    CHECK(ant->getValue(48) == 3);
+    CHECK(ant->getValue(49) == 1);
+}
+
 TEST_CASE("arithmetic", "[VM]")
 {
     auto ant = runBCode(true, "arithmetic.wasm");
