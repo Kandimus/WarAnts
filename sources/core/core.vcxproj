@@ -37,6 +37,7 @@
   <ItemGroup>
     <ClInclude Include="Ant.h" />
     <ClInclude Include="AntCommand.h" />
+    <ClInclude Include="AntDefinition.h" />
     <ClInclude Include="AntFabric.h" />
     <ClInclude Include="Battle.h" />
     <ClInclude Include="battlelog\BattleLogService.h" />
@@ -72,13 +73,13 @@
     <ClCompile Include="Player.cpp" />
     <ClCompile Include="VirtualMachine.cpp" />
   </ItemGroup>
+  <Import Project="$(SolutionDir)\prj_compile.props" />
   <ItemDefinitionGroup>
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>$(SolutionDir)asm;$(SolutionDir)external\smallutils;$(SolutionDir)external\json\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">

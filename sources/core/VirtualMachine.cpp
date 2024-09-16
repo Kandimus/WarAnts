@@ -312,6 +312,16 @@ void VirtualMachine::setCommand(Command::Type cmd, const Position& pos, Target::
         target == Target::Ant ? m_map->cell(pos)->ant() : nullptr);
 }
 
+void VirtualMachine::setCommand(Command::Type cmd, const Position& pos, uint16_t value)
+{
+    m_ant->command().set(
+        cmd,
+        Target::None,
+        pos,
+        value,
+        nullptr);
+}
+
 #define CHECK_PTR(x)            if (!(x).ptr) { return false; }
 #define CHECK_LVAL(x)           if (!(x).ptr || !checkLVal(x)) { return false; }
 
@@ -691,8 +701,8 @@ bool VirtualMachine::commandNoArgs(int8_t cmd)
     switch (cmd)
     {
         case Asm::BCode::CEAT: setCommand(Command::Eat, m_ant->position(), Target::None); break;
-        case Asm::BCode::CCSL: setCommand(Command::CreateSolder, m_ant->position(), Target::None); break;
-        case Asm::BCode::CCWR: setCommand(Command::CreateWorker, m_ant->position(), Target::None); break;
+        case Asm::BCode::CCSL: setCommand(Command::Solder, m_ant->position(), m_ant->turnToSolder()); break;
+        case Asm::BCode::CCWR: setCommand(Command::Worker, m_ant->position(), m_ant->turnToWorker()); break;
         default:
             LOGE("Command %02x (%04x): Undefined the command", (int)cmd, cmdPos);
             SU_BREAKPOINT();
@@ -962,16 +972,17 @@ bool VirtualMachine::printDebug(int16_t value)
     file << "----------------------------------------------------------------------------------------" << std::endl;
 
     localtime_s(&dt, &t);
-    file << su::String_format2("%04i.%02i.%02i %02i:%02i:%02i #%i, UserData: %i %04x",
+    file << su::String_format2("%04i.%02i.%02i %02i:%02i:%02i #%i, UserData: %i %04xh",
             dt.tm_year + 1900, dt.tm_mon + 1, dt.tm_mday,
             dt.tm_hour, dt.tm_min, dt.tm_sec,
             *(uint32_t*)&m_memory[Memory::Iteration], value, value)
         << std::endl;
     file << std::endl;
-    file << su::String_format2("    Player: %02i, file: '%s', Ant: %s %s",
+    file << su::String_format2("    Player: %02i, file: '%s', Ant: %s #%u %s",
             player->index(),
             player->library().c_str(),
             m_ant->typeToString().c_str(),
+            m_ant->id(),
             m_ant->position().toString().c_str())
         << std::endl;
     file << std::endl;

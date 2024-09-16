@@ -6,6 +6,7 @@
 #include <string>
 #include <vector>
 
+#include "AntDefinition.h"
 #include "Direction.h"
 
 namespace WarAnts
@@ -33,17 +34,16 @@ public:
 
 protected:
     std::string createUBID() const;
-    //std::vector<std::weak_ptr<Ant>> sortAnts();
 
     void processingInterrupt(Ant& ant);
 
     template<typename F>
     bool commandProcessing(Ant& ant, bool isEnemy, bool isEmptyAbort, const F& f);
     bool movingToCommandRadius(Ant& ant);
-    bool checkCommandTargetInRadius(AntCommand& cmd);
     bool confirmationCommandAntTarget(Ant& ant, bool isEnemy, bool isEmptyAbort);
     bool confirmationCommandFoodTarget(Ant& ant);
 
+    // VM commands
     void doAntCommand(Ant& ant);
     bool commandIdle(Ant& ant);
     bool commandMove(Ant& ant);
@@ -52,9 +52,8 @@ protected:
     bool commandFeed(Ant& ant);
     bool commandEatFromCargo(Ant& ant);
     bool commandCater(Ant& ant);
+    bool commandCreateAnt(Ant& ant, AntDefinition::Type antType);
     
-    //void commandAntEat(AntSharedPtr& ant);
-
     int16_t moveAntToPoint(Ant& ant, const Position& pos);
     int16_t moveAntToDirection(Ant& ant, const Direction& dir);
     bool killAnt(Ant& ant);

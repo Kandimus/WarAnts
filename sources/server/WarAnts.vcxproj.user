@@ -6,7 +6,7 @@
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <LocalDebuggerCommandArguments>--config debug.conf --map debug_1.json --seed 1718791380 test_IV.wasm dummy.wac</LocalDebuggerCommandArguments>
+    <LocalDebuggerCommandArguments>--config debug.conf --map debug_1.json --seed 1722614507 test_V.wasm dummy.wac</LocalDebuggerCommandArguments>
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
     <LocalDebuggerWorkingDirectory>$(SolutionDir)../runtime</LocalDebuggerWorkingDirectory>
   </PropertyGroup>

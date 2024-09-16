@@ -25,10 +25,11 @@
       "attack": 8,
       "visibility": 20,
       "satiety": 40,
+      "cargo": 100,
       "RedicedSatiety": 1,
       "HungerDamage": 1,
-      "solder": 1,
-      "worker": 1,
+      "solder": 3,
+      "worker": 2,
       "memory": 32
     }
   }

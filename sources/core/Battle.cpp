@@ -139,7 +139,7 @@ int Battle::run()
         // clear IsChange flag
         m_map->clearChanged();
 
-        LOGD("Iteration %i", m_iteration);
+        LOGD("---------- Iteration %i ----------", m_iteration);
 
         // randomize the list of ants
         VectorAnts ant_vec(m_ants.begin(), m_ants.end());
@@ -294,12 +294,12 @@ void Battle::doAntCommand(Ant& ant)
     {
         case Command::Idle: commandIdle(ant); break;
         case Command::MovePos: commandMove(ant); break;
-        case Command::Attack: commandAttack(ant); break;
-        case Command::Feed: commandFeed(ant); break;
+        case Command::Attack: commandAttack(ant); break; // Атаковать
+        case Command::Feed: commandFeed(ant); break; // Кушать из клетки с едой
         case Command::TakeFood: commandTakeFood(ant); break;
         case Command::Eat: commandEatFromCargo(ant); break;
         case Command::Cater: commandCater(ant);break;
-//		case CommandType::CreateOfWorker: doAntCreateWorker(ant); break;
+        case Command::Worker: commandCreateAnt(ant, Ant::Worker); break;
 //		case CommandType::CreateOfSolder: doAntCreateSolder(ant); break;
         default: break;
     }
@@ -330,7 +330,7 @@ bool Battle::commandMove(Ant& ant)
 
     ant.setInterruptReason(Interrupt::CommandCompleted, movingToCommandRadius(ant));
 
-    if (ant.interruptReason() | Interrupt::CommandCompleted)
+    if (ant.interruptReason() & Interrupt::CommandCompleted)
     {
         LOGD("%s: command MOVE has been finished with the value %i", ant.toString().c_str(), cmd.value());
     }
@@ -338,7 +338,6 @@ bool Battle::commandMove(Ant& ant)
     return true;
 }
 
-//TODO РќР° РїРµСЂРµРґРµР»РєСѓ!!!!!!!!!
 bool Battle::commandTakeFood(Ant& ant)
 {
     auto& cmd = ant.command();
@@ -356,9 +355,9 @@ bool Battle::commandTakeFood(Ant& ant)
     commandProcessing(ant, false, true, [this](Ant& ant)
     {
         Position foodPos = ant.command().pointGoto();
-        LOGD("%s take the food on %s", ant.toString().c_str(), foodPos.toString().c_str());
+        LOGD("%s take the food on %s to cargo (%.2f%%)", ant.toString().c_str(), foodPos.toString().c_str(), ant.cargoPercent());
 
-        int16_t food = m_map->takeFood(foodPos, ant, false);
+        int16_t food = m_map->takeFood(foodPos, ant, true);
 
         if (food <= 0)
         {
@@ -367,11 +366,11 @@ bool Battle::commandTakeFood(Ant& ant)
             return false;
         }
 
-        LOGD("The remain of the food cell is %i", m_map->cell(foodPos)->food());
+        LOGD("The remain of the food cell is %i, %i food taken", m_map->cell(foodPos)->food(), food);
 
         ant.modifyCargo(food);
         ant.setInterruptReason(Interrupt::CommandCompleted, ant.cargo() >= ant.maxCargo());
-        LOGD("%s free cargo %.2f", ant.toString().c_str(), 100.f - ant.cargoPercent());
+        LOGD("%s free cargo %.2f%%", ant.toString().c_str(), 100.f - ant.cargoPercent());
 
         return ant.cargoPercent() >= 100.0f;
     });
@@ -432,8 +431,10 @@ bool Battle::commandEatFromCargo(Ant& ant)
 
     int16_t food = ant.eatFromCargo();
 
-    LOGD("%s: eatted % of food, satiety: %i, cargo: %i", ant.toString().c_str(),
-        food, ant.satiety(), ant.cargo());
+    LOGD("%s: %i food eatted, satiety: %i (%.2f), cargo: %i (%.2f)",
+        ant.toString().c_str(), food,
+        ant.satiety(), ant.satietyPercent(),
+        ant.cargo(), ant.cargoPercent());
 
     ant.setInterruptReason(Interrupt::CommandCompleted, food <= 0 || ant.satietyPercent() >= 100.0f);
     ant.setInterruptReason(Interrupt::CommandAborted, food < 0);
@@ -481,15 +482,57 @@ bool Battle::commandCater(Ant& ant)
     {
         LOGD("    The empty cargo! command aborted!");
         ant.setInterruptReason(Interrupt::CommandCompleted, true);
-        return true;
+        return true; 
     }
 
     commandProcessing(ant, false, true, [this](Ant& ant)
     {
-        ant.cater(*ant.command().ant());
+        auto& cmd = ant.command();
+        auto food = ant.cater(*cmd.ant());
+        LOGD("    Caters %s with %i food. Target satiety became %i (%.2f), target cargo %i (%.2f). Cargo became %i (%.2f)",
+            cmd.ant()->toString().c_str(), food,
+            cmd.ant()->satiety(), cmd.ant()->satietyPercent(),
+            cmd.ant()->cargo(), cmd.ant()->cargoPercent(),
+            ant.cargo(), ant.cargoPercent());
         return !ant.cargo() || ant.command().ant()->satietyPercent() >= 100.0f;
     });
     
+    return true;
+}
+
+bool Battle::commandCreateAnt(Ant& ant, Ant::Type antType)
+{
+    auto& cmd = ant.command();
+
+    LOGD("%s: command CREATE WORKER. turn left %i", ant.toString().c_str(), cmd.value() - 1);
+
+    if (!ant.isQueen())
+    {
+        LOGE("%s: is not a queen! Command aborted", ant.toString().c_str());
+        ant.setInterruptReason(Interrupt::CommandAborted, true);
+        return true;
+    }
+
+    cmd.decValue();
+    if (cmd.value() > 0)
+    {
+        return true;
+    }
+
+    // create ant
+    auto newborn = m_map->createAnt(ant.player(), antType, ant.position(), 3);
+    if (!newborn.get())
+    {
+        LOGE("%s: can not create ant because no free cell", ant.toString().c_str());
+        ant.setInterruptReason(Interrupt::CommandAborted, true);
+        return true;
+    }
+
+    LOGD("%s: Born %s", newborn->toString().c_str(), newborn->position().toString().c_str());
+    m_ants.push_back(newborn);
+
+    ant.setInterruptReason(Interrupt::CommandCompleted, true);
+
     return true;
 }
 
@@ -623,8 +666,6 @@ bool Battle::commandProcessing(Ant& ant, bool isEnemy, bool isEmptyAbort, const 
 
     if (dist <= 1)
     {
-        //ant.cater(*cmd.target());
-        //ant.setInterruptReason(Interrupt::CommandCompleted, !ant.cargo() || cmd.target()->satietyPercent() >= 100.0f);
         ant.setInterruptReason(Interrupt::CommandCompleted, f(ant));
     }
     else

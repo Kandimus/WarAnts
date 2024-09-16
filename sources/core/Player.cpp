@@ -7,6 +7,8 @@
 #include "Compiler.h"
 #include "wacfile.h"
 
+#include "Ant.h"
+
 namespace WarAnts
 {
 
@@ -81,7 +83,7 @@ void Player::changeTeamName(uint32_t count)
     m_info.teamName += " " + std::to_string(count);
 }
 
-void Player::antIsBorn(Ant::Type type)
+void Player::antIsBorn(AntDefinition::Type type)
 {
     if (type >= Ant::Type::__MAX)
     {

@@ -29,6 +29,7 @@
     <LinkIncremental>false</LinkIncremental>
   </PropertyGroup>
   <!--  -->
+  <Import Project="$(SolutionDir)\prj_compile.props" />
   <ItemDefinitionGroup>
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>

@@ -136,13 +136,14 @@ comment   ";"[^\n\r]*
 "ccsl"                      { return CCSL; }
 "ccwr"                      { return CCWR; }
 
+"/*"                        { skipMultiLineComment(); }
+
 {id}                        { return ID; }
 
 .                           { printf("flex: UNDEF!!!!\n");  return yytext[0]; }
 
 %%
 //";"                         { skipSignleLineComment(); }
-//"/*"                        { skipMultiLineComment(); }
 
 static void skipSignleLineComment(void)
 {

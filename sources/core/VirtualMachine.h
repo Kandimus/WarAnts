@@ -49,6 +49,7 @@ protected:
     void setRF(int16_t bit, bool value);
 
     void setCommand(Command::Type cmd, const Position& pos, Target::Type target);
+    void setCommand(Command::Type cmd, const Position& pos, uint16_t value);
 
     bool arithmetic1(uint8_t cmd);
     bool arithmetic2(uint8_t cmd);

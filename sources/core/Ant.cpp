@@ -193,4 +193,10 @@ bool Ant::checkDie()
     return (m_status == Status::Dead);
 }
 
+std::string Ant::toString() const
+{
+    static char shortTypeName[Type::__MAX] = { 'Q', 'S', 'W'};
+    return su::String_format2("Ant %c#%i ", shortTypeName[m_type], m_id) + m_pos.toString();
+}
+
 };

@@ -92,6 +92,7 @@ AntPtr Map::createAnt(const PlayerPtr& player, Ant::Type antType, const Position
     calc_pos -= r;
     calc_pos += pos;
     calc_pos = closestAvaliblePosition(calc_pos);
+    //TODO тут может быть баг, если не будет места для создания
 
     auto ant = AntFabric::createAnt(player, antType);
 

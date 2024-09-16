@@ -22,8 +22,8 @@ enum Type : uint8_t
     Eat,
     Cater,
 
-    CreateSolder,
-    CreateWorker,
+    Solder,
+    Worker,
 };
 } //namespace Command
 

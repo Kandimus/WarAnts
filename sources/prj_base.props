@@ -18,4 +18,19 @@
         <LinkIncremental>true</LinkIncremental>
         <IntDir>$(SolutionDir)..\output\$(Platform)\$(Configuration)\$(ProjectName)\</IntDir>
     </PropertyGroup>
+
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <LanguageStandard>stdcpp20</LanguageStandard>
+    </ClCompile>
+    <Link>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <LanguageStandard>stdcpp20</LanguageStandard>
+    </ClCompile>
+    <Link>
+    </Link>
+  </ItemDefinitionGroup>
 </Project>

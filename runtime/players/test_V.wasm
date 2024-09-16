@@ -1,0 +1,292 @@
+%core "0100"
+%name "Black stupid ants V"
+;
+; Finding the queen. Care him
+;
+%version "1"
+%class "black"
+
+; Memory
+#define iteration       00h
+#define satiety         02h
+#define health          03h
+#define cargo           04h
+#define allies_count    05h
+#define enemies_count   06h
+#define foods_count     07h
+#define IR              0Bh
+#define CmdType         0Ch
+#define enemy_info      14h
+#define enemy_pos       15h
+#define ally_type       18h
+#define ally_pos        19h
+#define ally_pos_x      19h
+#define ally_pos_y      1Ah
+#define ally_satiety    1Bh
+#define food_info       1Ch
+#define food_pos        1Dh
+#define IF              24h
+
+#define TRUE            1
+#define FALSE           0
+
+#define COMMAND_TAKE    4
+
+; interrupt flag bit numbers
+#define IF_CA           0 ; Command Aborted
+#define IF_CC           1
+#define IF_AT           2 ; Attacked
+#define IF_CE           3 ; Close enemy
+#define IF_FE           4 ; Far enemy
+#define IF_CF           5 ; Close Food
+#define IF_FF           6 ; Far food
+#define IF_LS           7 ; Low satiety
+#define IF_MS           8
+
+#define IsInit          30h
+#define QueenPos        31h
+
+#define debugInit         0001h
+#define debugFoundQueen   0002h
+#define debugTakeFood     0003h
+#define debugEat          0004h
+#define debugCater        0005h
+#define debugMove         0006h
+#define debugGetCloseFood 0007h
+
+;-----------------------------------------------
+; return R0 as index the hungrest ally or -1
+.getQeenPos
+    eq    [QueenPos], -1
+    jf    return
+    
+    mov   rc, [allies_count]
+    ; if no allies in the ant radius then exit
+    jz    return
+    dec   rc
+    
+beg_loop:
+    ldal  rc
+    
+    mov   r0, [ally_type]
+    and   r0, F000h
+    jnz   end_loop   ; The AND operator set rf.zf if result is 0. A queen has type 0, so result must be 0 and rf.zf = 1
+    mov   <QueenPos>, <ally_pos>
+    dbg   debugFoundQueen
+    jmp   return
+end_loop:
+    loop  beg_loop
+return:
+    ret
+
+
+;-----------------------------------------------
+; return R0 as index the closest food or -1
+.getClosestFood
+    ; R0 - index of the closest food cell
+    ; R1 - min distance to the food cell
+    ; R2 - the current distance to the food cell
+    mov   r0, -1
+    mov   rc, [foods_count]
+    ; if no foods in the ant radius then exit
+    jz    end
+    dec   rc
+    mov   r1, 7fffh ; max len
+    
+    ; main loop
+beg_loop:
+    ldfd  rc
+    dist  <food_pos> ; r2 contain the distantion to the food cell
+    gt    r2, r1
+    jt    end_loop
+    mov   r1, r2
+    mov   r0, rc
+end_loop:
+    loop  beg_loop
+end:
+    ret
+
+
+;------------------------------------------------------------------------------
+; R0 != 0 interrupt is set
+.EnableFoodInterrupt
+    eq    r0, 0
+    jt    disable_food_interrupt
+    ge    [cargo], 1000
+    jt    disable_food_interrupt
+    bts   [IF], IF_CF
+    bts   [IF], IF_FF
+    ret
+    
+disable_food_interrupt:
+    btr   [IF], IF_CF
+    btr   [IF], IF_FF
+    ret
+
+
+;------------------------------------------------------------------------------
+;
+.Worker
+    ;if (isInit() == 0)
+    ;{
+    ;    init();
+    ;}
+    eq    [IsInit], 0
+    jf    main
+init:
+    bts   [IF], IF_CA
+    bts   [IF], IF_CC
+    mov    r0, TRUE
+    call  EnableFoodInterrupt
+    mov   <QueenPos>, -1
+    mov   [IsInit], 1
+    dbg   debugInit
+    
+main:
+    ; checking for queen
+    ;getQeenPos();
+    ;if (Queen.pos == -1)
+    ;{
+    ;    random_moving();
+    ;    return;
+    ;}
+    call  getQeenPos
+    eq    [QueenPos], -1
+    jt    random_moving
+check_queen_end:
+
+    ; setIterrupt(Iterrupt::CloseFood, false)
+    ; setIterrupt(Iterrupt::FarFood, false)
+    mov    r0, FALSE
+    call  EnableFoodInterrupt
+
+    ;if (IterruptReason == Iterrupt::CloseFood || IterruptReason == Iterrupt::FarFood)
+    ;{
+    ;    takeFood();
+    ;    return;
+    ;}
+    ; checking the interrupt reason
+    bt    [IR], IF_CF
+    jt    takefood
+    bt    [IR], IF_FF
+    jt    takefood
+    ;gt    [foods_count], 0
+    ;jt    takefood
+    jmp   takefood_end
+takefood:
+    call  GetClosestFood
+    dbg   debugGetCloseFood
+    eq    r0, -1
+    jt    random_moving
+    ldfd  r0
+    dbg   debugTakeFood
+    ctkf  <food_pos>
+    jmp   end
+takefood_end:
+
+    ;if (m_satiety < 30.0 && m_cargo > 0.0)
+    ;{
+    ;    command(Eat);
+    ;    return;
+    ;}
+    lt    [satiety], 100
+    jf    command_eat_end
+    gt    [cargo], 0
+    jf    command_eat_end
+command_eat:
+    dbg   debugEat
+    ceat
+    jmp   end
+command_eat_end:
+    
+    ;if (m_cargo > 0 && Queen.pos() != -1)
+    ;{
+    ;    command(Care, Queen.pos());
+    ;    return;
+    ;}
+    gt    [cargo], 0
+    jf    random_moving
+    eq    [QueenPos], -1
+    jt    random_moving
+command_careQueen:
+    dbg   debugCater
+    cctr  <QueenPos>
+    jmp   end
+command_careQueen_end:
+    
+random_moving:
+    ;setIterrupt(Iterrupt::CloseFood, true)
+    ;setIterrupt(Iterrupt::FarFood, true)
+;    rnd  p0:x, 11
+;    rnd  p0:y, 11
+;    sub  p0, 6
+    dbg   debugMove
+    mov   r0, TRUE
+    call  EnableFoodInterrupt
+    
+    mpsz  p1
+    rnd   p0:x, p1:x
+    rnd   p0:y, P1:y
+    cmov  p0
+    jmp   end
+    
+end:
+    RET
+
+.SOLDER
+    ret
+
+
+.QUEEN
+    gt   [satiety], 300
+    jt   born_new_worker
+    ceat
+    jmp  end
+    
+born_new_worker:
+    ccwr
+    
+end:
+    ret
+
+/*
+
+if (m_iteration == 0)
+{
+    setIterrupt(Iterrupt::CloseFood, true);
+    setIterrupt(Iterrupt::FarFood, true);
+    Queen.pos = -1;
+}
+
+if (Queen.pos == -1)
+{
+    foundQueen();
+}
+
+setIterrupt(Iterrupt::CloseFood, false)
+setIterrupt(Iterrupt::FarFood, false)
+
+if (IterruptReason == Iterrupt::CloseFood || IterruptReason == Iterrupt::FarFood)
+{
+    takeFood();
+    return;
+}
+
+if (m_satiety < 30.0 && m_cargo > 0.0)
+{
+    command(Eat);
+    return;
+}
+
+if (m_cargo > 0 && Queen.pos() != -1)
+{
+    command(Care, Queen.pos());
+    return;
+}
+
+setIterrupt(Iterrupt::CloseFood, true)
+setIterrupt(Iterrupt::FarFood, true)
+
+move();
+
+*/

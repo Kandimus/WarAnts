@@ -10,66 +10,18 @@
 #include "stringex.h"
 #include "uniint.h"
 
+#include "AntDefinition.h"
 #include "AntCommand.h"
 
 namespace WarAnts
 {
 
 class Player;
-
 using PlayerPtr = std::shared_ptr<Player>;
 
-namespace Interrupt
-{
-
-enum Type : uint16_t
-{
-    CommandAborted = 0x0001,     // 
-    CommandCompleted = 0x0002,   // 
-    WasAttacked = 0x0004,        // set in Ant::damage
-    CloseEnemy = 0x0008,         // set in Battle::processingInterrupt
-    FarEnemy = 0x0010,           // set in Battle::processingInterrupt
-    CloseFood = 0x0020,          // set in Battle::processingInterrupt
-    FarFood = 0x0040,            // set in Battle::processingInterrupt
-    LowSatiety = 0x0080,         // set in Ant::endTurn
-    MiddleSatiety = 0x0100,      // set in Ant::endTurn
-    LowHealth = 0x0200,          // set in Ant::endTurn
-    MiddleHealth = 0x0400,       // set in Ant::endTurn
-    QueenUnderAttack = 0x0800,   // set in Battle::processingInterrupt
-    ReceivedMessage = 0x1000,    //TODO Not implemented
-    Reserved_2000,
-    Reserved_4000,
-    Timer = 0x8000,              //TODO Not implemented
-};
-
-}
-
-class Ant
+class Ant : public AntDefinition
 {
 public:
-    enum Type : uint8_t
-    {
-        Queen = 0,
-        Solder,
-        Worker,
-
-        __MAX,
-    };
-
-    enum Status
-    {
-        Life = 0,
-        Dead,
-    };
-
-    enum DeathReason
-    {
-        StillAlife = 0,
-        KilledByAnt = 1,
-        Hunger,
-        PlayerLoose,
-    };
-
     Ant() = default;
     Ant(const nlohmann::json& json, Type type);
     Ant(const Ant& ant) = default;
@@ -90,6 +42,8 @@ public:
     std::string typeToString() const;
     Status status() const { return m_status; }
     int16_t foodPerTurn() const { return m_foodPerTurn; }
+    int16_t turnToWorker() const { return m_turnToWorker; }
+    int16_t turnToSolder() const { return m_turnToSolder; }
 
     bool isWorker() const { return m_type == Type::Worker; }
     bool isSolder() const { return m_type == Type::Solder; }
@@ -144,7 +98,7 @@ public:
 
     uint32_t lifeCount() const { return m_lifeCount; }
 
-    std::string toString() const { return su::String_format2("Ant #%i ", m_id) + m_pos.toString(); }
+    std::string toString() const;
 
 protected:
     bool checkDie();
